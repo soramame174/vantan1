@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}アカウント作成{% endblock %}
+{% block h1 %}アカウント作成{% endblock %}
+{% block content %}
+
+<form method="post" class="p-4 m-4 bg-light border border-color rounded form-group">
+    {% csrf_token %}
+    <input type="text" name="username" class="form-control my-4" placeholder="ユーザー ID">
+    <input type="text" name="display_name" class="form-control my-4" placeholder="表示名">
+    <small class="mb-2 d-block text-start" style="color: #ff4b96;">※ 表示名はプロフィールや投稿ユーザーなどで表示されます。</small>
+    <input type="password" name="password1" id="password1" class="form-control mt-4" placeholder="パスワード">
+    <input type="password" name="password2" id="password2" class="form-control mt-4" placeholder="パスワード確認用">
+    <input type="checkbox" onclick="myFunction()" ><p style="color: #ff4b96;"Show >Password(パスワードを見る)</p>
+    <small class="mb-2 d-block text-start" style="color: #ff4b96;">パスワードは、大文字小文字、数字、特殊文字を組み合わせて8文字以上で設定してください。</small>
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <p>{{ error|escape }}</p>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <p>{{ error|escape }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <button type="submit" class="btn btn-success m-2">アカウント作成</button>
+    <h6><br></h6>
+    <a class="nav-link m-2" href="{% url 'accounts:login' %}">ログインはこちら</a>
+</form>
+
+<script>
+function myFunction() {
+  var x = document.getElementById("password1");
+  var y = document.getElementById("password2");
+  if (x.type === "password") {
+    x.type = "text";
+    y.type = "text";
+  } else {
+    x.type = "password";
+    y.type = "password";
+  }
+}
+</script>
+{% endblock %}

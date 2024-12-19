@@ -1,0 +1,271 @@
+{% load static %}
+
+<!doctype html>
+<html lang="ja">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" integrity="sha384-PJsj/BTMqILvmcej7ulplguok8ag4xFTPryRq8xevL7eBYSmpXKcbNVuy+P0RMgq" crossorigin="anonymous">
+
+        <title>{% block title %}{% endblock title %}| フリー音楽アプリ</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'ongaku/css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}?v=1.0">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+        <style>
+            /* 基本的なテーマ設定 */
+            body {
+                background-color: #becce8;
+                color: #565656;
+                transition: background-color 0.5s, color 0.5s;
+            }
+        
+            .navbar {
+                background-color: #f4e4f2 !important;
+            }
+
+
+            .dark-mode .navbar-nav .nav-link {
+                color: rgba(231, 66, 117, 1) !important;
+            }
+        
+            .dark-mode .navbar-nav .nav-link:hover {
+                color: #f4f4f4 !important;
+            }
+        
+            .navbar-toggler-icon {
+                background-color: rgba(231, 66, 117, 1); /* ハンバーガーメニューの色をピンクに変更 */
+            }
+
+            .favorite-list {
+                padding: 20px;
+                border: 2px solid #ffc7e8;
+                border-radius: 10px;
+            }
+        
+            button {
+                background-color: #ff2583;
+                color: #f4f4f4;
+                border: none;
+                padding: 10px 30px;
+                border-radius: 5px;
+            }
+        
+            a {
+                color: rgb(112, 112, 112) !important;
+            }
+        
+            a:hover {
+                color: #ff4081 !important;
+            }
+        
+            h1, h2, h3, h4, .h5 {
+                color: #ff4081;
+            }
+        
+            footer {
+                background-color: #f8bbd0;
+                padding: 20px 0;
+                text-align: center;
+                color: #d7f6ff;
+            }
+        
+            input[type="text"], input[type="password"], input[type="email"], input[type="form-control"] div[class="rounded"] {
+                border: 1px solid #ffdae7;
+                padding: 10px;
+                border-radius: 5px;
+                width: 100%;
+            }
+
+            input[type="kensaku"] {
+                margin-right: 100px;
+                width: 100px;
+            }
+        
+            input[type="text"]:focus, input[type="password"]:focus, input[type="email"] .focus {
+                border-color: #ff4081;
+                outline: none;
+            }
+
+            div[type="kasane"] {
+                background-color: #333333;
+            }
+
+            div[type="tokubetu"] {
+                border-color: #ff4081;
+                border: 2px solid #ff4081 !important;
+                background-color: #ffff;
+            }
+
+            .dark-mode div[type="tokubetu"] {
+                border-color: #333333;
+                background-color: #333333;
+            }
+        
+            /* ダークモード */
+            .dark-mode {
+                background-color: #181818;
+                color: #f4f4f4;
+            }
+        
+            .dark-mode .navbar {
+                background-color: #333333 !important;
+                border: 2xp solid #ff4081 !important;
+            }
+        
+            .dark-mode footer {
+                background-color: #222222;
+                color: #b4b4b4;
+            }
+        
+            .dark-mode .navbar-nav .nav-link {
+                color: #f4f4f4 !important;
+            }
+        
+            .dark-mode .navbar-nav .nav-link:hover {
+                color: #ff4081 !important;
+            }
+        
+            .dark-mode .p-4 {
+                background-color: #333333;
+                color: #f4f4f4;
+            }
+        
+            /* モバイル端末への対応 */
+            @media (max-width: 768px) {
+                body {
+                    font-size: 20px;
+                }
+        
+                .navbar-nav {
+                    width: 100%;
+                    flex-direction: column;
+                    text-align: center;
+                    font-display: center;
+                }
+        
+                .ongakutuika {
+                    left: 200px;
+                    transform: none;
+                }
+        
+                .navbar-nav form {
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
+                }
+        
+                .navbar-nav form input {
+                    margin-top: 10px;
+                    max-width: 340px;
+                    height: 25px;
+                }
+            }
+        
+            /* ピンク背景の時に文字色を変更 */
+            .navbar-dark .navbar-nav .nav-link,
+            .navbar-nav form input {
+                color: #ff4081 !important;
+            }
+        
+            .navbar-dark .navbar-nav .nav-link:hover {
+                color: #f4f4f4 !important;
+            }
+        
+            /* 検索フォームの配置 */
+            .search-form {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                max-width: 300px;
+                margin-left: 20px;
+            }
+            .search-form input {
+                width: 100%;
+                height: 30px;
+                border-radius: 20px;
+                border: 1px solid #ff4081;
+                padding-left: 10px;
+            }
+        </style>
+        
+    </head>
+    <body id="body">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span> <!-- ハンバーガーメニューの色をピンクに変更 -->
+                </button>
+                <a class="navbar-brand" style="margin: 0 auto;" href="#">フリー音楽アプリ</a>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link mx-3" href="{% url 'list-ongaku' %}">音楽一覧</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mx-3" href="{% url 'create-ongaku' %}">音楽登録</a>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link mx-1" onclick="toggleDarkMode()">◯</button>
+                        </li>
+                        {% if request.user.is_authenticated %}
+                            <li class="nav-item">
+                                <form method="post" action="{% url 'accounts:logout' %}">
+                                    {% csrf_token %}
+                                    <button class="nav-link" type="submit">ログアウト</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'accounts:login' %}">ログイン</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'accounts:signup' %}">会員登録</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    
+                </div>
+            </div>
+        </nav>
+
+        <!-- 常に表示される検索フォーム -->
+        <div class="search-form">
+            <form method="GET" action="{% url 'search' %}">
+                <p></p>
+                <input type="text kensaku" name="query" placeholder="検索" aria-label="Search">
+                <p></p>
+            </form>
+        </div>
+        
+        <div class="p-4">
+            <h1>{% block h1 %}{% endblock %}</h1>
+            {% block content %}{% endblock content %}
+        </div>
+
+        <footer>
+            <p>&copy; 2024 フリー音楽アプリ</p>
+        </footer>
+
+        <script>
+            // ページ読み込み時に、localStorageからモード設定を読み込む
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+
+            // ダークモード切り替え
+            function toggleDarkMode() {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                // localStorageに設定を保存
+                localStorage.setItem('darkMode', isDarkMode);
+            }
+        </script>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

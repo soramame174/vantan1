@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}音楽を追加する{% endblock %}
+
+<style>
+
+/* Bootstrapのスタイルが影響しないように調整 */
+input[type="submit"], button {
+    background-color: #ff2583 !important;
+    color: #f4f4f4 !important;
+    border: none !important;
+    padding: 10px 30px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+}
+
+input[type="submit"]:hover, button:hover {
+    background-color: #ff4081 !important;
+}
+
+
+/* ピンク系の色 */
+body {
+    background-color: #ffffff; /* 淡いピンク */
+    color: #565656; /* 文字色を暗めに */
+}
+
+.navbar {
+    background-color: #ffcaf1 !important; /* 少し落ち着いたピンク */
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgb(112, 112, 112) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #ff4081 !important; /* ホバー時に明るいピンクに */
+}
+
+button, input[type="submit"] {
+    background-color: #ff2583; /* 明るいピンク */
+    color: #f4f4f4;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 20px; /* ボタンに余白を追加 */
+    cursor: pointer;
+}
+
+button:hover, input[type="submit"]:hover {
+    background-color: #ff4081; /* ホバー時の色変更 */
+}
+
+h1, h2, h3, h4 {
+    color: #ff4081; /* 見出しをピンク */
+}
+
+textarea[name="text"], input[name="category"], input[name="title"] {
+    border: 2px solid #f06292; /* ピンク系の枠線 */
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%; /* フル幅に設定 */
+    margin-bottom: 20px; /* フィールド間に余白を追加 */
+}
+
+textarea[name="text"] {
+    height: 150px; /* 高さを設定 */
+}
+
+form {
+    max-width: 600px; /* フォーム全体の幅を制限 */
+    margin: 0 auto; /* フォームを中央寄せ */
+    padding: 20px;
+    border: 1px solid #ffdae7; /* フォーム枠線 */
+    border-radius: 10px;
+    background-color: #fff6fa; /* フォーム背景を淡いピンクに */
+}
+</style>
+
+{% block content %}
+    <form method="post" enctype="multipart/form-data">  <!-- enctype を追加 -->
+        {% csrf_token %}
+        
+        <div class="p-2">
+            <label for="title">タイトル</label>
+            {{ form.title }}
+        </div>
+
+        <div class="p-2 form-group">
+            <label for="id_audio_file">音楽ファイル</label>
+            <input type="file" name="audio_file" id="id_audio_file"> <!-- 手動でファイルフィールドをレンダリング -->
+        </div>
+        
+        
+
+        <div class="p-2">
+            <label for="thumbnail">サムネイル</label>
+            {{ form.thumbnail }}
+        </div>
+
+        <!-- 歌詞入力 -->
+        <div>
+            <label for="id_text">歌詞</label>
+            <textarea id="id_text" name="text" rows="10" cols="30">{{ form.text.value }}</textarea>
+        </div>
+        
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">保存</button>
+        
+
+        <div class="p-2">
+            <label for="category">カテゴリー</label>
+            {{ form.category }}
+        </div>
+
+        <div class="p-2">
+            <button type="submit">追加する</button>
+        </div>
+    </form>
+{% endblock content %}

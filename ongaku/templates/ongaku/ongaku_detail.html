@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ object.title }}{% endblock %}
+{% block h1 %}音楽詳細{% endblock %}
+
+<style>
+    /* ボーダー色をピンクに設定 */
+    .border_color {
+        border: 2px solid #ff4081 !important;
+    }
+
+    /* ボーダーが含まれているdiv要素にピンクのボーダーを指定 */
+    div.border, div[class*="border"] {
+        border-color: #ff4081 !important;
+    }
+
+    /* ラベル、タイトル、歌詞、レビューなどのテキストをピンクに */
+    label, h2, h6, p, h3, .h4 {
+        color: #ff4081 !important;
+    }
+
+    /* ボーダーを囲むpタグの色もピンクに */
+    p {
+        color: #ff4081 !important;
+    }
+
+    /* レビューのタイトル色 */
+    h3, .h4 {
+        color: #ff4081 !important;
+    }
+
+    /* ダークモード時の修正 */
+    .dark-mode .bg-light {
+        background-color: #333333 !important;
+        color: #f4f4f4 !important;
+    }
+
+    .dark-mode .border_color {
+        border-color: #ff4081 !important;
+    }
+
+    .dark-mode label, .dark-mode h2, .dark-mode h6, .dark-mode p, .dark-mode h3, .dark-mode .h4 {
+        color: #ff4081 !important;
+    }
+
+    .dark-mode .btn {
+        background-color: #ff4081;
+        color: #ffffff;
+    }
+
+    .dark-mode .border_color {
+        border-color: #ff4081 !important;
+    }
+
+    .dark-mode .tokubetu {
+        background-color: #333333;
+    }
+</style>
+
+{% block content %}
+    <div class="border border_color p-4 mb-2" type="tokubetu">
+        {% if object.thumbnail %}
+            <img src="{{ ongaku.thumbnail.url }}" class="img-thumbnail" style="width: 600px; height: auto;" />
+            <h1><br></h1>
+        {% endif %}
+        <div class="c-3 m-4 bg-light rounded" type="kasane">
+            
+            <div class="border border_color p-4 mb-4">
+
+                
+                
+                <!-- 音楽タイトル -->
+                <h2 class="h2 custom-title">{{ object.title }}</h2>
+                
+                <audio id="audioPlayer{{ object.pk }}" controls style="width: 100%; max-width: 100%;">
+
+                    {% if object.audio_file %}
+                        <source src="{{ object.audio_file.url }}" type="audio/mpeg">  <!-- MP3形式の場合 -->
+                        <!-- 例: OGG形式もサポートする場合 -->
+                        <!-- <source src="{{ object.audio_file.url }}" type="audio/ogg"> -->
+                        Your browser does not support the audio element.
+                    {% else %}
+                        <p>音声ファイルがありません。</p>
+                    {% endif %}
+                </audio>
+                
+                <script>
+                    let remainingTimer;
+                    let remainingTime; // ここで変数を定義
+
+                                        document.addEventListener('DOMContentLoaded', function () {
+                        const audioPlayer = document.getElementById('audioPlayer{{ object.pk }}');
+                        if (audioPlayer) {
+                            // 再生終了時に再生回数をインクリメント
+                            audioPlayer.addEventListener('ended', function () {
+                                incrementPlayCount({{ object.pk }});
+                            });
+                        }
+                    });
+
+                    function incrementPlayCount(songId) {
+                        fetch(`/increment-play-count/${songId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': getCookie('csrftoken'),  // CSRFトークンをヘッダーに追加
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const playCountElement = document.getElementById(`playCount${songId}`);
+                                if (playCountElement) {
+                                    playCountElement.textContent = `再生回数: ${data.play_count}`;
+                                }
+                            }
+                        });
+                    }
+
+                    function getCookie(name) {
+                        let cookieValue = null;
+                        if (document.cookie && document.cookie !== '') {
+                            const cookies = document.cookie.split(';');
+                            for (let i = 0; i < cookies.length; i++) {
+                                const cookie = cookies[i].trim();
+                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                    }
+
+                </script>
+                
+                
+                
+                
+                
+                
+
+                <!-- 歌詞 -->
+                <div>
+                    <label>歌詞</label>
+                    <div class="border border_color p-4 mb-2">
+                        <p style="white-space: pre-line;">{{ object.text|default:"なし" }}</p>
+                    </div>
+                    <!-- 歌詞セクション -->
+                    <span>(投稿ユーザー: {{ object.user.get_full_name|default:object.user.username }})</span>
+                    <h4><br></h4>
+                </div>
+
+                <div>
+                    <p id="playCount{{ object.pk }}">再生回数: {{ object.play_count }}</p>
+                </div>
+                
+                <!-- カテゴリ -->
+                <h6 class="card-title mt-4">デバッグ: カテゴリの値は "{{ object.category }}" です。</h6>
+                <h6 class="card-title mt-4">カテゴリ: {{ object.category|default:"なし" }}</h6>
+                <h4><br><br></h4>
+
+                <!-- アクションリンク -->
+                <div>
+                    <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+                    {% if object.user == request.user %}
+                        <a href="{% url 'update-ongaku' object.pk %}" class="btn">編集</a>
+                        <a href="{% url 'delete-ongaku' object.pk %}" class="btn">削除する</a>
+                    {% else %}
+                        <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank">シェアする</a>
+                        <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- レビュー -->
+            <div class="border border_color p-4 mb-4">
+                <label>レビュー<br></label>
+                {% if object.review_set.exists %}
+                    {% for review in object.review_set.all %}
+                        <div class="border border_color p-4 mb-2">
+                            <div>
+                                <h3 class="h4">{{ review.title }}</h3>
+                                <div class="px-2">
+                                    <!-- レビューセクション -->
+                                    <span>(投稿ユーザー: {{ review.user.get_full_name|default:review.user.username }})</span>
+                                    <p>内容: {{ review.text }}</p>
+                                    <p>評価: {{ review.rate }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h6>現在なし</h6>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

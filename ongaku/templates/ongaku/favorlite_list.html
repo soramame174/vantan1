@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% load custom_tags %}  # カスタムテンプレートタグを読み込む
+
+{% block title %}お気に入り一覧{% endblock %}
+{% block h1 %}お気に入り一覧{% endblock %}
+
+<div class="p-4 m-4 bg-light border rounded" style="border: 2px solid #ffc7e8 !important;">
+    <h2 class="h2 custom-title">お気に入りの音楽</h2>
+    {% if favorites %}
+        <p>お気に入り {{ favorites.count }} 件</p>
+    {% endif %}
+
+    <a href="{% url 'favorite_list' %}" class="btn btn-primary">お気に入り一覧</a>
+
+    {% if favorites %}
+        <ul>
+            {% for favorite in favorites %}
+                <li>
+                    <a href="{% url 'ongaku-detail' favorite.ongaku.pk %}">
+                        {{ favorite.ongaku.title|truncatechars:30 }}  </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>お気に入りの音楽はありません。</p>
+    {% endif %}
+</div>

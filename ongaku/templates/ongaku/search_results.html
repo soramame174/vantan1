@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    {% if search_history %}
+    <h3>検索履歴</h3>
+    <ul>
+        {% for history_item in search_history %}
+            <li>
+                <a href="{% url 'search' %}?query={{ history_item }}">{{ history_item }}</a>
+                <form method="POST" action="{% url 'delete_history' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="history_item" value="{{ history_item }}">
+                    <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
+
+
+    <h2>検索結果</h2>
+    {% if search_results%}
+        <ul>
+            {% for song in search_results %}
+                <li>{{ song.title }}</li>
+                {{ song.search_count }} 回検索されました
+                <h6 class="card-title mt-4">カテゴリ: {{ song.category|default:"なし" }}</h6>
+                <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>検索結果はありません。</p>
+    {% endif %}
+
+    <h2>おすすめ</h2>
+    <ul>
+        {% if recommended_songs %}
+            {% for song in recommended_songs %}
+                <li>{{ song.title }}</li>
+                <h6 class="card-title mt-4">カテゴリ: {{ song.category|default:"なし" }}</h6>
+                <p>{{ song.search_count }} 回検索されました</p>
+                <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
+
+            {% endfor %}
+        {% else %}
+            <p>おすすめ曲を表示しています...</p>
+            <p>ランダムなおすすめ曲:</p>
+            <ul>
+                {% for song in random_songs %}
+                    <li>{{ song.title }}</li>
+                    <h6 class="card-title mt-4">カテゴリ: {{ song.category|default:"なし" }}</h6>
+                    <p>{{ song.search_count }} 回検索されました</p>
+                    <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
+
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}音楽修正{% endblock %}
+
+{% block content %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- タイトル入力 -->
+        <div class="p-2">
+            <label for="title">タイトル</label>
+            {{ form.title }}
+        </div>
+        
+        <!-- 音楽ファイルの表示 -->
+        <div class="p-2">
+            {% if form.instance.audio_file %}
+                <p>現在の音楽ファイル:</p>
+                <audio controls>
+                    <source src="{{ form.instance.audio_file.url }}" type="audio/mpeg">
+                    お使いのブラウザは音声再生に対応していません。
+                </audio>
+            {% else %}
+                <p>音楽ファイルがありません。</p>
+            {% endif %}
+            
+            <label for="id_audio_file">新しい音楽ファイルを選択</label>
+            <input type="file" name="audio_file">
+        </div>
+        
+        <!-- サムネイルの表示 -->
+        <div class="p-2">
+            <label for="thumbnail">現在のサムネイル</label>
+            {{ form.thumbnail }}
+        </div>
+
+        <!-- 歌詞入力 -->
+        <div>
+            <label for="id_text">歌詞</label>
+            <textarea id="id_text" name="text" rows="10" cols="30">{{ form.text.value }}</textarea>
+        </div>
+        
+        
+        
+        <!-- カテゴリーの選択 -->
+        <div class="p-2">
+            <label for="category">カテゴリー</label>
+            {{ form.category }}
+        </div>
+        
+        <!-- 修正ボタン -->
+        <div class="p-2">
+            <button type="submit" class="btn btn-success mt-4" value="修正する">修正する</button>
+        </div>
+    </form>
+{% endblock %}
