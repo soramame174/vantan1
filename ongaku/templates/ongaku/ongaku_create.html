@@ -102,18 +102,17 @@ form {
         <div>
             <label for="id_text">歌詞</label>
             <textarea id="id_text" name="text" rows="10" cols="30">{{ form.text.value }}</textarea>
-        </div>
-        
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">保存</button>
-        
+        </div>    
 
         <div class="p-2">
-            <label for="category">カテゴリー</label>
+            <label for="category">ジャンル</label>
             {{ form.category }}
         </div>
-
+        <div class="p-2">
+            <label for="category">キーワード</label>
+            {{ form.custom_category }}
+            <span>検索時に見つかりやすくなります</span>
+        </div>
         <div class="p-2">
             <button type="submit">追加する</button>
         </div>

@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse, reverse_lazy
 from .forms import OngakuForm
-from .models import Ongaku, Review, Category
+from .models import Ongaku, Review, UserProfile
 from .consts import ITEM_PER_PAGE
 from django.contrib.auth.decorators import login_required
 from django.views.generic import (
@@ -17,6 +17,31 @@ from django.views.generic import (
     DeleteView,
     UpdateView
     )
+from django.contrib.auth import login, authenticate
+def register(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        display_name = request.POST['display_name']
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+
+        if password1 == password2:
+            user = User.objects.create_user(username=username, password=password1)
+            user_profile = UserProfile(user=user, display_name=display_name)
+            user_profile.save()
+            login(request, user)
+            return redirect('home')  # ログイン後のリダイレクト先
+
+    return render(request, 'accounts/register.html')
+
+def get_user_display_name(self, obj):
+    try:
+        # UserProfileが存在するか確認して、そのdisplay_nameを取得
+        return obj.user.profile.display_name if obj.user.profile and obj.user.profile.display_name else obj.user.username
+    except UserProfile.DoesNotExist:
+        # UserProfileが存在しない場合は、usernameを返す
+        return obj.user.username
+
 
 def recommended_music(request):
     # 再生回数が多い順に取得（上位5件）
@@ -28,17 +53,6 @@ COMMON_CATEGORIES = [
     "ポップ", "ロック", "ジャズ", "クラシック", "エレクトロニカ",
     "ヒップホップ", "R&B", "カントリー", "ブルース", "その他"
 ]
-
-
-def create_ongaku(request):
-    if request.method == "POST":
-        form = OngakuForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('some_success_page')
-    else:
-        form = OngakuForm()
-    return render(request, 'ongaku/create_ongaku.html', {'form': form})
 
 
 def music_list(request):
@@ -108,70 +122,48 @@ def add_ongaku(request):
 
 def search_view(request):
     query = request.GET.get('query', '')
-    search_results1 = Ongaku.objects.filter(Q(title__icontains=query) | Q(category__icontains=query)) if query else []
     
-    # 検索履歴をセッションに保存
+    if query:
+        search_results = Ongaku.objects.filter(
+            Q(title__icontains=query) |
+            Q(category__name__icontains=query) |
+            Q(custom_category__icontains=query) |
+            Q(user__profile__display_name__icontains=query)
+        ).annotate(
+            match_count=Count('title')
+        ).order_by('-match_count')
+    else:
+        search_results = []
+
     search_history = request.session.get('search_history', [])
     if query and query not in search_history:
         search_history.append(query)
-        request.session['search_history'] = search_history  # セッションを更新
-    
-    search_results1 = Ongaku.objects.filter(Q(title__icontains=query)| Q(category__icontains=query)).annotate(
-    match_count=Count('title')
-    ).order_by('-match_count') if query else []
+        request.session['search_history'] = search_history
 
-    # 検索回数のカウントアップ
     if query:
-        for song in search_results1:
+        for song in search_results:
             song.search_count += 1
             song.save()
 
-    # おすすめ曲の取得（検索回数が0回のものを除外）
+    # おすすめ曲の取得
+    recommended_songs = []
     if search_history:
         recommended_songs = Ongaku.objects.filter(
             title__icontains=search_history[-1]
         ).exclude(search_count=0)[:5]
-    else:
-        recommended_songs = []
     
-    # おすすめ曲がない場合、ランダムな曲を取得（検索回数が0回のものを除外）
-    if not recommended_songs:
-        random_songs = Ongaku.objects.exclude(search_count=0).order_by('?')[:5]  # ランダムに5曲を表示
-    else:
-        random_songs = []
+    # ランダムな曲の取得
+    random_songs = Ongaku.objects.exclude(search_count=0).order_by('?')[:5] if not recommended_songs else []
 
     return render(request, 'ongaku/search_results.html', {
-        'search_results': search_results1,
+        'search_results': search_results,
         'query': query,
         'recommended_songs': recommended_songs,
         'random_songs': random_songs,
         'search_history': search_history,
     })
 
-    # query = request.GET.get('query', '')  # クエリパラメータを取得
-    # ongakus = Ongaku.objects.all()  # 初期状態では全ての曲を取得
 
-    # # クエリが入力されている場合、タイトルやカテゴリでフィルタリング
-    # if query:
-    #     ongakus = ongakus.filter(Q(title__icontains=query) | Q(category__icontains=query))
-
-    # # ページネーション
-    # paginator = Paginator(ongakus, 10)  # 1ページに10件表示
-    # page_number = request.GET.get('page')
-    # page_obj = paginator.get_page(page_number)
-
-    # # 人気の曲を取得（例として、検索回数が多い曲を表示）
-    # popular_songs = Ongaku.objects.annotate(
-    #     annotated_search_count=F('search_count')
-    # ).order_by('-annotated_search_count')[:5]
-
-    # return render(request, 'ongaku/search_results.html', {
-    #     'form': SearchForm(),  # フォームをテンプレートに渡す場合
-    #     'query': query,  # クエリパラメータをテンプレートに渡す
-    #     'page_obj': page_obj,  # ページネーション用のオブジェクト
-    #     'popular_songs': popular_songs,  # 人気の曲
-    # })
-    
 
 def detail_view(request, pk):
     object = get_object_or_404(Ongaku, pk=pk)
@@ -269,7 +261,7 @@ class DetailOngakuView(LoginRequiredMixin, DetailView):
 class CreateOngakuView(LoginRequiredMixin, CreateView):
     template_name = 'ongaku/ongaku_create.html'
     model = Ongaku
-    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file')
+    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file', 'custom_category')
     success_url = reverse_lazy('list-ongaku')
 
     def form_valid(self, form):
@@ -308,7 +300,7 @@ class DeleteOngakuView(LoginRequiredMixin, DeleteView):
 
 class UpdateOngakuView(LoginRequiredMixin, UpdateView):
     model = Ongaku
-    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file')
+    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file', 'custom_category')
     template_name = 'ongaku/ongaku_update.html'
 
     def update_ongaku(request, pk):

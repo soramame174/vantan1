@@ -25,8 +25,10 @@
         <ul>
             {% for song in search_results %}
                 <li>{{ song.title }}</li>
-                {{ song.search_count }} 回検索されました
-                <h6 class="card-title mt-4">カテゴリ: {{ song.category|default:"なし" }}</h6>
+                <span>(投稿ユーザー: {{ song.user.get_full_name|default:song.user.username }})</span>
+                <p>{{ song.search_count }} 回検索されました</p>
+                <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
                 <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
             {% endfor %}
         </ul>
@@ -39,8 +41,10 @@
         {% if recommended_songs %}
             {% for song in recommended_songs %}
                 <li>{{ song.title }}</li>
-                <h6 class="card-title mt-4">カテゴリ: {{ song.category|default:"なし" }}</h6>
+                <span>(投稿ユーザー: {{ song.user.get_full_name|default:song.user.username }})</span>
                 <p>{{ song.search_count }} 回検索されました</p>
+                <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
                 <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
 
             {% endfor %}
@@ -50,8 +54,10 @@
             <ul>
                 {% for song in random_songs %}
                     <li>{{ song.title }}</li>
-                    <h6 class="card-title mt-4">カテゴリ: {{ song.category|default:"なし" }}</h6>
+                    <span>(投稿ユーザー: {{ song.user.get_full_name|default:song.user.username }})</span>
                     <p>{{ song.search_count }} 回検索されました</p>
+                    <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                    <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
                     <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
 
                 {% endfor %}

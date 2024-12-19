@@ -10,10 +10,14 @@ RATE_CHOICES = [(x, str(x)) for x in range(0, MAX_PATE + 1)]
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     display_name = models.CharField(max_length=50, verbose_name="表示名", blank=True, null=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=['display_name']),  # display_nameにインデックスを追加
+        ]
 
     def __str__(self):
         return self.display_name if self.display_name else self.user.username
-
+    
 
 COMMON_CATEGORIES = [
     ('ポップ', 'ポップ'),
@@ -61,6 +65,12 @@ class Ongaku(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_user_display_name(self):
+        # ユーザーの表示名を取得
+        if hasattr(self.user, 'profile') and self.user.profile:
+            return self.user.profile.display_name if self.user.profile.display_name else self.user.username
+        return self.user.username  # UserProfileが存在しない場合は、usernameを表示
 
     def get_text_display(self):
         return self.text if self.text else "なし"

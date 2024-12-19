@@ -4,27 +4,23 @@
 {% block h1 %}音楽詳細{% endblock %}
 
 <style>
-    /* ボーダー色をピンクに設定 */
+    /* 基本的なデザイン */
     .border_color {
         border: 2px solid #ff4081 !important;
     }
 
-    /* ボーダーが含まれているdiv要素にピンクのボーダーを指定 */
     div.border, div[class*="border"] {
         border-color: #ff4081 !important;
     }
 
-    /* ラベル、タイトル、歌詞、レビューなどのテキストをピンクに */
     label, h2, h6, p, h3, .h4 {
         color: #ff4081 !important;
     }
 
-    /* ボーダーを囲むpタグの色もピンクに */
     p {
         color: #ff4081 !important;
     }
 
-    /* レビューのタイトル色 */
     h3, .h4 {
         color: #ff4081 !important;
     }
@@ -55,6 +51,73 @@
     .dark-mode .tokubetu {
         background-color: #333333;
     }
+
+    /* スマホ版のレスポンシブデザイン */
+    @media (max-width: 768px) {
+        .img-thumbnail {
+            width: 100%;
+            height: auto;
+        }
+
+        .custom-title {
+            font-size: 1.5rem;
+        }
+
+        .border {
+            padding: 10px;
+        }
+
+        /* キーワードとジャンルをきれいに表示 */
+        .category-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .category-info h6 {
+            font-size: 1rem;
+            margin: 5px 0;
+        }
+
+        /* レビューセクション */
+        .review-section {
+            margin-top: 20px;
+        }
+
+        .review-section h4 {
+            font-size: 1.2rem;
+        }
+
+        .review-section .review-item {
+            margin-bottom: 20px;
+        }
+
+        .review-section .review-item h3 {
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* デスクトップ版のスタイル */
+    @media (min-width: 769px) {
+        .category-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .category-info h6 {
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            font-size: 1rem;
+        }
+    }
 </style>
 
 {% block content %}
@@ -67,13 +130,10 @@
             
             <div class="border border_color p-4 mb-4">
 
-                
-                
                 <!-- 音楽タイトル -->
                 <h2 class="h2 custom-title">{{ object.title }}</h2>
                 
                 <audio id="audioPlayer{{ object.pk }}" controls style="width: 100%; max-width: 100%;">
-
                     {% if object.audio_file %}
                         <source src="{{ object.audio_file.url }}" type="audio/mpeg">  <!-- MP3形式の場合 -->
                         <!-- 例: OGG形式もサポートする場合 -->
@@ -84,69 +144,12 @@
                     {% endif %}
                 </audio>
                 
-                <script>
-                    let remainingTimer;
-                    let remainingTime; // ここで変数を定義
-
-                                        document.addEventListener('DOMContentLoaded', function () {
-                        const audioPlayer = document.getElementById('audioPlayer{{ object.pk }}');
-                        if (audioPlayer) {
-                            // 再生終了時に再生回数をインクリメント
-                            audioPlayer.addEventListener('ended', function () {
-                                incrementPlayCount({{ object.pk }});
-                            });
-                        }
-                    });
-
-                    function incrementPlayCount(songId) {
-                        fetch(`/increment-play-count/${songId}/`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRFToken': getCookie('csrftoken'),  // CSRFトークンをヘッダーに追加
-                            },
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const playCountElement = document.getElementById(`playCount${songId}`);
-                                if (playCountElement) {
-                                    playCountElement.textContent = `再生回数: ${data.play_count}`;
-                                }
-                            }
-                        });
-                    }
-
-                    function getCookie(name) {
-                        let cookieValue = null;
-                        if (document.cookie && document.cookie !== '') {
-                            const cookies = document.cookie.split(';');
-                            for (let i = 0; i < cookies.length; i++) {
-                                const cookie = cookies[i].trim();
-                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                    break;
-                                }
-                            }
-                        }
-                        return cookieValue;
-                    }
-
-                </script>
-                
-                
-                
-                
-                
-                
-
                 <!-- 歌詞 -->
                 <div>
                     <label>歌詞</label>
                     <div class="border border_color p-4 mb-2">
                         <p style="white-space: pre-line;">{{ object.text|default:"なし" }}</p>
                     </div>
-                    <!-- 歌詞セクション -->
                     <span>(投稿ユーザー: {{ object.user.get_full_name|default:object.user.username }})</span>
                     <h4><br></h4>
                 </div>
@@ -155,9 +158,12 @@
                     <p id="playCount{{ object.pk }}">再生回数: {{ object.play_count }}</p>
                 </div>
                 
-                <!-- カテゴリ -->
-                <h6 class="card-title mt-4">デバッグ: カテゴリの値は "{{ object.category }}" です。</h6>
-                <h6 class="card-title mt-4">カテゴリ: {{ object.category|default:"なし" }}</h6>
+                <!-- ジャンル情報 -->
+                <div class="category-info">
+                    <h6 class="card-title mt-4">キーワード: {{ object.custom_category }}</h6>
+                    <h6 class="card-title mt-4">ジャンル: {{ object.category|default:"なし" }}</h6>
+                </div>
+
                 <h4><br><br></h4>
 
                 <!-- アクションリンク -->
@@ -174,15 +180,15 @@
             </div>
 
             <!-- レビュー -->
-            <div class="border border_color p-4 mb-4">
+            <div class="review-section">
+                <div></div>
                 <label>レビュー<br></label>
                 {% if object.review_set.exists %}
                     {% for review in object.review_set.all %}
-                        <div class="border border_color p-4 mb-2">
+                        <div class="review-item border border_color p-4 mb-2">
                             <div>
                                 <h3 class="h4">{{ review.title }}</h3>
                                 <div class="px-2">
-                                    <!-- レビューセクション -->
                                     <span>(投稿ユーザー: {{ review.user.get_full_name|default:review.user.username }})</span>
                                     <p>内容: {{ review.text }}</p>
                                     <p>評価: {{ review.rate }}</p>
