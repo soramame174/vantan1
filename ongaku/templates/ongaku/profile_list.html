@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}プロフィール設定{% endblock %}
+
+{% block content %}
+<h1>プロフィール設定</h1>
+
+<div class="c-3 m-4 bg-light rounded" type="kasane">
+    <div class="border border_color p-4 mb-4">
+        <h3>
+            表示名:
+            <a href="{% url 'profile' user.pk %}"> 
+                {% if request.user.userprofile.display_name == None %}
+                    {{ request.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                {% else %}
+                    {{ request.user.userprofile.display_name|default:"匿名" }}
+                {% endif %}
+            </a>
+            {% if user.userprofile.profile_picture %}
+                <!-- プロフィール画像を小さく表示 -->
+                <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+            {% endif %}
+            <!-- 名前とプロフィール画像を横並びに表示 -->
+        </h3>
+        <p>ユーザーID: {{ user.username|default:"なし"  }}</p>
+        {% load tz %}
+        <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y.m.d H:i" }}</p>
+        <a href="{% url 'change_display_name' %}">表示名を変更</a>
+        
+        <h3><br></h3>
+
+        <!-- 自分で作った曲 -->
+        <h3>自分の作品リスト</h3>
+
+        
+        {% for song in request.user.songs.all %}
+            <ul>
+                <li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li>
+            </ul>
+        {% empty %}
+            <h5>まだ曲を作成していません。</h5>
+        {% endfor %}
+        
+
+        <h3><br></h3>
+
+        <h3>フォルダ</h3>
+
+        {% if folders %}
+            <p>フォルダの数: {{ folders.count }}</p>
+            <ul>
+                {% for folder in folders %}
+                    <li>
+                        <h4>
+                            <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
+                            <form method="POST" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
+                            </form>
+                        </h4>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>フォルダはありません。</p>
+        {% endif %}
+
+
+
+
+        <a href="{% url 'create_folder' %}">フォルダを作成</a> 
+        <h3><br></h3>
+        <h3>お気に入り</h3>
+        {% for song in request.user.favorite_songs.all %}
+            <ul>
+                <h4>
+                    <li>
+                        <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
+                    </li>
+                </h4>
+            </ul>
+        {% empty %}
+            <p>お気に入りはありません。</p>
+        {% endfor %}
+
+
+    
+        <h3><br><br></h3>
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="btn" class="submit" type="submit">ログアウト</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .responsive-line {
+        border-bottom: 2px solid #000; /* 線の色と太さを指定 */
+        width: 100%; /* 幅を100%に設定して親要素に合わせる */
+        white-space: nowrap; /* テキストが折り返されないようにする */
+        overflow: hidden; /* 親要素からはみ出さないようにする */
+    }
+
+    /* 名前とプロフィール画像を横並びに配置 */
+    .profile-container {
+        display: flex;
+        align-items: center;
+    }
+
+    /* プロフィール画像のサイズをさらに小さく調整 */
+    .profile-picture {
+        width: 45px;  /* 画像サイズを20pxに縮小 */
+        height: 45px; /* 高さも20pxに調整 */
+        margin-left: 10px;
+        border-radius: 50%; /* 画像を丸くする */
+    }
+</style>
+
+{% endblock %}

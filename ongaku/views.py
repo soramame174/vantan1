@@ -2,12 +2,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from .models import YourModel
-from django.db.models import Avg, F, Q, Count
+from django.db.models import Avg, Q, Count
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse, reverse_lazy
-from .forms import OngakuForm
-from .models import Ongaku, Review, UserProfile
+from .forms import OngakuForm, FolderForm, UserProfileForm, Folder, AddSongToFolderForm, RegisterForm
+from .models import Ongaku, Review, UserProfile, User, Follow
+from .models import Folder
 from .consts import ITEM_PER_PAGE
 from django.contrib.auth.decorators import login_required
 from django.views.generic import (
@@ -17,27 +18,350 @@ from django.views.generic import (
     DeleteView,
     UpdateView
     )
+from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
-def register(request):
+
+from django.contrib import messages
+
+import logging
+# from django.utils import timezone
+# import pytz  # pytzをインポート
+
+logger = logging.getLogger(__name__)
+
+@login_required
+def follow_user(request, user_id):
+    followed_user = get_object_or_404(User, pk=user_id)
+    
+    # フォロー済みか確認
+    is_following = Follow.objects.filter(follower=request.user, followed=followed_user).exists()
+
+    if is_following:
+        # フォロー解除
+        Follow.objects.filter(follower=request.user, followed=followed_user).delete()
+    else:
+        # フォロー追加
+        Follow.objects.create(follower=request.user, followed=followed_user)
+
+    # フォロワー数を更新
+    follower_count = followed_user.followers.count()
+    following_count = request.user.following.count()
+
+    # プロフィールページにリダイレクト
+    return redirect('profile', user_id=user_id)
+
+
+@login_required
+def unfollow_user(request, user_id):
+    user_to_unfollow = get_object_or_404(User, id=user_id)
+    follow = Follow.objects.filter(follower=request.user, followed=user_to_unfollow)
+
+    if follow.exists():
+        follow.delete()
+
+    # フォロワー数を更新
+    follower_count = user_to_unfollow.followers.count()
+    following_count = request.user.following.count()
+
+    # プロフィールページにリダイレクト
+    return redirect('profile', user_id=user_to_unfollow.id)
+
+
+def user_profile(request, user_id):
+    """ユーザーのプロフィールページを表示"""
+    user = get_object_or_404(User, pk=user_id)  # ユーザーを取得
+    profile = user.userprofile  # ユーザーのプロフィール情報を取得
+
+    # ログインしているユーザーがそのユーザーをフォローしているかどうかを確認
+    is_following = Follow.objects.filter(follower=request.user, followed=profile.user).exists() if request.user.is_authenticated else False
+
+    # ユーザーが作成した曲を取得
+    songs = user.songs.all()
+
+    # 音楽ファイルがあるかどうかを確認
+    has_audio_file = any(song.audio_file for song in songs)  # もし音楽ファイルがある曲があればTrue
+
+    # フォロー中のユーザーを取得
+    followed_users = User.objects.filter(
+        id__in=Follow.objects.filter(follower=request.user).values('followed')
+    )  # フォロー中のユーザーを取得
+
+    # 自分のプロフィールかどうかを判定
+    is_own_profile = request.user == user  # 自分のプロフィールページの場合 True
+
+    # フォロワー数とフォロー数を取得
+    follower_count = Follow.objects.filter(followed=user).count()  # フォロワー数を取得
+    following_count = Follow.objects.filter(follower=user).count()  # フォローしているユーザー数を取得
+
+    return render(request, 'ongaku/profile.html', {
+        'profile': profile,
+        'user': user,
+        'is_following': is_following,
+        'songs': songs,
+        'followed_users': followed_users,  # フォロー中のユーザーを渡す
+        'is_own_profile': is_own_profile,  # 自分のプロフィールかどうかを渡す
+        'follower_count': follower_count,
+        'following_count': following_count,
+        'has_audio_file': has_audio_file,  # 音楽ファイルがあるかどうかのフラグを渡す
+    })
+
+
+def profile_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        display_name = request.POST['display_name']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
+        form = UserProfileForm(request.POST, instance=request.user.profile)
+        user = request.user
+        folders = user.userprofile.folders.all() if hasattr(user, 'userprofile') else []
+        
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=request.user.profile)
 
-        if password1 == password2:
-            user = User.objects.create_user(username=username, password=password1)
-            user_profile = UserProfile(user=user, display_name=display_name)
-            user_profile.save()
+    # フォロワー数とフォロー数を取得
+    follower_count = Follow.objects.filter(following=request.user).count()
+    following_count = Follow.objects.filter(follower=request.user).count()
+
+    # デバッグ用のログ出力
+    logger.debug(f"follower_count: {follower_count}, following_count: {following_count}")
+
+    return render(request, 'ongaku/profile.html', {
+        'form': form,
+        'user': request.user,
+        'folders': folders,
+        'follower_count': follower_count,
+        'following_count': following_count,
+    })
+
+
+
+@login_required
+def folder_list(request):
+    """ユーザー固有のフォルダを表示する"""
+    folders = Folder.objects.filter(user=request.user)  # ログイン中のユーザーに関連するフォルダを取得
+    return render(request, 'ongaku/folder_list.html', {'folders': folders})
+
+
+@login_required
+def add_song_to_folder(request, song_id):
+    """フォルダに音楽を追加する"""
+    song = get_object_or_404(Ongaku, id=song_id)
+    user_folders = Folder.objects.filter(user=request.user)
+
+    # すでに曲が追加されているフォルダを除外
+    existing_folders = song.folders.all()  # 既に曲が追加されているフォルダを取得
+    available_folders = user_folders.exclude(id__in=existing_folders.values('id'))
+
+    if request.method == "POST":
+        form = AddSongToFolderForm(request.POST, user=request.user, song=song)
+        if form.is_valid():
+            folder = form.cleaned_data['folder']
+            # 曲がまだそのフォルダに追加されていない場合、追加する
+            if song not in folder.songs.all():
+                folder.songs.add(song)
+                messages.success(request, f"{song.title} を {folder.name} に追加しました！")
+            else:
+                messages.info(request, f"{song.title} はすでに {folder.name} に存在します。")
+            return redirect('profile_list')
+    else:
+        # 初期データ付きフォームを作成
+        form = AddSongToFolderForm(initial={'folder': None}, user=request.user, song=song)
+
+    return render(request, 'ongaku/add_song_to_folder.html', {
+        'form': form,
+        'song': song,
+        'user_folders': available_folders  # 追加されていないフォルダだけを渡す
+    })
+
+
+
+def add_to_favorites(request, pk):
+    song = get_object_or_404(Ongaku, pk=pk)
+    user_profile = request.user.userprofile
+    if song not in user_profile.favorite_songs.all():
+        user_profile.favorite_songs.add(song)
+    else:
+        user_profile.favorite_songs.remove(song)
+    return redirect('profile')  # または適切なURLにリダイレクト
+
+def remove_song_from_folder(request, folder_id, song_id):
+    """フォルダから音楽を削除する"""
+    folder = get_object_or_404(Folder, id=folder_id, user=request.user)  # ユーザー所有のフォルダ
+    song = get_object_or_404(Ongaku, id=song_id)
+
+    if request.method == "POST":
+        if song in folder.songs.all():
+            folder.songs.remove(song)
+            messages.success(request, f"{song.title} をフォルダから削除しました。")
+        else:
+            messages.error(request, "このフォルダに指定された音楽は存在しません。")
+    return redirect('folder_detail', folder_id=folder.id)  # 適切なリダイレクト先を指定
+
+@login_required
+def toggle_favorite(request, pk):
+    ongaku = get_object_or_404(Ongaku, pk=pk)
+    if ongaku in request.user.favorite_songs.all():
+        request.user.favorite_songs.remove(ongaku)
+        favorited = False
+    else:
+        request.user.favorite_songs.add(ongaku)
+        favorited = True
+
+    # お気に入り登録者数
+    favorite_count = ongaku.favorites.count()
+
+    return JsonResponse({
+        'favorited': favorited,
+        'count': favorite_count,
+    })
+
+
+
+@login_required
+def profile(request, user_id):
+    """ユーザープロフィール表示"""
+    user_profile = request.user.userprofile
+    favorite_songs = user_profile.favorite_songs.all()  # UserProfileに保存されているお気に入りの曲を取得
+    folders = Folder.objects.filter(user=user_profile.user)  # フォルダを取得
+
+    # ログインしているユーザーがフォローしているユーザーを取得
+    if request.user.is_authenticated:
+        followed_users = User.objects.filter(
+            id__in=Follow.objects.filter(follower=request.user).values('followed')
+        )
+    else:
+        followed_users = User.objects.none()  # 未ログイン時は空のクエリセット
+    
+
+    context = {
+        'user': user_profile.user,
+        'folders': folders,
+        'favorite_songs': favorite_songs,
+        'followed_users': followed_users,  # フォロー中のユーザーを渡す
+    }
+
+    return render(request, 'ongaku/profile_list.html', context)
+
+@login_required
+def change_display_name(request):
+    """プロフィール設定ページ"""
+    user_profile = UserProfile.objects.get(user=request.user)
+
+    # フォームの送信処理
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            # 表示名が変更された場合のみ重複チェックを行う
+            display_name = form.cleaned_data['display_name']
+            if display_name != user_profile.display_name:  # 変更された場合のみチェック
+                if UserProfile.objects.filter(display_name=display_name).exclude(user=request.user).exists():
+                    form.add_error('display_name', 'この名前はすでに他のユーザーによって使用されています。別の名前を選んでください。')
+                else:
+                    form.save()  # 名前が重複していなければ保存
+                    messages.success(request, "表示名が変更されました！")
+                    return redirect('profile', user_id=request.user.id)  # 編集後はプロフィールページにリダイレクト
+            else:
+                # 表示名が変更されていない場合はそのまま保存
+                form.save()
+                messages.success(request, "表示名が変更されました！")
+                return redirect('profile', user_id=request.user.id)
+    else:
+        form = UserProfileForm(instance=user_profile)
+
+    return render(request, 'ongaku/change_display_name.html', {'form': form})
+
+
+
+@login_required
+def create_folder(request):
+    """フォルダ作成"""
+    if request.method == 'POST':
+        form = FolderForm(request.POST)
+        if form.is_valid():
+            folder = form.save(commit=False)
+            folder.user = request.user
+            folder.save()
+            messages.success(request, "フォルダが作成されました！")
+            return redirect('profile_list')
+    else:
+        form = FolderForm()
+    return render(request, 'ongaku/create_folder.html', {'form': form})
+
+# フォルダ詳細ページ
+def folder_detail(request, folder_id):
+    folder = get_object_or_404(Folder, id=folder_id)
+    return render(request, 'ongaku/folder_detail.html', {'folder': folder})
+
+# フォルダ削除
+def delete_folder(request, folder_id):
+    folder = Folder.objects.get(id=folder_id)
+    folder.delete()
+    return redirect(reverse('profile'))
+
+
+@login_required
+def favorite_song(request, song_id):
+    """お気に入り曲登録"""
+    song = get_object_or_404(Ongaku, id=song_id)
+    user_profile = request.user.userprofile
+    user_profile.favorite_songs.add(song)
+    messages.success(request, f"{song.title}がお気に入りに追加されました！")
+    return redirect('profile_list')
+
+
+@login_required
+def profile_list(request):
+    """プロフィールリスト表示"""
+    # UserProfileが存在しない場合は作成
+    try:
+        userprofile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        userprofile = UserProfile.objects.create(user=request.user)
+        messages.info(request, "プロフィールが自動的に作成されました。")
+
+    folders = Folder.objects.filter(user=request.user)  # ユーザーのフォルダを取得
+    return render(request, 'ongaku/profile_list.html', {'userprofile': userprofile, 'folders': folders})
+
+
+def register_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        display_name = request.POST.get('display_name')  # フォームから表示名を取得
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 != password2:
+            return render(request, 'ongaku/register.html', {'error': 'パスワードが一致しません。'})
+
+        if User.objects.filter(username=username).exists():
+            return render(request, 'ongaku/register.html', {'error': 'そのユーザー名は既に使用されています。'})
+
+        user = User.objects.create_user(username=username, password=password1)
+        UserProfile.objects.create(user=user, display_name=display_name)  # UserProfileに表示名を保存
+
+        return redirect('accounts:login')
+
+    return render(request, 'ongaku/register.html')
+
+def register(request):
+    """ユーザー登録ビュー"""
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            # 新しいユーザーを保存
+            user = form.save()
+            # ユーザーを自動的にログイン
             login(request, user)
-            return redirect('home')  # ログイン後のリダイレクト先
+            return redirect('profile')  # プロフィールページにリダイレクト
+    else:
+        form = RegisterForm()
 
-    return render(request, 'accounts/register.html')
+    return render(request, 'ongaku/register.html', {'form': form})
 
 def get_user_display_name(self, obj):
     try:
         # UserProfileが存在するか確認して、そのdisplay_nameを取得
-        return obj.user.profile.display_name if obj.user.profile and obj.user.profile.display_name else obj.user.username
+        return obj.user.userprofile.display_name if obj.user.userprofile and obj.user.userprofile.display_name else obj.user.username
     except UserProfile.DoesNotExist:
         # UserProfileが存在しない場合は、usernameを返す
         return obj.user.username
@@ -126,9 +450,10 @@ def search_view(request):
     if query:
         search_results = Ongaku.objects.filter(
             Q(title__icontains=query) |
-            Q(category__name__icontains=query) |
+            Q(category__icontains=query) |
             Q(custom_category__icontains=query) |
-            Q(user__profile__display_name__icontains=query)
+            Q(user__username__icontains=query) |  # username での検索
+            Q(user__userprofile__display_name__icontains=query)   # display_name での検索
         ).annotate(
             match_count=Count('title')
         ).order_by('-match_count')
@@ -163,18 +488,6 @@ def search_view(request):
         'search_history': search_history,
     })
 
-
-
-def detail_view(request, pk):
-    object = get_object_or_404(Ongaku, pk=pk)
-    return render(request, 'ongaku/detail.html', {'object': object})
-
-def ongaku_detail(request, pk):
-    ongaku = get_object_or_404(Ongaku, pk=pk)
-    context = {'ongaku': ongaku}
-    return render(request, 'ongaku/ongaku_detail.html', context)
-
-
 def delete_history(request):
     if request.method == "POST":
         history_item = request.POST.get('history_item')
@@ -184,14 +497,47 @@ def delete_history(request):
         request.session['search_history'] = search_history
     return redirect('search')
 
+@login_required
+def ongaku_detail(request, pk):
+    """音楽詳細ページ"""
+    ongaku = get_object_or_404(Ongaku, pk=pk)
+    
+    # 音楽オブジェクトに関連するフォルダを取得
+    folders = Folder.objects.filter(song=ongaku)
+    
+    # お気に入り状態をチェック
+    is_favorited = False
+    if request.user.is_authenticated:
+        user_profile = request.user.userprofile
+        is_favorited = ongaku in user_profile.favorite_songs.all()
+        print(f"お気に入り状態: {is_favorited}")  # ログに出力
+
+    # コンテキストに渡す
+    context = {
+        'ongaku': ongaku,
+        'folders': folders,
+        'is_favorited': is_favorited,
+    }
+    
+    return render(request, 'ongaku/ongaku_detail.html', context)
+
 
 @login_required
 def detail_view(request, pk):
-    obj = get_object_or_404(YourModel, pk=pk)
-    return render(request, 'your_template.html', {
-        'object': obj,
-        'user': request.user,  # ログイン中のユーザーを渡す
-    })
+    """音楽の詳細ページ"""
+    object = get_object_or_404(Ongaku, pk=pk)
+
+    # お気に入り状態を判定
+    is_favorited = request.user in object.favorited_by.all()
+
+    # コンテキストに情報を渡す
+    context = {
+        'object': object,
+        'is_favorited': is_favorited,  # お気に入り状態
+        'user': request.user,  # ログイン中のユーザー
+    }
+    return render(request, 'ongaku/detail.html', context)
+
 
 class YourModelDetailView(DetailView):
     model = YourModel
@@ -221,7 +567,12 @@ def restricted_view(request, pk):
 
 def index_view(request):
     # 音楽のリストを取得
-    music_list = Ongaku.objects.all()
+    if request.user.is_authenticated:
+        # ログインユーザーの場合、自分の曲はすべて表示、それ以外は公開曲のみ
+        music_list = Ongaku.objects.filter(is_public=True) | Ongaku.objects.filter(user=request.user)
+    else:
+        # 未ログインユーザーは公開曲のみ
+        music_list = Ongaku.objects.filter(is_public=True)
 
     # 新しい順に並べたリスト
     object_list = Ongaku.objects.order_by('-id')
@@ -258,10 +609,26 @@ class DetailOngakuView(LoginRequiredMixin, DetailView):
     template_name = 'ongaku/ongaku_detail.html'
     model = Ongaku
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ongaku = context['ongaku']
+
+        # 曲のお気に入り登録者数
+        favorite_count = ongaku.favorites.count()
+
+        # ユーザーがその曲をお気に入りに登録しているか
+        is_favorited = self.request.user.favorite_songs.filter(id=ongaku.id).exists()
+
+        context['favorite_count'] = favorite_count
+        context['is_favorited'] = is_favorited
+        return context
+
+
+
 class CreateOngakuView(LoginRequiredMixin, CreateView):
     template_name = 'ongaku/ongaku_create.html'
     model = Ongaku
-    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file', 'custom_category')
+    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file', 'custom_category', 'ongaku_url', 'is_public')
     success_url = reverse_lazy('list-ongaku')
 
     def form_valid(self, form):
@@ -281,7 +648,7 @@ class CreateOngakuView(LoginRequiredMixin, CreateView):
         # 最新の音楽データを取得（例）
         ongaku = Ongaku.objects.last()  # 最後の音楽を取得（例）
 
-        return render(request, 'create_ongaku.html', {'form': form, 'ongaku': ongaku})
+        return render(request, 'ongaku/create_ongaku.html', {'form': form, 'ongaku': ongaku})
 
     
 class DeleteOngakuView(LoginRequiredMixin, DeleteView):
@@ -300,7 +667,7 @@ class DeleteOngakuView(LoginRequiredMixin, DeleteView):
 
 class UpdateOngakuView(LoginRequiredMixin, UpdateView):
     model = Ongaku
-    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file', 'custom_category')
+    fields = ('title', 'text', 'thumbnail', 'category', 'audio_file', 'custom_category', 'ongaku_url', 'is_public')
     template_name = 'ongaku/ongaku_update.html'
 
     def update_ongaku(request, pk):
@@ -315,6 +682,7 @@ class UpdateOngakuView(LoginRequiredMixin, UpdateView):
             form = OngakuForm(instance=ongaku)
 
         return render(request, 'ongaku_update.html', {'form': form})
+    
     def get_object(self, queryset=None):
         
         obj = super().get_object(queryset)

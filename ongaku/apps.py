@@ -2,8 +2,10 @@ from django.apps import AppConfig
 
 
 class OngakuConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "ongaku"
+    name = 'ongaku'
+    def ready(self):
+        import ongaku.signals  # signalsがある場合など
+
 
 
 class AccountsConfig(AppConfig):
@@ -11,3 +13,11 @@ class AccountsConfig(AppConfig):
 
     def ready(self):
         import accounts.signals  # signals.py をインポートしてシグナルを有効化
+
+from django.apps import AppConfig
+
+class YourAppConfig(AppConfig):
+    name = 'your_app'
+
+    def ready(self):
+        import your_app.signals

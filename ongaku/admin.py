@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ongaku, Review, Category, UserProfile, User
+from .models import Ongaku, Review, Category, UserProfile
 
 # UserProfileの登録
 @admin.register(UserProfile)
@@ -9,7 +9,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 # Ongakuモデルの管理画面設定
 class OngakuAdmin(admin.ModelAdmin):
     list_display = ('title', 'category', 'get_user_display_name', 'get_user_id')  # ここに表示名を追加
-    list_filter = ('category',)
+    list_filter = ('is_public', 'category', 'created_at')
 
     def get_user_display_name(self, obj):
         # UserProfileが存在する場合に表示名を取得

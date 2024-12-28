@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ folder.name }}の中身{% endblock %}
+
+{% block content %}
+
+<div class="folder-detail">
+    <h3>フォルダ名: {{ folder.name }}</h3>
+    <h6><br><br></h6>
+
+    <h3>フォルダに含まれる音楽</h3>
+    <ul>
+        {% for song in folder.songs.all %}
+            <h4>
+                <li>
+                    <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
+        
+                    <!-- 削除ボタン -->
+                    <form action="{% url 'remove_song_from_folder' folder.id song.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit btn" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
+                    </form>
+                </li>
+            </h4>
+        {% empty %}
+            <p>このフォルダには音楽が含まれていません。</p>
+        {% endfor %}
+    </ul>
+    <h3><br><br></h3>
+    <form action="{% url 'delete_folder' folder.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">このフォルダを削除</button>
+    </form>
+</div>
+<h3><br></h3>
+<a href="{% url 'profile' %}">プロフィールページに戻る</a>
+{% endblock %}

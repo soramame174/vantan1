@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% block title %}検索{% endblock %}
 
 {% block content %}
     {% if search_history %}
@@ -16,52 +17,95 @@
             </li>
         {% endfor %}
     </ul>
+    <h6><br><br><br><br></h6>
     {% endif %}
     
-
+    
 
     <h2>検索結果</h2>
     {% if search_results%}
         <ul>
             {% for song in search_results %}
-                <li>{{ song.title }}</li>
-                <span>(投稿ユーザー: {{ song.user.get_full_name|default:song.user.username }})</span>
-                <p>{{ song.search_count }} 回検索されました</p>
-                <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
-                <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
-                <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
+                {% if song.is_public %}
+                    <h4>
+                        <li>{{ song.title }}</li>
+                        <span>
+                            (投稿ユーザー:
+                            {% if song.user.userprofile.display_name == None %}
+                                {{ song.user.userprofile.display_name|default:"匿名" }}{{ song.user.id }}
+                            {% else %}
+                                {{ song.user.userprofile.display_name|default:"匿名" }}
+                            {% endif %} 様)
+                        </span>
+                        <p>{{ song.search_count }} 回検索されました</p>
+                        <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                        <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
+                        <h6><br></h6>
+                        <h3><a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a></h3>
+                    </h4>
+                {% else %}
+                    <p>検索結果はありません。</p>
+                {% endif %}
+            {% empty %}
+                <p>検索結果はありません。</p>
             {% endfor %}
         </ul>
     {% else %}
         <p>検索結果はありません。</p>
     {% endif %}
-
+    <h6><br><br><br></h6>
     <h2>おすすめ</h2>
     <ul>
         {% if recommended_songs %}
             {% for song in recommended_songs %}
-                <li>{{ song.title }}</li>
-                <span>(投稿ユーザー: {{ song.user.get_full_name|default:song.user.username }})</span>
-                <p>{{ song.search_count }} 回検索されました</p>
-                <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
-                <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
-                <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
-
+                {% if song.is_public %}
+                    <li>{{ song.title }}</li>
+                    <span>
+                        (投稿ユーザー:
+                        {% if song.user.userprofile.display_name == None %}
+                            {{ song.user.userprofile.display_name|default:"匿名" }}{{ song.user.id }}
+                        {% else %}
+                            {{ song.user.userprofile.display_name|default:"匿名" }}
+                        {% endif %} 様)
+                    </span>
+                    <p>{{ song.search_count }} 回検索されました</p>
+                    <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                    <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
+                    <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
+                {% else %}
+                    <span>見つかりませんでした</span>
+                {% endif %}
+            {% empty %}
+                <span>見つかりませんでした</span>
             {% endfor %}
         {% else %}
             <p>おすすめ曲を表示しています...</p>
             <p>ランダムなおすすめ曲:</p>
             <ul>
                 {% for song in random_songs %}
-                    <li>{{ song.title }}</li>
-                    <span>(投稿ユーザー: {{ song.user.get_full_name|default:song.user.username }})</span>
-                    <p>{{ song.search_count }} 回検索されました</p>
-                    <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
-                    <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
-                    <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
-
+                    {% if song.is_public %}
+                        <li>{{ song.title }}</li>
+                        <span>
+                            (投稿ユーザー:
+                            {% if song.user.userprofile.display_name == None %}
+                                {{ song.user.userprofile.display_name|default:"匿名" }}{{ song.user.id }}
+                            {% else %}
+                                {{ song.user.userprofile.display_name|default:"匿名" }}
+                            {% endif %} 様)
+                        </span>
+                        <p>{{ song.search_count }} 回検索されました</p>
+                        <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                        <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
+                        <a href="{% url 'detail-ongaku' song.pk %}" class="btn">詳細へ</a>
+                    {% else %}
+                        <span>見つかりませんでした</span>
+                    {% endif %}
+                {% empty %}
+                    <span>見つかりませんでした</span>
                 {% endfor %}
             </ul>
+            <h6><br><br><br><br><br><br><br><br><br><br></h6>
         {% endif %}
     </ul>
+    
 {% endblock %}

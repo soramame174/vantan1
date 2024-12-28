@@ -97,12 +97,17 @@ form {
             <label for="thumbnail">サムネイル</label>
             {{ form.thumbnail }}
         </div>
+        <h6><br></h6>
 
         <!-- 歌詞入力 -->
-        <div>
+        <div class="p-2">
             <label for="id_text">歌詞</label>
-            <textarea id="id_text" name="text" rows="10" cols="30">{{ form.text.value }}</textarea>
+            <div>    
+                <textarea id="id_text" name="text" rows="15" cols="45%">{{ form.text.value }}</textarea>
+            </div>
         </div>    
+        
+        <h6><br></h6>
 
         <div class="p-2">
             <label for="category">ジャンル</label>
@@ -111,8 +116,23 @@ form {
         <div class="p-2">
             <label for="category">キーワード</label>
             {{ form.custom_category }}
-            <span>検索時に見つかりやすくなります</span>
+            <span>検索時に見つかりやすくなります。</span>
         </div>
+        <div class="form-group p-2">
+            <label for="ongaku_url">この曲のURL</label>
+            <input type="url" name="ongaku_url" id="ongaku_url" class="form-control form-control-lg font-weight-bold text-dark" value="{{ form.ongaku_url.value|default:'' }}">
+            <small>この曲のウェブサイトや音楽リンクを必ず入力してください。</small>
+        </div>
+        
+        <div class="p-2">
+            <label for="is_public">公開設定</label>
+            {{ form.is_public }}
+            <div>
+                <small>公開にする場合はチェックを入れてください。</small>
+            </div>
+        </div>        
+        
+            
         <div class="p-2">
             <button type="submit">追加する</button>
         </div>

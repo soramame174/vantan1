@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if user.userprofile.display_name == None %}
+        {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+    {% else %}
+        {{ user.userprofile.display_name|default:"匿名" }}
+    {% endif %}
+     様のプロフィール
+{% endblock %}
+
+{% block content %}
+<div class="c-3 m-4 bg-light rounded" type="kasane">
+    <div class="border border_color p-4 mb-4">
+        <div class="profile-container">
+            <h1>
+                {% if user.userprofile.profile_picture %}
+                    <!-- プロフィール画像を小さく表示 -->
+                    <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                {% endif %}
+                <!-- 名前とプロフィール画像を横並びに表示 -->
+                <span class="display-name">
+                    {% if user.userprofile.display_name == None %}
+                        {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                    {% else %}
+                        {{ user.userprofile.display_name|default:"匿名" }}
+                    {% endif %} 様のプロフィール
+                </span>
+            </h1>
+        </div>
+        {% if not user == request.user %}
+            <p><strong>フォロワー数:</strong> {% if follower_count %}{{ follower_count }}{% else %}0{% endif %}</p>
+            <p><strong>フォロー数:</strong> {% if following_count %}{{ following_count }}{% else %}0{% endif %}</p>
+        {% endif %}
+        <h6><br><br></h6>
+
+        <h5>一言: {{ profile.bio|default:"なし" }}</h5>
+        <h6><br><br></h6>
+
+        {% if profile.youtube_url %}
+            <p>YouTube URL: <a href="{{ profile.youtube_url }}" target="_blank">{{ profile.youtube_url }}</a></p>
+            <h6><br><br></h6>
+        {% endif %}
+        
+        {% if profile.twitter_url %}
+            <h6><br><br></h6>
+            <p>X(旧Twitter) URL: <a href="{{ profile.twitter_url }}" target="_blank">{{ profile.twitter_url }}</a></p>
+        {% endif %}
+
+        <h6><br><br></h6>
+
+        {% if not is_own_profile %}
+            <!-- フォローボタン -->
+            <form method="POST" action="{% url 'follow' user.id %}">
+                {% csrf_token %}
+                {% if is_following %}
+                    <button type="submit">フォロー解除</button>
+                {% else %}
+                    <button type="submit">フォローする</button>
+                {% endif %}
+            </form>
+        {% endif %}    
+        
+        <script>
+            document.getElementById('follow-form').addEventListener('submit', function(event) {
+                event.preventDefault();  // デフォルトのフォーム送信をキャンセル
+                
+                var form = this;
+                var url = form.action;
+                var method = form.method;
+                var csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // ボタンを切り替える
+                        var button = form.querySelector('button');
+                        if (button.textContent === "フォローする") {
+                            button.textContent = "フォロー解除";
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-danger');
+                        } else {
+                            button.textContent = "フォローする";
+                            button.classList.remove('btn-danger');
+                            button.classList.add('btn-success');
+                        }
+                    }
+                });
+            });
+        </script>
+
+        <h6><br><br></h6>
+
+        <h2>作品リスト</h2>
+        
+            {% for song in songs %}
+                <ul>
+                    <h4><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
+                </ul>
+            {% empty %}
+                <h5>まだ曲を作成していません。</h5>
+            {% endfor %}
+
+        <h6><br><br><br><br></h6>
+
+        <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+
+        <p><br><br></p>
+        <div>
+            <p class="responsive-line">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+        </div>
+        
+        <style>
+            .responsive-line {
+                width: 100%; /* 幅を100%に設定して親要素に合わせる */
+                white-space: nowrap; /* テキストが折り返されないようにする */
+                overflow: hidden; /* 親要素からはみ出さないようにする */
+            }
+
+            /* 名前とプロフィール画像を横並びに配置 */
+            .profile-container {
+                display: flex;
+                align-items: center;
+            }
+
+            /* プロフィール画像のサイズをさらに小さく調整 */
+            .profile-picture {
+                width: 70px;  /* 画像サイズを20pxに縮小 */
+                height: 70px; /* 高さも20pxに調整 */
+                margin-left: 10px;
+                border-radius: 50%; /* 画像を丸くする */
+            }
+        </style>
+        
+        <h3>あなたのフォロー中のユーザーリスト</h3>
+        {% if user == request.user %}
+            <p><strong>フォロワー数:</strong> {% if follower_count %}{{ follower_count }}{% else %}0{% endif %}</p>
+            <p><strong>フォロー数:</strong> {% if following_count %}{{ following_count }}{% else %}0{% endif %}</p>
+        {% endif %}
+
+        
+        {% if followed_users %}        
+            {% for user in followed_users %}
+                <ul>
+                    <h5>
+                        <li>
+                            <a href="{% url 'profile' user.pk %}">
+                                {% if user.userprofile.display_name == None %}
+                                    {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                                {% else %}
+                                    {{ user.userprofile.display_name|default:"匿名" }}
+                                {% endif %}
+                            </a> 様
+                        </li>
+                    </h5>
+                </ul>
+            {% endfor %}
+        {% else %}
+            <p>あなたのフォロー中のユーザーはまだいません。</p>
+        {% endif %}
+        <h1><br><br></h1>
+    </div>
+</div>
+{% endblock %}

@@ -118,88 +118,260 @@
             font-size: 1rem;
         }
     }
+
+    .responsive-line {
+        border-bottom: 2px solid #000; /* 線の色と太さを指定 */
+        width: 100%; /* 幅を100%に設定して親要素に合わせる */
+        white-space: nowrap; /* テキストが折り返されないようにする */
+        overflow: hidden; /* 親要素からはみ出さないようにする */
+    }
 </style>
 
 {% block content %}
     <div class="border border_color p-4 mb-2" type="tokubetu">
-        {% if object.thumbnail %}
-            <img src="{{ ongaku.thumbnail.url }}" class="img-thumbnail" style="width: 600px; height: auto;" />
-            <h1><br></h1>
-        {% endif %}
+    {% if object.thumbnail %}
         <div class="c-3 m-4 bg-light rounded" type="kasane">
-            
             <div class="border border_color p-4 mb-4">
+                <img src="{{ ongaku.thumbnail.url }}" class="img-thumbnail" style="width: 600px; height: auto;" />
+                <h1><br></h1>
+            </div>
+    {% endif %}
+        <div class="border border_color p-4 mb-4">
 
-                <!-- 音楽タイトル -->
-                <h2 class="h2 custom-title">{{ object.title }}</h2>
-                
+            <!-- 音楽タイトル -->
+            <h2 class="h2 custom-title">{{ object.title }}</h2>
+            
+            
+            {% if object.audio_file %}
                 <audio id="audioPlayer{{ object.pk }}" controls style="width: 100%; max-width: 100%;">
-                    {% if object.audio_file %}
-                        <source src="{{ object.audio_file.url }}" type="audio/mpeg">  <!-- MP3形式の場合 -->
-                        <!-- 例: OGG形式もサポートする場合 -->
-                        <!-- <source src="{{ object.audio_file.url }}" type="audio/ogg"> -->
-                        Your browser does not support the audio element.
-                    {% else %}
-                        <p>音声ファイルがありません。</p>
-                    {% endif %}
+                    <source src="{{ object.audio_file.url }}" type="audio/mpeg">  <!-- MP3形式の場合 -->
+                    <!-- 例: OGG形式もサポートする場合 -->
+                    <!-- <source src="{{ object.audio_file.url }}" type="audio/ogg"> -->
+                    Your browser does not support the audio element.
                 </audio>
-                
-                <!-- 歌詞 -->
-                <div>
-                    <label>歌詞</label>
-                    <div class="border border_color p-4 mb-2">
-                        <p style="white-space: pre-line;">{{ object.text|default:"なし" }}</p>
-                    </div>
-                    <span>(投稿ユーザー: {{ object.user.get_full_name|default:object.user.username }})</span>
-                    <h4><br></h4>
-                </div>
-
+            {% else %}
+                {% if object.user == request.user %}
+                    <p>音声ファイルがありません。</p>
+                {% endif %}
+            {% endif %}
+            
+            {% if object.audio_file %}
                 <div>
                     <p id="playCount{{ object.pk }}">再生回数: {{ object.play_count }}</p>
                 </div>
+            {% endif %}
                 
-                <!-- ジャンル情報 -->
-                <div class="category-info">
-                    <h6 class="card-title mt-4">キーワード: {{ object.custom_category }}</h6>
-                    <h6 class="card-title mt-4">ジャンル: {{ object.category|default:"なし" }}</h6>
+            <!-- 歌詞 -->
+            <div>
+                <label>歌詞</label>
+                <div class="border border_color p-4 mb-2">
+                    <p style="white-space: pre-line;">{{ object.text|default:"なし" }}</p>
                 </div>
-
-                <h4><br><br></h4>
-
-                <!-- アクションリンク -->
-                <div>
-                    <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+                <span>
+                    <!-- 音楽詳細ページ内に追加するユーザー情報セクション -->
+                    <div class="profile-container">
+                        投稿ユーザー: 
+                        <a href="{% url 'profile' object.user.pk %}">
+                            {% if object.user.userprofile.display_name == None %}
+                                {{ object.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                            {% else %}
+                                {{ object.user.userprofile.display_name|default:"匿名" }}
+                            {% endif %}
+                        </a> 様
+                    </div>
                     {% if object.user == request.user %}
-                        <a href="{% url 'update-ongaku' object.pk %}" class="btn">編集</a>
-                        <a href="{% url 'delete-ongaku' object.pk %}" class="btn">削除する</a>
-                    {% else %}
-                        <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank">シェアする</a>
-                        <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a>
+                        <p>公開状態: {{ ongaku.is_public|yesno:"公開,非公開" }}</p>
                     {% endif %}
-                </div>
+                    
+                    <div>
+                        <h6 class="card-title mt-4">投稿日: {{ object.created_at|date:"Y.m.d H:i" }}</h6>
+                    </div>
+                </span>
+                
+                
+                <h4><br></h4>
             </div>
+                
+            <!-- ジャンル情報 -->
+            <div class="category-info">
+                <h6 class="card-title mt-4">キーワード: {{ object.custom_category|default:"なし" }}</h6>
+                <h6 class="card-title mt-4">ジャンル: {{ object.category|default:"なし" }}</h6>
+            </div>
+            {% if object.ongaku_url %}
+                <div>
+                    <h6 class="card-title mt-4">
+                        URL: <a href="{{ object.ongaku_url }}" target="_blank">{{ object.ongaku_url }}</a>
+                    </h6>
+                </div>
+            {% endif %}
 
-            <!-- レビュー -->
-            <div class="review-section">
-                <div></div>
-                <label>レビュー<br></label>
-                {% if object.review_set.exists %}
-                    {% for review in object.review_set.all %}
-                        <div class="review-item border border_color p-4 mb-2">
-                            <div>
-                                <h3 class="h4">{{ review.title }}</h3>
-                                <div class="px-2">
-                                    <span>(投稿ユーザー: {{ review.user.get_full_name|default:review.user.username }})</span>
-                                    <p>内容: {{ review.text }}</p>
-                                    <p>評価: {{ review.rate }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+
+            <h4><br><br></h4>
+            <!-- アクションリンク -->
+
+            <div>
+                
+                <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+                {% if object.user == request.user %}
+                    <a href="{% url 'update-ongaku' object.pk %}" class="btn">編集する</a>
+                    <a href="{% url 'delete-ongaku' object.pk %}" class="btn">削除する</a>
                 {% else %}
-                    <h6>現在なし</h6>
+                    <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank">シェアする</a>
+                    <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a>
                 {% endif %}
+                <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>
+    
+                {% if has_audio_file %}
+                    <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>
+                {% endif %}
+
+
+                <div>
+                    <h6><br></h6>
+
+                    <!-- お気に入り状態を確認 -->
+
+                    <p>お気に入り登録者数: <span id="favorite-count">{{ favorite_count }}</span></p>
+
+                    <form id="favorite-form" method="POST" action="{% url 'toggle_favorite' ongaku.id %}">
+                        {% csrf_token %}
+                        <button type="submit" id="favorite-button">
+                            {% if is_favorited %}
+                                お気に入り解除
+                            {% else %}
+                                お気に入り登録
+                            {% endif %}
+                        </button>
+                    </form>
+
+
+
+                    <script>
+                        document.getElementById('favorite-form').addEventListener('submit', function(event) {
+                            event.preventDefault();  // デフォルトのフォーム送信を防止
+
+                            const form = event.target;
+                            const button = document.getElementById('favorite-button');
+
+                            // POSTリクエストを送信
+                            fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                                },
+                                body: new FormData(form)
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.favorited) {
+                                    button.innerHTML = "お気に入り解除";  // お気に入り状態を反映
+                                } else {
+                                    button.innerHTML = "お気に入り登録";  // お気に入り解除状態を反映
+                                }
+
+                                document.getElementById('favorite-count').textContent = data.count;  // お気に入り数を更新
+                            })
+                            .catch(error => {
+                                console.error('エラーが発生しました:', error);
+                            });
+                        });
+
+                        document.getElementById('favoriteButton{{ ongaku.pk }}').addEventListener('click', function () {
+                            const csrfToken = '{{ csrf_token }}';
+                            fetch("{% url 'toggle-favorite' ongaku.pk %}", {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': csrfToken,
+                                    'Content-Type': 'application/json',
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                const button = document.getElementById('favoriteButton{{ ongaku.pk }}');
+                                const count = document.getElementById('favoriteCount{{ ongaku.pk }}');
+
+                                // ボタンテキストの更新
+                                if (data.favorited) {
+                                    button.innerText = 'お気に入り解除';
+                                } else {
+                                    button.innerText = 'お気に入り登録';
+                                }
+
+                                // お気に入り数の更新
+                                if (count) {
+                                    count.innerText = `お気に入り数: ${data.count}`;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                        });
+                        $(document).ready(function() {
+                            $('#favorite-form').submit(function(event) {
+                                event.preventDefault();
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: $(this).attr('action'),
+                                    data: $(this).serialize(),
+                                    success: function(response) {
+                                        // お気に入り登録状態を更新
+                                        if (response.favorited) {
+                                            $('#favorite-button').text('お気に入り解除');
+                                        } else {
+                                            $('#favorite-button').text('お気に入り登録');
+                                        }
+
+                                        // お気に入り登録者数を更新
+                                        $('#favorite-count').text(response.count);
+
+                                        // お気に入りリストを更新
+                                        if (response.favorited) {
+                                            $('#favorite-list').append('<li><a href="' + response.song_url + '">' + response.song_title + '</a></li>');
+                                        } else {
+                                            $('#favorite-list').find('a[href="' + response.song_url + '"]').parent().remove();
+                                        }
+                                    },
+                                    error: function() {
+                                        alert('エラーが発生しました');
+                                    }
+                                });
+                            });
+                        });
+
+                    </script>
+                </div>
             </div>
         </div>
     </div>
+        <!-- レビュー -->
+        {% if object.review_set.exists %}
+            <div class="c-3 m-4 bg-light rounded" type="kasane">
+                <div class="border border_color p-4 mb-4">
+                    <div class="review-section">
+                        <label>レビュー<br></label>
+                        {% for review in object.review_set.all %}
+                            <div class="review-item border border_color p-4 mb-2">
+                                <div>
+                                    <h3 class="h4">{{ review.title }}</h3>
+                                    <div class="px-2">
+                                        <span>(投稿ユーザー: 
+                                            {% if review.user.userprofile.display_name == None %}
+                                                {{ review.user.userprofile.display_name|default:"匿名" }}{{ uesr.id }}
+                                            {% else %}
+                                                {{ review.user.userprofile.display_name|default:"匿名" }}
+                                            {% endif %} 様)
+                                        </span>
+                                        <p>内容: {{ review.text }}</p>
+                                        <p>評価: {{ review.rate }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+</div>
+
 {% endblock content %}

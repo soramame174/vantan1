@@ -1,0 +1,62 @@
+<!-- edit_profile.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}表示設定{% endblock %}
+
+{% block content %}
+<h2>表示名を変更</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div>
+        <label for="display_name">表示名</label>
+        {{ form.display_name }}
+        {% if form.display_name.errors %}
+            <div class="text-danger">
+                {% for error in form.display_name.errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <h6><br><br></h6>
+        <label for="bio">一言</label>
+        <div>
+            {{ form.bio }}
+        </div>
+    </div>
+
+    <div>
+        <h6><br><br></h6>
+        <label for="profile_picture">プロフィール画像</label>
+        <div>
+            {{ form.profile_picture }}
+        </div>
+        {% if form.profile_picture.errors %}
+            <div class="text-danger">
+                {{ form.profile_picture.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+    <h6><br><br></h6>
+    <div>
+        <label for="youtube_url">YouTubeのURL</label>
+        <input name="youtube_url" id="youtube_url" class="form-control" value="{{ form.youtube_url.value|default:'' }}">
+    </div>
+    <h6><br></h6>
+    <div>
+        <label for="twitter_url">X(旧Twitter)のURL</label>
+        <input name="twitter_url" id="twitter_url" class="form-control" value="{{ form.twitter_url.value|default:'' }}">
+    </div>
+    
+
+    <h6><br><br></h6>
+
+    <button type="submit">保存</button>
+</form>
+{% endblock %}

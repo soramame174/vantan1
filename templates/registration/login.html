@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 
+{% block title %}ログイン{% endblock %}
+
 {% block content %}
     <h1>ログイン</h1>
+    <h2><br></h2>
     <form method="post" class="login-form">
         {% csrf_token %}
         {% if form.errors %}
@@ -25,7 +28,7 @@
         <h6><br><br></h6>
         <a class="nav-link" href="{% url 'accounts:signup' %}">ログインしたことのないユーザーはこちらから登録</a>
     </form>
-
+    <h2><br><br><br><br><br></h2>
     <script>
         const showPasswordCheckbox = document.getElementById('show-password');
         const passwordInput = document.getElementById('password');

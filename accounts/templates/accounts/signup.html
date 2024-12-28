@@ -3,12 +3,10 @@
 {% block title %}アカウント作成{% endblock %}
 {% block h1 %}アカウント作成{% endblock %}
 {% block content %}
-
+<h2><br></h2>
 <form method="post" class="p-4 m-4 bg-light border border-color rounded form-group">
     {% csrf_token %}
     <input type="text" name="username" class="form-control my-4" placeholder="ユーザー ID">
-    <input type="text" name="display_name" class="form-control my-4" placeholder="表示名">
-    <small class="mb-2 d-block text-start" style="color: #ff4b96;">※ 表示名はプロフィールや投稿ユーザーなどで表示されます。</small>
     <input type="password" name="password1" id="password1" class="form-control mt-4" placeholder="パスワード">
     <input type="password" name="password2" id="password2" class="form-control mt-4" placeholder="パスワード確認用">
     <input type="checkbox" onclick="myFunction()" ><p style="color: #ff4b96;"Show >Password(パスワードを見る)</p>
