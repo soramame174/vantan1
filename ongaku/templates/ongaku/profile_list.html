@@ -45,7 +45,7 @@
         
         {% for song in request.user.songs.all %}
             <ul>
-                <li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li>
+                <h4><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h4>
             </ul>
         {% empty %}
             <h5>まだ曲を作成していません。</h5>
