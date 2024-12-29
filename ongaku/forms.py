@@ -3,6 +3,13 @@ from .models import Ongaku, Category, UserProfile, Folder
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from .models import DarkModeSchedule
+
+class DarkModeScheduleForm(forms.ModelForm):
+    class Meta:
+        model = DarkModeSchedule
+        fields = ['start_time', 'end_time', 'is_active']
+
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

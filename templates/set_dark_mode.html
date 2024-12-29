@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}ダークモードの設定{% endblock %}
+
+{% block content %}
+    <h1>ダークモード設定</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">設定を保存</button>
+    </form>
+
+    <p>開始時間: {{ dark_mode_schedule.start_time }}</p>
+    <p>終了時間: {{ dark_mode_schedule.end_time }}</p>
+    <p>Is Active: {{ dark_mode_schedule.is_active }}</p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const startTime = "{{ dark_mode_schedule.start_time|default:'' }}";
+            const endTime = "{{ dark_mode_schedule.end_time|default:'' }}";
+            const isActive = {{ is_active|default:false }};  // ここで is_active をブール値として渡す
+
+            if (isActive) {  // is_active が True の場合
+                const now = new Date();
+                const start = new Date();
+                const end = new Date();
+
+                const [startHour, startMinute] = startTime.split(':');
+                const [endHour, endMinute] = endTime.split(':');
+
+                start.setHours(parseInt(startHour), parseInt(startMinute), 0);
+                end.setHours(parseInt(endHour), parseInt(endMinute), 0);
+
+                // 東京のタイムゾーン（UTC +9時間）に調整
+                start.setMinutes(start.getMinutes() - start.getTimezoneOffset() + 9 * 60);
+                end.setMinutes(end.getMinutes() - end.getTimezoneOffset() + 9 * 60);
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset() + 9 * 60);
+
+                // 現在時刻が指定された範囲内かどうかの確認
+                if (now >= start && now <= end) {
+                    document.body.style.backgroundColor = 'black';
+                    document.body.style.color = 'white';  // 文字色を変更
+                }
+            }
+        });
+    </script>
+    <h2><br><br><br><br><br><br><br></h2>
+{% endblock %}

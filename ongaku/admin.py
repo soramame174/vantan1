@@ -1,6 +1,19 @@
 from django.contrib import admin
 from .models import Ongaku, Review, Category, UserProfile
 
+from .models import MaintenanceConfig
+
+from .models import DarkModeSchedule
+
+@admin.register(MaintenanceConfig)
+class MaintenanceConfigAdmin(admin.ModelAdmin):
+    list_display = ('start_time', 'end_time', 'is_active')
+
+@admin.register(DarkModeSchedule)
+class DarkModeScheduleAdmin(admin.ModelAdmin):
+    list_display = ("user", "start_time", "end_time", "is_active")
+    list_filter = ("is_active",)
+
 # UserProfileの登録
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):

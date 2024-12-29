@@ -27,6 +27,68 @@ import logging
 # from django.utils import timezone
 # import pytz  # pytzをインポート
 
+from .models import MaintenanceConfig
+from django.http import HttpResponse
+import datetime
+
+
+from .forms import DarkModeScheduleForm
+from .models import DarkModeSchedule
+from django.utils.timezone import now
+
+
+
+def check_maintenance():
+    config = MaintenanceConfig.objects.filter(is_active=True).first()
+    if config:
+        now = datetime.datetime.now()
+        if config.start_time <= now <= config.end_time:
+            return True
+    return False
+
+def my_view(request):
+    if check_maintenance():
+        return HttpResponse("現在メンテナンス中です。後ほどお試しください。", status=503)
+    return HttpResponse("アプリケーションは動作中です。")
+
+
+
+
+# ダークモードのスケジュールを設定するビュー
+def set_dark_mode_schedule(request):
+    try:
+        schedule = DarkModeSchedule.objects.get(user=request.user)
+    except DarkModeSchedule.DoesNotExist:
+        schedule = None
+
+    if request.method == 'POST':
+        form = DarkModeScheduleForm(request.POST, instance=schedule)
+        if form.is_valid():
+            dark_schedule = form.save(commit=False)
+            dark_schedule.user = request.user
+            dark_schedule.save()
+            return redirect('success_page')  # 設定完了後のページにリダイレクト
+    else:
+        form = DarkModeScheduleForm(instance=schedule)
+
+    context = {
+        'user': request.user,  # 正しいユーザーを渡す
+        'dark_mode_schedule': schedule,  # ユーザーのダークモードスケジュールを渡す
+        'is_active': schedule.is_active if schedule else False,  # ダークモードが有効かを渡す
+    }
+
+    return render(request, 'set_dark_mode.html', context)
+
+
+
+
+# 設定成功ページのビュー
+def success_page(request):
+    return render(request, 'success_page.html')
+
+
+
+
 logger = logging.getLogger(__name__)
 
 @login_required

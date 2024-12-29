@@ -75,9 +75,105 @@ form {
     border-radius: 10px;
     background-color: #fff6fa; /* フォーム背景を淡いピンクに */
 }
+
+
+/* 全画面モーダルのスタイル */
+.modal {
+    display: flex; /* 中央揃え用 */
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* 背景を暗くする */
+}
+
+.modal-content {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.modal-content h4 {
+    margin: 10px 0;
+    color: #555;
+    line-height: 1.5;
+}
+
+.modal-content label {
+    display: block;
+    margin: 20px 0;
+    font-size: 1em;
+}
+
+.modal-content button {
+    background-color: #ff2583;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+.modal-content button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
 </style>
 
 {% block content %}
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="c-3 m-4 bg-light rounded" type="kasane">
+                <div class="border border_color p-4 mb-4">
+                    <h2><br></h2>
+                    <h3>このページの内容をご確認ください</h3>
+                    <p>
+                        平素より当アプリをご利用いただき、誠にありがとうございます。<br>
+                        当音楽アプリでは、ユーザー様がアップロードする楽曲につきまして、以下の事項を遵守いただきますようお願い申し上げます。
+                    </p>
+                    <h2><br></h2>
+                    <h4>利用規約と法律の遵守について</h4>
+                    <p>
+                        ・当アプリでは、著作権法に基づき、他人が作成した楽曲や歌、音楽の無断使用・アップロードを禁止しております。<br>
+                        ・他者が権利を有するコンテンツを無断でアップロードした場合、法的責任が生じる可能性がございますので、十分にご注意ください。
+                    </p>
+                    <p>
+                        ・ご自身で作成された楽曲や、フリーライセンスで提供されている音楽のみをアップロードしてください。
+                    </p>
+                    <h2><br></h2>
+                    <h4>お願い</h4>
+                    <p>
+                        アップロードを行う際には、必ず内容を十分にご確認いただき、責任を持ってご利用いただきますようお願い申し上げます。
+                    </p>
+                    <h2><br><br><br></h2>
+                    <label>
+                        <input type="checkbox" id="confirmCheckbox">
+                        上記の内容を確認し、遵守することを承諾しました。
+                    </label>
+                    <h2><br></h2>
+                    <button id="confirmButton" disabled>確認する</button>
+                    <h3><br></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <form method="post" enctype="multipart/form-data">  <!-- enctype を追加 -->
         {% csrf_token %}
         
@@ -137,4 +233,26 @@ form {
             <button type="submit">追加する</button>
         </div>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('confirmationModal');
+            const form = document.getElementById('music-form');
+            const checkbox = document.getElementById('confirmCheckbox');
+            const confirmButton = document.getElementById('confirmButton');
+
+            // モーダルを表示
+            modal.style.display = 'block';
+
+            // チェックボックスの状態を監視
+            checkbox.addEventListener('change', function () {
+                confirmButton.disabled = !checkbox.checked;
+            });
+
+            // 確認ボタンが押されたら
+            confirmButton.addEventListener('click', function () {
+                modal.style.display = 'none'; // モーダルを非表示
+                form.style.display = 'block'; // フォームを表示
+            });
+        });
+    </script>
 {% endblock content %}

@@ -2,7 +2,9 @@
 
 <!doctype html>
 <html lang="ja">
+    
     <head>
+        
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -238,8 +240,53 @@
                 border: 1px solid #ff4081;
                 padding-left: 10px;
             }
+            
         </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const startTime = "{{ user.dark_mode_schedule.start_time|default:'' }}";
+                const endTime = "{{ user.dark_mode_schedule.end_time|default:'' }}";
+                const isActive = "{{ user.dark_mode_schedule.is_active|default:False }}";
         
+                console.log('Start Time:', startTime); // 開始時間の表示
+                console.log('End Time:', endTime);     // 終了時間の表示
+                console.log('Is Active:', isActive);   // 活動状態の表示
+        
+                // is_active が "True" の場合、trueに変換して処理を行う
+                if (isActive === "True") {
+                    // 現在の時刻を東京時間に合わせる
+                    const now = new Date();
+        
+                    // サーバーから渡された時間を Date オブジェクトに変換
+                    const start = new Date();
+                    const end = new Date();
+        
+                    const [startHour, startMinute] = startTime.split(':');
+                    const [endHour, endMinute] = endTime.split(':');
+        
+                    start.setHours(parseInt(startHour), parseInt(startMinute), 0);
+                    end.setHours(parseInt(endHour), parseInt(endMinute), 0);
+        
+                    // 東京のタイムゾーン（UTC +9時間）に調整
+                    start.setMinutes(start.getMinutes() - start.getTimezoneOffset() + 9 * 60);
+                    end.setMinutes(end.getMinutes() - end.getTimezoneOffset() + 9 * 60);
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset() + 9 * 60);
+        
+                    console.log('Current Time:', now);   // 現在の時刻の表示
+                    console.log('Start Time as Date:', start); // 開始時間の Date オブジェクト
+                    console.log('End Time as Date:', end);   // 終了時間の Date オブジェクト
+        
+                    // 現在時刻が指定された範囲内かどうかの確認
+                    if (now >= start && now <= end) {
+                        console.log("Entering dark mode...");  // 条件を満たす場合にログを表示
+                        document.body.style.backgroundColor = 'black';
+                        document.body.style.color = 'white';  // 文字色を変更
+                    } else {
+                        console.log("Not in dark mode range");  // 時間範囲外の場合にログを表示
+                    }
+                }
+            });
+        </script>        
     </head>
     <body id="body">
         <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">

@@ -8,6 +8,18 @@ from .consts import MAX_PATE
 RATE_CHOICES = [(x, str(x)) for x in range(0, MAX_PATE + 1)]
 
 
+class MaintenanceConfig(models.Model):
+    start_time = models.DateTimeField()  # メンテナンス開始時刻
+    end_time = models.DateTimeField()    # メンテナンス終了時刻
+    is_active = models.BooleanField(default=False)  # メンテナンス有効化スイッチ
+
+class DarkModeSchedule(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="dark_mode_schedule")
+    start_time = models.TimeField("開始時間")  # 開始時間
+    end_time = models.TimeField("終了時間")    # 終了時間
+    is_active = models.BooleanField(default=False)  # 機能の有効/無効
+
+    
 CATEGORY = (
     ('Pop', 'ポップ'),
     ('Rock', 'ロック'),

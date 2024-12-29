@@ -10,6 +10,9 @@ from . import views
     
 
 urlpatterns = [
+    path('set_dark_mode/', views.set_dark_mode_schedule, name='set_dark_mode'),
+    path('success/', views.success_page, name='success_page'),
+
     path('follow/<int:user_id>/', views.follow_user, name='follow'),
     path('unfollow/<int:user_id>/', views.unfollow_user, name='unfollow'),
     path('profile/<int:user_id>/', views.user_profile, name='profile'),
