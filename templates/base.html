@@ -311,6 +311,9 @@
                             <li class="nav-item">
                                 <a class="nav-link mx-3" href="{% url 'profile_list' %}">プロフィール設定</a>
                             </li>
+                            <li>
+                                <a class="nav-link mx-3" href="{% url 'list-ongaku' %}">現在選択中のジャンル: {% if selected_category %}{{ selected_category }}{% else %}all{% endif %}</a>
+                            </li>
                         {% else %}
                             <li class="nav-item">
                                 <a class="nav-link mx-3" href="{% url 'accounts:login' %}">ログイン</a>

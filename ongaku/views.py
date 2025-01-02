@@ -625,25 +625,70 @@ def restricted_view(request, pk):
     context = {'object': obj}
     return render(request, 'restricted.html', context)
 
-
+CATEGORY = (
+    ('Pop', 'ポップ'),
+    ('Rock', 'ロック'),
+    ('Jazz', 'ジャズ'),
+    ('Classical', 'クラシック'),
+    ('Hip-hop', 'ヒップホップ'),
+    ('Electronic', 'エレクトロニック'),
+    ('Country', 'カントリー'),
+    ('Folk', 'フォーク'),
+    ('Blues', 'ブルース'),
+    ('Reggae', 'レゲエ'),
+    ('Metal', 'メタル'),
+    ('R&B', 'R&B'),
+    ('Punk', 'パンク'),
+    ('Techno', 'テクノ'),
+    ('Trap', 'トラップ'),
+    ('Dubstep', 'ダブステップ'),
+    ('Acoustic', 'アコースティック'),
+    ('Latin', 'ラテン'),
+    ('Soul', 'ソウル'),
+    ('Funk', 'ファンク'),
+    ('World Music', 'ワールドミュージック'),
+    ('Indie', 'インディー'),
+    ('House', 'ハウス'),
+    ('J-Pop', 'J-POP'),
+    ('K-Pop', 'K-POP'),
+    ('Synthpop', 'シンセポップ'),
+    ('New Wave', 'ニューウェーブ'),
+    ('Alternative', 'オルタナティヴ'),
+    ('Ambient', 'アンビエント'),
+    ('Psychedelic', 'サイケデリック'),
+    ('Hardcore', 'ハードコア'),
+    ('Rap', 'ラップ'),
+    ('City Pop', 'シティポップ'),
+    ('Chiptune', 'チップチューン'),
+    ('Anison', 'アニソン'),
+    ('Future Bass', 'フューチャーベース'),
+    ('Vocaloid', 'ボカロ')
+)
 
 def index_view(request):
-    # 音楽のリストを取得
+    # クエリパラメータから選択されたジャンルを取得
+    selected_category = request.GET.get('category', None)
+
+    # ジャンルリスト（英語名 → 日本語ラベル）
+    genres = dict(CATEGORY)
+
+    # 全曲リストを取得
     if request.user.is_authenticated:
         # ログインユーザーの場合、自分の曲はすべて表示、それ以外は公開曲のみ
-        music_list = Ongaku.objects.filter(is_public=True) | Ongaku.objects.filter(user=request.user)
+        music_queryset = Ongaku.objects.filter(is_public=True) | Ongaku.objects.filter(user=request.user)
     else:
         # 未ログインユーザーは公開曲のみ
-        music_list = Ongaku.objects.filter(is_public=True)
+        music_queryset = Ongaku.objects.filter(is_public=True)
 
-    # 新しい順に並べたリスト
-    object_list = Ongaku.objects.order_by('-id')
+    # `category` フィールドでフィルタリング
+    if selected_category and selected_category in genres:
+        music_queryset = music_queryset.filter(category=selected_category)
 
     # 再生回数が多いトップ10
-    recommended = Ongaku.objects.all().order_by('-play_count')[:10]
+    recommended = music_queryset.order_by('-play_count')[:10]
 
     # 平均評価でランキング
-    ranking_list = Ongaku.objects.annotate(avg_rating=Avg('review__rate')).order_by('-avg_rating')
+    ranking_list = music_queryset.annotate(avg_rating=Avg('review__rate')).order_by('-avg_rating')
 
     # ページネーションの設定
     paginator = Paginator(ranking_list, ITEM_PER_PAGE)
@@ -654,13 +699,15 @@ def index_view(request):
         request,
         'ongaku/index.html',
         {
-            'music_list': music_list,
-            'object_list': object_list,
+            'genres': CATEGORY,  # ジャンルリスト
+            'selected_category': selected_category,  # 選択中のジャンル
+            'music_list': music_queryset,
             'recommended': recommended,
             'ranking_list': ranking_list,
             'page_obj': page_obj,
         },
     )
+
 
 class ListOngakuView(LoginRequiredMixin, ListView):
     template_name = 'ongaku/ongaku_list.html'
