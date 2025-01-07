@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
-{% block title %}音楽アプリ{% endblock %}
-{% block h1 %}音楽アプリ{% endblock %}
+{% block title %}音楽一覧{% endblock %}
+{% block h1 %}フリー音楽アプリ{% endblock %}
 
 
 {% block content %}
@@ -39,7 +39,7 @@
         <!-- ジャンル選択フォーム -->
         <form method="get" action="">
             <label for="category">ジャンルを選択:</label>
-            <select name="category" id="category" onchange="this.form.submit()">
+            <select name="category" id="category" size="1" onchange="this.form.submit()">
                 <option value="">すべて</option>
                 {% for key, value in genres %}
                 <option value="{{ key }}" {% if key == selected_category %}selected{% endif %}>
@@ -48,6 +48,16 @@
                 {% endfor %}
             </select>
         </form>
+
+        <style>
+            /* スクロール可能なスタイル */
+            #category {
+                width: 15%; /* 幅を調整 */
+                box-sizing: border-box; /* パディングやボーダーを幅に含める */
+                overflow-y: auto; /* 垂直方向のスクロールを許可 */
+            }
+        </style>
+
 
         <!-- 選択中のジャンルを表示 -->
         <p>現在選択中のジャンル: {% if selected_category %}{{ selected_category }}{% else %}all{% endif %}</p>

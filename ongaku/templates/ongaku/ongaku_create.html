@@ -135,9 +135,9 @@ form {
 </style>
 
 {% block content %}
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <div class="c-3 m-4 bg-light rounded" type="kasane">
+    <div id="confirmationModal" class="modal" style="background-color: #3333333b;">
+        <div class="modal-content" style="background-color: #3333333b;">
+            <div class="c-3 m-4 bg-light rounded" type="kasane" style="background-color: #3333338a;">
                 <div class="border border_color p-4 mb-4">
                     <h2><br></h2>
                     <h3>このページの内容をご確認ください</h3>
@@ -148,10 +148,8 @@ form {
                     <h2><br></h2>
                     <h4>利用規約と法律の遵守について</h4>
                     <p>
-                        ・当アプリでは、著作権法に基づき、他人が作成した楽曲や歌、音楽の無断使用・アップロードを禁止しております。<br>
-                        ・他者が権利を有するコンテンツを無断でアップロードした場合、法的責任が生じる可能性がございますので、十分にご注意ください。
-                    </p>
-                    <p>
+                        ・著作権法に基づき、他人が作成した楽曲や歌、音楽の無断使用・アップロードは禁止されています。<br><br>
+                        ・他者が権利を有するコンテンツを無断でアップロードした場合、法的責任が生じる可能性がございますので、十分にご注意ください。<br><br>
                         ・ご自身で作成された楽曲や、フリーライセンスで提供されている音楽のみをアップロードしてください。
                     </p>
                     <h2><br></h2>
@@ -159,14 +157,25 @@ form {
                     <p>
                         アップロードを行う際には、必ず内容を十分にご確認いただき、責任を持ってご利用いただきますようお願い申し上げます。
                     </p>
-                    <h2><br><br><br></h2>
+                    <h6><br></h6>
+                    <p class="responsive-line" style="color: rgba(255, 255, 236, 0.653);">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+                    <style>
+                        .responsive-line {
+                            width: 100%; /* 幅を100%に設定して親要素に合わせる */
+                            white-space: nowrap; /* テキストが折り返されないようにする */
+                            overflow: hidden; /* 親要素からはみ出さないようにする */
+                        }
+                    </style>
+                    <h5><br></h5>
                     <label>
                         <input type="checkbox" id="confirmCheckbox">
-                        上記の内容を確認し、遵守することを承諾しました。
+                        私は上記の内容および利用規約を理解し、遵守することを承諾しました。
                     </label>
                     <h2><br></h2>
-                    <button id="confirmButton" disabled>確認する</button>
-                    <h3><br></h3>
+                    <button id="confirmButton" disabled>確認して進む</button>
+                    <p style="font-size: 0.9em; color: gray;">
+                        ※チェックボックスを選択するまでボタンは有効になりません。
+                    </p>
                 </div>
             </div>
         </div>
