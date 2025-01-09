@@ -174,14 +174,16 @@ form {
                     <h2><br></h2>
                     <button id="confirmButton" disabled>確認して進む</button>
                     <p style="font-size: 0.9em; color: gray;">
-                        ※チェックボックスを選択するまでボタンは有効になりません。
+                        ※ チェックボックスを選択するまでボタンは有効になりません。
+                    </p>
+                    <p class="responsive-line" style="color: rgba(255, 255, 236, 0.653);">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+                    <p style="font-size: 0.9em; color: gray;">
+                        もしこの画面が作成ボタンを押した際に表示された場合、URLが記入されてないためです。記入して再度お試しください。
                     </p>
                 </div>
             </div>
         </div>
     </div>
-
-
 
     <form method="post" enctype="multipart/form-data">  <!-- enctype を追加 -->
         {% csrf_token %}
@@ -221,19 +223,19 @@ form {
         <div class="p-2">
             <label for="category">キーワード</label>
             {{ form.custom_category }}
-            <span>検索時に見つかりやすくなります。<br>(一言書いても大丈夫なので自由に書いてください)</span>
+            <span><p style="color: gray;">検索時に見つかりやすくなります。<br>(一言書いても大丈夫なので自由に書いてください)</p></span>
         </div>
         <div class="form-group p-2">
             <label for="ongaku_url">この曲のURL</label>
             <input type="url" name="ongaku_url" id="ongaku_url" class="form-control form-control-lg font-weight-bold text-dark" value="{{ form.ongaku_url.value|default:'' }}">
-            <small>この曲のウェブサイトや音楽リンクを必ず入力してください。</small>
+            <small><p style="color: gray;">この曲のウェブサイトや音楽リンクを必ず入力してください。</p></small>
         </div>
         
         <div class="p-2">
             <label for="is_public">公開設定</label>
             {{ form.is_public }}
             <div>
-                <small>公開にする場合はチェックを入れてください。</small>
+                <small>公開にする場合はチェックしてください。</small>
             </div>
         </div>        
         

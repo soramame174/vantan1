@@ -53,13 +53,13 @@
         <div class="p-2">
             <label for="category">キーワード</label>
             {{ form.custom_category }}
-            <span>検索時に見つかりやすくなります。<br>(一言書いても大丈夫なので自由に書いてください)</span>
+            <span><p style="color: gray;">検索時に見つかりやすくなります。<br>(一言書いても大丈夫なので自由に書いてください)</p></span>
         </div>
 
         <div class="form-group p-2">
             <label for="ongaku_url">この曲のURL</label>
             <input type="url" name="ongaku_url" id="ongaku_url" class="form-control font-weight-bold text-dark" value="{{ form.ongaku_url.value|default:'' }}">
-            <small>この曲のウェブサイトや音楽リンクを必ず入力してください。</small>
+            <small><p style="color: gray;">この曲のウェブサイトや音楽リンクを必ず入力してください。</p></small>
         </div>
         
         <div class="p-2">

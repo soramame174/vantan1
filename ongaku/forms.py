@@ -3,12 +3,7 @@ from .models import Ongaku, Category, UserProfile, Folder
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
-from .models import DarkModeSchedule
 
-class DarkModeScheduleForm(forms.ModelForm):
-    class Meta:
-        model = DarkModeSchedule
-        fields = ['start_time', 'end_time', 'is_active']
 
 
 class UserProfileForm(forms.ModelForm):
@@ -62,22 +57,13 @@ class OngakuForm(forms.ModelForm):
         fields = ['title', 'text', 'audio_file', 'thumbnail', 'category', 'custom_category', 'ongaku_url', 'is_public']
     
     category = forms.ModelChoiceField(queryset=Category.objects.all(), required=False, label="カテゴリ")
+    ongaku_url = forms.URLField(required=True, label="URL")
     widgets = {
             'is_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),  # チェックボックスをレンダリング
         }
     
     def __str__(self):
         return self.title
-
-    def clean(self):
-        cleaned_data = super().clean()
-        category = cleaned_data.get('category')
-        custom_category = cleaned_data.get('custom_category')
-
-        # カテゴリーも新しいカテゴリーも未入力の場合エラー
-        if not category and not custom_category:
-            raise forms.ValidationError("カテゴリーを選択するか、自由に入力してください。")
-        return cleaned_data
     
     def clean_title(self):
         title = self.cleaned_data.get('title')
@@ -90,6 +76,13 @@ class OngakuForm(forms.ModelForm):
         if existing_title.exists():
             raise forms.ValidationError("このタイトルはすでに存在しています。別のタイトルを選んでください。")
         return title
+    
+    def clean_ongaku_url(self):
+        ongaku_url = self.cleaned_data.get('ongaku_url')
+        if not ongaku_url or not ongaku_url.strip():
+            raise forms.ValidationError("URLを入力してください。")
+        return ongaku_url
+
 
 
 
@@ -107,5 +100,3 @@ class Command(BaseCommand):
 # 検索フォーム（SearchForm）はそのままで問題なし
 class SearchForm(forms.Form):
     query = forms.CharField(label='検索', max_length=100, required=False)
-
-

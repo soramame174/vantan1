@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User  # Userモデルをインポート
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now
 
 from .consts import MAX_PATE
 
@@ -13,13 +14,6 @@ class MaintenanceConfig(models.Model):
     end_time = models.DateTimeField()    # メンテナンス終了時刻
     is_active = models.BooleanField(default=False)  # メンテナンス有効化スイッチ
 
-class DarkModeSchedule(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="dark_mode_schedule")
-    start_time = models.TimeField("開始時間")  # 開始時間
-    end_time = models.TimeField("終了時間")    # 終了時間
-    is_active = models.BooleanField("オン/オフ", default=False)  # 機能の有効/無効
-
-    
 CATEGORY = (
     ('Pop', 'ポップ'),
     ('Rock', 'ロック'),
@@ -57,7 +51,8 @@ CATEGORY = (
     ('Chiptune', 'チップチューン'),
     ('Anison', 'アニソン'),
     ('Future Bass', 'フューチャーベース'),
-    ('Vocaloid', 'ボカロ')
+    ('Vocaloid', 'ボカロ'),
+    ('Healing', '癒し')
 )
 
 
@@ -91,7 +86,7 @@ class Ongaku(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)  # 投稿日
 
-    ongaku_url = models.URLField()
+    ongaku_url = models.URLField(blank=False, null=False)
 
     favorites = models.ManyToManyField(User, related_name='favorite_songs', blank=True)
 

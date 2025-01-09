@@ -50,11 +50,20 @@
         </form>
 
         <style>
-            /* スクロール可能なスタイル */
-            #category {
-                width: 15%; /* 幅を調整 */
-                box-sizing: border-box; /* パディングやボーダーを幅に含める */
-                overflow-y: auto; /* 垂直方向のスクロールを許可 */
+            @media (min-width: 1011px){
+                /* スクロール可能なスタイル */
+                #category {
+                    width: 200px; /* 幅を調整 */
+                    box-sizing: border-box; /* パディングやボーダーを幅に含める */
+                    overflow-y: auto; /* 垂直方向のスクロールを許可 */
+                }
+            }
+            @media (max-width: 768px) {
+                #category {
+                    width: 50%; /* 幅を調整 */
+                    box-sizing: border-box; /* パディングやボーダーを幅に含める */
+                    overflow-y: auto; /* 垂直方向のスクロールを許可 */
+                }
             }
         </style>
 
@@ -75,10 +84,11 @@
         
         <!-- 音楽をページごとに30個ずつ表示 -->
         <div class="row">
+            <h2>音楽一覧</h2>
+            <h2><br></h2>
             {% for item in page_obj %}
                 {% if item.is_public %}
-                    <h2>音楽一覧</h2>
-                    <h2><br></h2>
+                    
                     <div class="col-md-4 col-sm-6"> <!-- レスポンシブで2列/3列切り替え -->
                         <div class="border border_color p-4 mb-2" type="tokubetu">
                             <h3 class="song-title">{{ item.title }}</h3>
@@ -98,7 +108,6 @@
                             {% else %}
                                 {% if item.user == request.user %}
                                     <p>音声ファイルがありません。</p>
-                                    <h6><br></h6>
                                 {% endif %}
                             {% endif %}
                             

@@ -27,15 +27,6 @@
         <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y.m.d H:i" }}</p>
         <a href="{% url 'change_display_name' %}">表示名を変更</a>
         <h3><br></h3>
-        
-<!-- 
-        <a href="{% url 'set_dark_mode' %}">ダークモードの時間設定</a>
-        
-        <p>開始時間: {{ user.dark_mode_schedule.start_time }}</p>
-        <p>終了時間: {{ user.dark_mode_schedule.end_time }}</p>
-        <p>Is Active: {{ user.dark_mode_schedule.is_active }}</p>
- -->
-
 
         <h3><br></h3>
 

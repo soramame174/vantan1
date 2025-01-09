@@ -99,11 +99,14 @@
         <h6><br><br></h6>
 
         <h2>作品リスト</h2>
+        <span>※ 公開設定されてないものは表示されていません</span>
         
             {% for song in songs %}
-                <ul>
-                    <h4><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
-                </ul>
+                {% if song.is_public %}
+                    <ul>
+                        <h4><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
+                    </ul>
+                {% endif %}
             {% empty %}
                 <h5>まだ曲を作成していません。</h5>
             {% endfor %}
