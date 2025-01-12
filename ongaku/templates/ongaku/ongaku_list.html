@@ -1,22 +1,325 @@
 {% extends 'base.html' %}
 
 {% block title %}音楽一覧{% endblock %}
-{% block h1 %}音楽一覧{% endblock %}
+{% block h1 %}フリー音楽アプリ{% endblock %}
+
 
 {% block content %}
-    {% for item in object_list %}
-    <div class="p-4 m-4 bg-light border rounded" style="border: 2px solid #ffc7e8 !important;">
-        <div class="p-4 m-4 bg-light rounded">
-            <h2>{{ item.title }}</h2>
-            {% if item.thumbnail %}
-                <img src="{{ item.thumbnail.url }}" class="img-thumbnail" />
+
+<h2><br></h2>
+<div>
+    <p class="responsive-line">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+</div>
+<style>
+    .responsive-line {
+        width: 100%; /* 幅を100%に設定して親要素に合わせる */
+        white-space: nowrap; /* テキストが折り返されないようにする */
+        overflow: hidden; /* 親要素からはみ出さないようにする */
+    }
+
+    /* 名前とプロフィール画像を横並びに配置 */
+    .profile-container {
+        display: flex;
+        align-items: center;
+    }
+
+    /* プロフィール画像のサイズをさらに小さく調整 */
+    .profile-picture {
+        width: 70px;  /* 画像サイズを20pxに縮小 */
+        height: 70px; /* 高さも20pxに調整 */
+        margin-left: 10px;
+        border-radius: 50%; /* 画像を丸くする */
+    }
+</style>
+
+<div class="row">
+    <!-- 左側のメインコンテンツ -->
+    <div class="col-9">
+        
+        <!-- ジャンル選択フォーム -->
+        <form method="get" action="">
+            <label for="category">ジャンルを選択:</label>
+            <select name="category" id="category" size="1" onchange="this.form.submit()">
+                <option value="">すべて</option>
+                {% for key, value in genres %}
+                <option value="{{ key }}" {% if key == selected_category %}selected{% endif %}>
+                    {{ value }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <style>
+            @media (min-width: 1011px){
+                /* スクロール可能なスタイル */
+                #category {
+                    width: 200px; /* 幅を調整 */
+                    box-sizing: border-box; /* パディングやボーダーを幅に含める */
+                    overflow-y: auto; /* 垂直方向のスクロールを許可 */
+                }
+            }
+            @media (max-width: 768px) {
+                #category {
+                    width: 50%; /* 幅を調整 */
+                    box-sizing: border-box; /* パディングやボーダーを幅に含める */
+                    overflow-y: auto; /* 垂直方向のスクロールを許可 */
+                }
+            }
+        </style>
+
+
+        <!-- 選択中のジャンルを表示 -->
+        <p>現在選択中のジャンル: {% if selected_category %}{{ selected_category }}{% else %}all{% endif %}</p>
+
+        <!-- 音楽リストの表示 -->
+        <h2>{% if selected_category %}「{{ selected_category }}」の曲{% else %}「all」の曲{% endif %}</h2>
+
+        <!-- ジャンルが選択されていないときのメッセージ -->
+        {% if not music_list %}
+        <p>選択されたジャンルには曲がありません。</p>
+        <h2><br><br><br><br><br><br></h2>
+        {% endif %}
+
+        <h5><br><br></h5>
+        
+        <!-- 音楽をページごとに30個ずつ表示 -->
+        <div class="row">
+            <h2>音楽一覧</h2>
+            <h2><br></h2>
+            {% for item in page_obj %}
+                {% if item.is_public %}
+                    
+                    <div class="col-md-4 col-sm-6"> <!-- レスポンシブで2列/3列切り替え -->
+                        <div class="border border_color p-4 mb-2" type="tokubetu">
+                            <h3 class="song-title">{{ item.title }}</h3>
+
+                            {% if item.audio_file %}
+                                <audio id="audioPlayer{{ item.pk }}" controls style="width: 100%; max-width: 100%;">
+                                    <source src="{{ item.audio_file.url }}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                <!-- 音量調整 -->
+                                <div class="p-1">
+                                    <label for="volumeControl{{ item.pk }}">音量調整</label>
+                                    <input type="range" id="volumeControl{{ item.pk }}" min="0" max="1" step="0.01" value="1" oninput="setVolume(this.value, {{ item.pk }})">
+                                    <span id="volumeValue{{ item.pk }}">100%</span> <!-- 音量のパーセンテージを表示 -->
+                                    
+                                </div>
+                            {% else %}
+                                {% if item.user == request.user %}
+                                    <p>音声ファイルがありません。</p>
+                                {% endif %}
+                            {% endif %}
+                            
+                            
+                            <script>
+                                let remainingTimer;
+                                let remainingTime; // ここで変数を定義
+                            
+                                // 音量調整
+                                function setVolume(value, playerId) {
+                                    const audioPlayer = document.getElementById('audioPlayer' + playerId);
+                                    const volumeValue = document.getElementById('volumeValue' + playerId);
+                                    audioPlayer.volume = value;
+                                    volumeValue.textContent = Math.round(value * 100) + '%'; // スライダーを動かしている最中にパーセンテージを更新
+                                }
+
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    const audioPlayers = document.querySelectorAll('[id^="audioPlayer"]');  // すべてのaudioPlayerを選択
+                                    audioPlayers.forEach(audioPlayer => {
+                                        audioPlayer.addEventListener('ended', function () {
+                                            const songId = audioPlayer.id.replace('audioPlayer', '');  // IDから曲のIDを抽出
+                                            incrementPlayCount(songId);  // 再生回数をインクリメント
+                                        });
+                                    });
+                                });
+
+                                function incrementPlayCount(songId) {
+                                    fetch(`/increment-play-count/${songId}/`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRFToken': getCookie('csrftoken'),  // CSRFトークンをヘッダーに追加
+                                        },
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            const playCountElement = document.getElementById(`playCount${songId}`);
+                                            if (playCountElement) {
+                                                playCountElement.textContent = `再生回数: ${data.play_count}`;
+                                            }
+                                        }
+                                    });
+                                }
+
+                                function getCookie(name) {
+                                    let cookieValue = null;
+                                    if (document.cookie && document.cookie !== '') {
+                                        const cookies = document.cookie.split(';');
+                                        for (let i = 0; i < cookies.length; i++) {
+                                            const cookie = cookies[i].trim();
+                                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    return cookieValue;
+                                }
+
+            
+                            </script>
+                            {% if item.audio_file %}
+                                <div>
+                                    <p id="playCount{{ item.pk }}">再生回数: {{ item.play_count }}</p>
+                                    <h6><br></h6>
+                                </div>
+                            {% else %}
+                            <h5><br><br><br></h5>
+                            {% endif %}
+                            {% if item.thumbnail %}
+                                <img src="{{ item.thumbnail.url }}" class="img-thumbnail" style="width: 100%; height: auto;" />
+                            {% endif %}
+                            <span>
+                                (投稿ユーザー: 
+                                {% if item.user.userprofile.display_name == None %}
+                                    {{ item.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                                {% else %}
+                                    {{ item.user.userprofile.display_name|default:"匿名" }}
+                                {% endif %} 様)
+                            </span>
+                            <h6 class="card-title mt-4">ジャンル: {{ item.category|default:"なし" }}</h6>
+                            <div class="mt-3">
+                                <a href="{% url 'detail-ongaku' item.pk %}" class="btn">詳細へ</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% if forloop.counter|divisibleby:6 %}
+                        </div><div class="row">
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- ページネーション -->
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; 最初のページ</a>
+                <a href="?page={{ page_obj.previous_page_number }}">前のページ</a>
             {% endif %}
-            <h6 class="card-title mt-4">ジャンル: {{ item.category|default:"なし" }}</h6>
-            <div class="mt-3">
-                <a href="{% url 'detail-ongaku' item.pk %}" class="btn">詳細へ</a>
-            </div>
+
+            <span class="current">
+                ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">次のページ</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">最終ページ &raquo;</a>
+            {% endif %}
         </div>
     </div>
-    {% endfor %}
-    {% include 'ongaku/components/pagination.html' %}
-{% endblock content %}
+
+    <!-- 右側の再生回数順おすすめセクション
+    <div class="col-3 misenai">
+        <div>
+            <div class="border border_color misenai" type="tokubetu">
+                <h2>再生回数トップ10</h2>
+            
+                {% if recommended %}
+                    <ul>
+                        {% for ongaku in recommended %}
+                            {% if item.is_public %}
+                                <li>
+                                    <h3>{{ ongaku.title }}</h3>
+                                    <div class="misenai" style="display: block;">
+                                        <span>(投稿ユーザー: {{ ongaku.user.userprofile.display_name|default:"匿名" }}様)</span>
+                                        {% if ongaku.thumbnail %}
+                                            <img src="{{ ongaku.thumbnail.url }}" class="img-thumbnail" style="width: 600px; height: auto;" />
+                                        {% endif %}
+                                        <h6 class="card-title mt-4">ジャンル: {{ ongaku.category.name|default:"なし" }}</h6>
+                                        <p>再生回数: {{ ongaku.play_count }}</p>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="{% url 'detail-ongaku' ongaku.pk %}" class="btn">詳細へ</a>
+                                    </div> 
+                                    <h6><br></h6>           
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>おすすめの音楽はありません。</p>
+                {% endif %}
+            </div>
+        </div>
+    </div> -->
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .list-group-item {
+    border: 2px solid #f0f0f0;
+    padding: 10px;
+    }
+    .list-group-item img {
+        border-radius: 5px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* タイトルの折り返し調整 */
+    .song-title {
+        white-space: normal; /* タイトルが長い場合に折り返しを許可 */
+        overflow: hidden;
+        text-overflow: ellipsis; /* 省略記号を表示 */
+        height: 3em; /* タイトルの高さを固定 */
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* 2行で折り返す */
+        -webkit-box-orient: vertical;
+    }
+
+    /* オーディオプレーヤーの幅調整 */
+    audio {
+        width: 100%;
+        max-width: 100%; /* 親要素を超えない */
+        margin-bottom: 10px;
+    }
+
+    .misenai {
+        display: none !important;
+    }
+
+    /* カスタムレスポンシブ調整 */
+    @media (max-width: 576px) {
+        .col-sm-6 {
+            width: 100%; /* スマホサイズで1列表示 */
+        }
+
+        .misenai {
+            display: none !important;
+        }
+    }
+    
+    .responsive-line {
+        border-bottom: 2px solid #000; /* 線の色と太さを指定 */
+        width: 100%; /* 幅を100%に設定して親要素に合わせる */
+        white-space: nowrap; /* テキストが折り返されないようにする */
+        overflow: hidden; /* 親要素からはみ出さないようにする */
+    }
+
+    /* 名前とプロフィール画像を横並びに配置 */
+    .profile-container {
+        display: flex;
+        align-items: center;
+    }
+
+    /* プロフィール画像のサイズをさらに小さく調整 */
+    .profile-picture {
+        width: 45px;  /* 画像サイズを20pxに縮小 */
+        height: 45px; /* 高さも20pxに調整 */
+        margin-left: 10px;
+        border-radius: 50%; /* 画像を丸くする */
+    }
+</style>
+{% endblock %}

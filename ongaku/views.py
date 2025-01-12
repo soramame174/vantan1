@@ -32,6 +32,13 @@ from django.http import HttpResponse
 import datetime
 
 
+def top(request):
+    # トップページをレンダリング
+    return render(request, 'ongaku/top.html')
+
+def about(request):
+    return render(request, 'about.html')
+
 
 def check_maintenance():
     config = MaintenanceConfig.objects.filter(is_active=True).first()
@@ -690,7 +697,7 @@ def index_view(request):
 
 
 class ListOngakuView(LoginRequiredMixin, ListView):
-    template_name = 'ongaku/ongaku_list.html'
+    template_name = 'ongaku/index.html'
     model = Ongaku
     paginated_by = ITEM_PER_PAGE
 

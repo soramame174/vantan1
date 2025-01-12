@@ -136,17 +136,13 @@ STATIC_URL = '/static/'  # 静的ファイルのURLパス
 
 # 開発環境で静的ファイルを読み込む設定
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # これで、プロジェクトのルートディレクトリにある static フォルダを参照します
+    BASE_DIR / "static", 
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'  # 適宜なURLに変更してください
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')  # 実際のファイルの保存場所を指定
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
