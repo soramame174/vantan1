@@ -182,8 +182,8 @@
         <h1>音楽の世界へようこそ！</h1>
         <nav>
             <ul>
-                <li><a class="nav-link mx-3" href="{% url 'about' %}">アバウト</a></li>
                 <li><a class="nav-link mx-3" href="/ongaku/">音楽ライブラリ</a></li>
+                <li><a class="nav-link mx-3" href="{% url 'about' %}">アバウト</a></li>
                 {% if request.user.is_authenticated %}
                     <!-- プロフィール設定を見れるボタンを追加 -->
                     <li class="nav-item">
