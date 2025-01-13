@@ -263,6 +263,19 @@
                 border: 1px solid #ff4081;
                 padding-left: 10px;
             }
+
+            .timer-end-message {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 50px;
+                color: #ffffffb3;
+                -webkit-text-stroke: 1px #ff4081d3;
+                z-index: 1050;  /* 他の要素よりも手前に表示 */
+                font-weight: bold;
+                display: none; /* Hidden by default */
+            }
             
         </style>      
     </head>
@@ -330,9 +343,13 @@
         {% if request.user.is_authenticated %}
             <!-- タイマー設定フォーム -->
             <div class="container mt-4">
-                <label for="timerSelect" style="color: #ff4081;">ブラックタイマーを設定 (なし / 5分〜5時間まで):</label>
+                <label for="timerSelect" style="color: #ff4081;">ブラックタイマーを設定 (オフ/オン | 1分〜10時間まで):</label>
                 <select id="timerSelect" class="form-select">
-                    <option value="0">なし</option>
+                    <option value="0">オフ</option>
+                    <option value="1">オン</option>
+                    <option value="60000">1分</option>
+                    <option value="90000">1分30秒</option>
+                    <option value="180000">3分</option>
                     <option value="300000">5分</option>
                     <option value="600000">10分</option>
                     <option value="900000">15分</option>
@@ -344,8 +361,10 @@
                     <option value="10800000">3時間</option>
                     <option value="14400000">4時間</option>
                     <option value="18000000">5時間</option>
+                    <option value="25200000">7時間</option>
+                    <option value="36000000">10時間</option>
                 </select>
-                <button onclick="setTimer()">開始</button>
+                <button onclick="setTimer()">実行</button>
             </div>
         {% endif %}
             <footer>
@@ -355,53 +374,10 @@
         <!-- 画面を暗くするオーバーレイ -->
         <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 999;"></div>
 
+        <div class="timer-end-message" id="timerEndMessage"><span>タイマー終了!</span><h5>リロードまたは画面を押して解除</h5></div>
+
         <script>
-            let countdownTimer;
-            
-            // タイマー設定
-            function setTimer() {
-                // タイマーの時間を取得
-                var timerValue = document.getElementById("timerSelect").value;
-                const timerDisplay = document.getElementById("timerDisplay");
 
-                // もし「なし」が選ばれた場合
-                if (timerValue == "0") {
-                    resetTimer();
-                    timerDisplay.style.display = "none"; // タイマー表示を非表示
-                } else {
-                    resetTimer();
-                    let remainingTime = timerValue;
-                    timerDisplay.style.display = "block"; // タイマー表示を表示
-                    countdownTimer = setInterval(function() {
-                        let hours = Math.floor(remainingTime / 3600000); // 時間
-                        let minutes = Math.floor((remainingTime % 3600000) / 60000); // 分
-                        let seconds = Math.floor((remainingTime % 60000) / 1000); // 秒
-                        timerDisplay.textContent = `${hours}時間 ${minutes}分 ${seconds}秒`;
-                        if (remainingTime <= 0) {
-                            clearInterval(countdownTimer);
-                            document.getElementById("overlay").style.display = "block"; // 画面を暗くする
-                            timerDisplay.textContent = "タイマー終了！";
-                        }
-                        
-                        remainingTime -= 1000; // 1秒ずつ減らす
-                    }, 1000);
-                }
-            }
-
-            // タイマーをリセット
-            function resetTimer() {
-                clearInterval(countdownTimer);
-                document.getElementById("timerDisplay").textContent = ""; // タイマーの表示を消す
-                document.getElementById("overlay").style.display = "none"; // 画面を暗くしない
-            }
-
-            // クリック時に画面を元の明るさに戻す
-            document.addEventListener("click", function() {
-                if (document.getElementById("overlay").style.display === "block") {
-                    resetTimer();
-                }
-            });
-            
             // ページ読み込み時に、localStorageからモード設定を読み込む
             const darkMode = localStorage.getItem('darkMode') === 'true';
             if (darkMode) {
@@ -413,6 +389,102 @@
                 const isDarkMode = document.body.classList.toggle('dark-mode');
                 localStorage.setItem('darkMode', isDarkMode);
             }
+            
+            let countdownTimer;
+
+            // ページ読み込み時にタイマーを復元
+            window.onload = function () {
+                const timerDisplay = document.getElementById("timerDisplay");
+                const overlay = document.getElementById("overlay");
+
+                // 保存された残り時間を取得
+                const savedRemainingTime = parseInt(localStorage.getItem("remainingTime"), 10);
+                const isTimerActive = localStorage.getItem("isTimerActive") === "true";
+
+                if (isTimerActive && savedRemainingTime > 0) {
+                    timerDisplay.style.display = "block";
+                    startCountdown(savedRemainingTime); // タイマーを再開
+                } else {
+                    timerDisplay.style.display = "none";
+                    overlay.style.display = "none";
+                }
+
+            };
+
+            // タイマー設定
+            function setTimer() {
+                const timerValue = parseInt(document.getElementById("timerSelect").value, 10);
+                const timerDisplay = document.getElementById("timerDisplay");
+                const timerEndMessage = document.getElementById("timerEndMessage");
+
+                // 「なし」が選ばれた場合
+                if (timerValue === 0) {
+                    resetTimer();
+                    timerDisplay.style.display = "none"; // タイマー表示を非表示
+                    timerEndMessage.style.display = "none";
+                    return;
+                }
+
+                resetTimer(); // タイマーをリセット
+                timerDisplay.style.display = "block";
+                localStorage.setItem("isTimerActive", "true");
+                startCountdown(timerValue); // カウントダウン開始
+            }
+
+            // タイマー開始
+            function startCountdown(initialTime) {
+                const timerDisplay = document.getElementById("timerDisplay");
+                const overlay = document.getElementById("overlay");
+                let remainingTime = initialTime;
+
+                // `localStorage` に現在の残り時間を保存
+                localStorage.setItem("remainingTime", remainingTime);
+
+                countdownTimer = setInterval(function () {
+                    let hours = formatToTwoDigits(Math.floor(remainingTime / 3600000)); // 時間
+                    let minutes = formatToTwoDigits(Math.floor((remainingTime % 3600000) / 60000)); // 分
+                    let seconds = formatToTwoDigits(Math.floor((remainingTime % 60000) / 1000)); // 秒
+
+                    timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+                    
+                    // タイマー終了
+                    if (remainingTime <= 0) {
+                        clearInterval(countdownTimer);
+                        localStorage.setItem("remainingTime", "0");
+                        localStorage.setItem("isTimerActive", "false");
+                        overlay.style.display = "block";
+                        timerDisplay.textContent = " ";
+                        timerEndMessage.style.display = "block";  // Show "タイマー終了！"
+                        return;
+                    }
+
+                    remainingTime -= 1000; // 1秒ずつ減らす
+                    localStorage.setItem("remainingTime", remainingTime); // 残り時間を保存
+                }, 1000);
+            }
+
+            // 2桁のゼロ埋めを手動で実現
+            function formatToTwoDigits(num) {
+                return num < 10 ? "0" + num : num.toString();
+            }
+
+            // タイマーをリセット
+            function resetTimer() {
+                clearInterval(countdownTimer);
+                localStorage.setItem("remainingTime", "0");
+                localStorage.setItem("isTimerActive", "false");
+                document.getElementById("timerDisplay").textContent = ""; // タイマーの表示を消す
+                timerEndMessage.style.display = "none";
+                document.getElementById("overlay").style.display = "none"; // 画面を暗くしない
+            }
+
+            // クリック時に画面を元の明るさに戻す
+            document.addEventListener("click", function () {
+                if (document.getElementById("overlay").style.display === "block") {
+                    resetTimer();
+                }
+            });
+
         </script>
                     
 
