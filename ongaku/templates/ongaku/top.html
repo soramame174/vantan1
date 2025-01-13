@@ -213,19 +213,25 @@
 
     <div class="features">
         <div class="feature">
-            <img src="{% static 'img/アーティスト.png' %}" alt="Discover Music">
-            <h3>新しい音楽を発見</h3>
-            <p>最新のトラックや注目のアーティストをチェック！</p>
+            <a href="{% if request.user.is_authenticated %}{% url 'list-ongaku' %}{% else %}{% url 'accounts:signup' %}{% endif %}">
+                <img src="{% static 'img/アーティスト.png' %}" alt="Discover Music">
+                <h3>新しい音楽を発見</h3>
+                <p>最新のトラックや注目のアーティストをチェック！</p>
+            </a>
         </div>
         <div class="feature">
-            <img src="{% static 'img/音符.png' %}" alt="Favorite Songs">
-            <h3>お気に入りを保存</h3>
-            <p>好きな曲をお気に入りリストに追加しよう。</p>
+            <a href="{% if request.user.is_authenticated %}{% url 'list-ongaku' %}{% else %}{% url 'accounts:signup' %}{% endif %}">
+                <img src="{% static 'img/音符.png' %}" alt="Favorite Songs">
+                <h3>お気に入りを保存</h3>
+                <p>好きな曲をお気に入りリストに追加しよう。</p>
+            </a>
         </div>
         <div class="feature">
-            <img src="{% static 'img/音符フォルダ.png' %}" alt="Create Playlists">
-            <h3>プレイリストを作成</h3>
-            <p>自分だけの音楽コレクションを簡単に整理！</p>
+            <a href="{% if request.user.is_authenticated %}{% url 'profile_list' %}{% else %}{% url 'accounts:signup' %}{% endif %}">
+                <img src="{% static 'img/音符フォルダ.png' %}" alt="Create Playlists">
+                <h3>プレイリストを作成</h3>
+                <p>自分だけの音楽コレクションを簡単に整理！</p>
+            </a>
         </div>
     </div>
 
