@@ -211,18 +211,18 @@
 
             <div>
                 
-                <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+                <a href="{% url 'list-ongaku' %}" class="btn">一覧へ</a>|
                 {% if object.user == request.user %}
-                    <a href="{% url 'update-ongaku' object.pk %}" class="btn">編集する</a>
-                    <a href="{% url 'delete-ongaku' object.pk %}" class="btn">削除する</a>
+                    <a href="{% url 'update-ongaku' object.pk %}" class="btn">編集する</a>|
+                    <a href="{% url 'delete-ongaku' object.pk %}" class="btn">削除する</a>|
                 {% else %}
-                    <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank">シェアする</a>
-                    <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a>
+                    <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank">シェアする</a>|
+                    <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a>|
                 {% endif %}
-                <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>
+                <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>|
     
                 {% if has_audio_file %}
-                    <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>
+                    <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>|
                 {% endif %}
 
 
