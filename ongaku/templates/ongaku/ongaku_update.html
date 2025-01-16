@@ -3,6 +3,26 @@
 {% block title %}音楽修正{% endblock %}
 
 {% block content %}
+
+<style>
+    textarea[name="text"], input[name="category"], input[name="title"], input[name='ongaku_url']{
+        border: 2px solid #fad5e2; /* ピンク系の枠線 */
+        padding: 10px;
+        border-radius: 5px;
+        width: 100%; /* フル幅に設定 */
+        margin-bottom: 20px; /* フィールド間に余白を追加 */
+    }
+
+    button, input[type="submit"] {
+        background-color: #ff2583; /* 明るいピンク */
+        color: #f4f4f4;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin-top: 20px; /* ボタンに余白を追加 */
+        cursor: pointer;
+    }
+</style>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         

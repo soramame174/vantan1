@@ -4,37 +4,73 @@
 {% block title %}リクエスト詳細{% endblock %}
 
 {% block content %}
+<style>
+
+    /* 名前とプロフィール画像を横並びに配置 */
+    .profile-container {
+        display: flex;
+        align-items: center;
+    }
+
+    /* プロフィール画像のサイズをさらに小さく調整 */
+    .profile-picture {
+        width: 30px;  /* 画像サイズを20pxに縮小 */
+        height: 30px; /* 高さも20pxに調整 */
+        margin-left: 10px;
+        border-radius: 20%; /* 画像を丸くする */
+    }
+
+    .btn:hover {
+        background-color: #333;
+    }
+</style>
+
 <div class="container mt-5">
     <h2>リクエスト詳細</h2>
     <h5>リクエスト内容| {{ request.text }}</h5>
     <p><br></p>
-    <p><strong>投稿者:</strong>
-        {% if request.user.userprofile.display_name == None %}
-            {{ request.user.userprofile.display_name|default:"匿名" }}{{ request.user.id }}
-        {% else %}
-            {{ request.user.userprofile.display_name|default:"匿名" }}
-        {% endif %} | <strong>作成日:</strong> {{ request.created_at|date:"Y.m/d H:i" }}</p>
+    <h5><strong>投稿者:</strong>
+        {% if user.userprofile.profile_picture %}
+            <!-- プロフィール画像を小さく表示 -->
+            <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+        {% endif %}
+        <a href="{% url 'profile' request.user.pk %}">
+            {% if request.user.userprofile.display_name == None %}
+                {{ request.user.userprofile.display_name|default:"匿名" }}{{ request.user.id }}
+            {% else %}
+                {{ request.user.userprofile.display_name|default:"匿名" }}
+            {% endif %}
+        </a> 様 | <strong>リクエスト作成日:</strong> {{ request.created_at|date:"Y.m/d H:i" }}
+    </h5>
 
     <h3>コメント</h3>
     <ul class="list-group">
         {% for comment in comments %}
             <li class="list-group-item">
-                <strong>コメントしたユーザー: {% if comment.user.userprofile.display_name == None %}
-                    {{ comment.user.userprofile.display_name|default:"匿名" }}{{ comment.user.id }}
-                {% else %}
-                    {{ comment.user.userprofile.display_name|default:"匿名" }}
-                {% endif %}</strong><p style="word-wrap: break-word; word-break: break-word; white-space: normal;">内容: {{ comment.text }} <br>
-                    {% if comment.url %}
-                        <p style="font-size: 0.8em;">関連リンク: <a href="{{ comment.url }}" target="_blank" style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%; ">{{ comment.url }}</a></p>
+                <strong>コメントしたユーザー: 
+                    <a href="{% url 'profile' request.user.pk %}">
+                    {% if comment.user.userprofile.display_name == None %}
+                        {{ comment.user.userprofile.display_name|default:"匿名" }}{{ comment.user.id }}
+                    {% else %}
+                        {{ comment.user.userprofile.display_name|default:"匿名" }}
+                    {% endif %}</a> 様
+                    {% if user.userprofile.profile_picture %}
+                        <!-- プロフィール画像を小さく表示 -->
+                        <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                     {% endif %}
-                </p>
+                </strong>
+                <h5 style="word-wrap: break-word; word-break: break-word; white-space: normal;">内容: {{ comment.text }} <br>
+                    {% if comment.url %}
+                        <p style="font-size: 0.8em;">関連リンク: <a href="{{ comment.url }}" target="_blank" style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%;">{{ comment.url }}</a></p>
+                    {% endif %}
+                </h5>
                 <span class="text-muted">コメント作成日: {{ comment.created_at|date:"Y.m/d H:i" }}</span>
                 {% if comment.user == user %}
-                    <a class="btn" href="{% url 'delete_comment' comment.id %}" style="margin-left: -260px; margin-top: 100px;">コメントを削除</a>
+                    <a class="btn p-1" href="{% url 'delete_comment' comment.id %}" style="margin-left: -250px; margin-top: 100px;">コメントを削除</a>
                 {% endif %}
             </li>
         {% empty %}
-            <h4 style="margin-left: -40px;">現在はなし<br><br><br><br></h4>
+            <h5 style="margin-left: -40px;"><br>現在はありません<br><br><br></h5>
         {% endfor %}
     </ul>
 

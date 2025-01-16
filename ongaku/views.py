@@ -387,7 +387,7 @@ def folder_detail(request, folder_id):
 def delete_folder(request, folder_id):
     folder = Folder.objects.get(id=folder_id)
     folder.delete()
-    return redirect(reverse('profile'))
+    return redirect(reverse('profile_list'))
 
 
 @login_required

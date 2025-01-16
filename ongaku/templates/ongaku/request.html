@@ -3,6 +3,28 @@
 {% block title %}リクエストフォーム{% endblock %}
 
 {% block content %}
+
+<style>
+
+    /* 名前とプロフィール画像を横並びに配置 */
+    .profile-container {
+        display: flex;
+        align-items: center;
+    }
+
+    /* プロフィール画像のサイズをさらに小さく調整 */
+    .profile-picture {
+        width: 30px;  /* 画像サイズを20pxに縮小 */
+        height: 30px; /* 高さも20pxに調整 */
+        margin-left: 10px;
+        border-radius: 20%; /* 画像を丸くする */
+    }
+
+    .btn:hover {
+        background-color: #333;
+    }
+
+</style>
 <div class="container mt-5">
     <h2>リクエストフォーム</h2>
 
@@ -24,19 +46,25 @@
                リクエスト:  {{ req.text }}   
                 <span class="text-muted">
                     <br>（投稿者: 
+                    <a href="{% url 'profile' request.user.pk %}">
                     {% if req.user.userprofile.display_name == None %}
                         {{ req.user.userprofile.display_name|default:"匿名" }}{{ req.user.id }}
                     {% else %}
                         {{ req.user.userprofile.display_name|default:"匿名" }}
-                    {% endif %}）
+                    {% endif %}</a> 様
+                    {% if user.userprofile.profile_picture %}
+                        <!-- プロフィール画像を小さく表示 -->
+                        <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                    {% endif %}
                 </span>
+                <br>
                 <a href="{% url 'request_detail' req.id %}" class="btn">詳細</a>
                 {% if req.user == user %}
                     <a href="{% url 'delete_request' req.id %}" class="btn">✖︎</a>
                 {% endif %}
             </li>
         {% empty %}
-            <h4 style="margin-left: -40px;">現在はなし<br><br><br></h4>
+            <h5 style="margin-left: -40px;">現在はありません<br><br><br></h5>
         {% endfor %}
     </ul>
 </div>

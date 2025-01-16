@@ -3,121 +3,35 @@
 {% block title %}{{ object.title }}{% endblock %}
 {% block h1 %}音楽詳細{% endblock %}
 
+{% block content %}
+
 <style>
-    /* 基本的なデザイン */
-    .border_color {
-        border: 2px solid #ff4081 !important;
+
+    /* 名前とプロフィール画像を横並びに配置 */
+    .profile-container {
+        display: flex;
+        align-items: center;
+    }
+    
+
+    /* プロフィール画像のサイズをさらに小さく調整 */
+    .profile-picture {
+        width: 30px;  /* 画像サイズを20pxに縮小 */
+        height: 30px; /* 高さも20pxに調整 */
+        margin-left: 10px;
+        border-radius: 20%; /* 画像を丸くする */
     }
 
-    div.border, div[class*="border"] {
-        border-color: #ff4081 !important;
-    }
 
-    label, h2, h6, p, h3, .h4 {
-        color: #ff4081 !important;
-    }
-
-    p {
-        color: #ff4081 !important;
-    }
-
-    h3, .h4 {
-        color: #ff4081 !important;
-    }
-
-    /* ダークモード時の修正 */
-    .dark-mode .bg-light {
-        background-color: #333333 !important;
-        color: #f4f4f4 !important;
-    }
-
-    .dark-mode .border_color {
-        border-color: #ff4081 !important;
-    }
-
-    .dark-mode label, .dark-mode h2, .dark-mode h6, .dark-mode p, .dark-mode h3, .dark-mode .h4 {
-        color: #ff4081 !important;
-    }
-
-    .dark-mode .btn {
-        background-color: #ff4081;
-        color: #ffffff;
-    }
-
-    .dark-mode .border_color {
-        border-color: #ff4081 !important;
-    }
-
-    .dark-mode .tokubetu {
-        background-color: #333333;
-    }
-
-    /* スマホ版のレスポンシブデザイン */
-    @media (max-width: 768px) {
-        .img-thumbnail {
-            width: 100%;
-            height: auto;
-        }
-
-        .custom-title {
-            font-size: 1.5rem;
-        }
-
-        .border {
-            padding: 10px;
-        }
-
-        /* キーワードとジャンルをきれいに表示 */
-        .category-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .category-info h6 {
-            font-size: 1rem;
-            margin: 5px 0;
-        }
-
-        /* レビューセクション */
-        .review-section {
-            margin-top: 20px;
-        }
-
-        .review-section h4 {
-            font-size: 1.2rem;
-        }
-
-        .review-section .review-item {
-            margin-bottom: 20px;
-        }
-
-        .review-section .review-item h3 {
-            font-size: 1.1rem;
-        }
-
-        .btn {
-            padding: 5px 10px;
-            font-size: 0.9rem;
-        }
-    }
-
-    /* デスクトップ版のスタイル */
-    @media (min-width: 769px) {
-        .category-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .category-info h6 {
-            font-size: 1.2rem;
-        }
-
-        .btn {
+    .btn {
             font-size: 1rem;
         }
+
+    .dark-mode .btn:hover {
+        background-color: #ffffff;
+        color: #ff4081;
     }
+        
 
     .responsive-line {
         border-bottom: 2px solid #000; /* 線の色と太さを指定 */
@@ -125,9 +39,8 @@
         white-space: nowrap; /* テキストが折り返されないようにする */
         overflow: hidden; /* 親要素からはみ出さないようにする */
     }
+    
 </style>
-
-{% block content %}
     <div class="border border_color p-4 mb-2" type="tokubetu">
     {% if object.thumbnail %}
         <div class="c-3 m-4 bg-light rounded" type="kasane">
@@ -170,14 +83,20 @@
                 <span>
                     <!-- 音楽詳細ページ内に追加するユーザー情報セクション -->
                     <div class="profile-container">
-                        投稿ユーザー: 
-                        <a href="{% url 'profile' object.user.pk %}">
-                            {% if object.user.userprofile.display_name == None %}
-                                {{ object.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
-                            {% else %}
-                                {{ object.user.userprofile.display_name|default:"匿名" }}
+                        <h5>
+                            投稿ユーザー: 
+                            <a href="{% url 'profile' object.user.pk %}">
+                                {% if object.user.userprofile.display_name == None %}
+                                    {{ object.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                                {% else %}
+                                    {{ object.user.userprofile.display_name|default:"匿名" }}
+                                {% endif %}
+                            </a> 様
+                            {% if object.user.userprofile.profile_picture %}
+                                <!-- プロフィール画像を小さく表示 -->
+                                <img src="{{ object.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                             {% endif %}
-                        </a> 様
+                        </h5>
                     </div>
                     {% if object.user == request.user %}
                         <p>公開状態: {{ ongaku.is_public|yesno:"公開,非公開" }}</p>
@@ -200,7 +119,7 @@
             {% if object.ongaku_url %}
                 <div>
                     <h6 class="card-title mt-4">
-                        URL: <a href="{{ object.ongaku_url }}" target="_blank">{{ object.ongaku_url }}</a>
+                        URL: <a href="{{ object.ongaku_url }}" target="_blank" style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%; ">{{ object.ongaku_url }}</a>
                     </h6>
                 </div>
             {% endif %}
@@ -211,18 +130,18 @@
 
             <div>
                 
-                <a href="{% url 'list-ongaku' %}" class="btn">一覧へ</a>|
+                <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a> |
                 {% if object.user == request.user %}
-                    <a href="{% url 'update-ongaku' object.pk %}" class="btn">編集する</a>|
-                    <a href="{% url 'delete-ongaku' object.pk %}" class="btn">削除する</a>|
+                    <a href="{% url 'update-ongaku' object.pk %}" class="btn p-1">編集する</a> |
+                    <a href="{% url 'delete-ongaku' object.pk %}" class="btn p-1">削除する</a> |
                 {% else %}
-                    <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank">シェアする</a>|
-                    <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a>|
+                    <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}&text={{ item.title }}をチェック！" target="_blank" class="btn p-1">シェアする</a> |
+                    <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a> |
                 {% endif %}
-                <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>|
+                    <a href="{% url 'add_song_to_folder' object.pk %}" class="btn p-1">音楽をフォルダに追加</a>
     
                 {% if has_audio_file %}
-                    <a href="{% url 'add_song_to_folder' object.pk %}" class="btn">音楽をフォルダに追加</a>|
+                    <a href="{% url 'add_song_to_folder' object.pk %}" class="btn p-1">音楽をフォルダに追加</a>
                 {% endif %}
 
 

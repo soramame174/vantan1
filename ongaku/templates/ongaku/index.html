@@ -25,10 +25,10 @@
 
     /* プロフィール画像のサイズをさらに小さく調整 */
     .profile-picture {
-        width: 70px;  /* 画像サイズを20pxに縮小 */
-        height: 70px; /* 高さも20pxに調整 */
+        width: 30px;  /* 画像サイズを20pxに縮小 */
+        height: 30px; /* 高さも20pxに調整 */
         margin-left: 10px;
-        border-radius: 50%; /* 画像を丸くする */
+        border-radius: 20%; /* 画像を丸くする */
     }
 
     .feature:hover {
@@ -189,11 +189,15 @@
                                         {{ item.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                                     {% else %}
                                         {{ item.user.userprofile.display_name|default:"匿名" }}
-                                    {% endif %} 様)
+                                    {% endif %} 様
+                                    {% if user.userprofile.profile_picture %}
+                                        <!-- プロフィール画像を小さく表示 -->
+                                        <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                    {% endif %})
                                 </span>
                                 <h6 class="card-title mt-4">ジャンル: {{ item.category|default:"なし" }}</h6>
                                 <div class="mt-3">
-                                    <a href="{% url 'detail-ongaku' item.pk %}" class="btn feature">詳細へ</a>
+                                    <a href="{% url 'detail-ongaku' item.pk %}" class="btn feature p-1">詳細へ</a>
                                 </div>
                             </div>
                     </div>

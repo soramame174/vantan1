@@ -2,141 +2,63 @@
 
 {% block title %}音楽を追加する{% endblock %}
 
-<style>
 
-/* Bootstrapのスタイルが影響しないように調整 */
-input[type="submit"], button {
-    background-color: #ff2583 !important;
-    color: #f4f4f4 !important;
-    border: none !important;
-    padding: 10px 30px !important;
-    border-radius: 5px !important;
-    cursor: pointer !important;
-}
-
-input[type="submit"]:hover, button:hover {
-    background-color: #ff4081 !important;
-}
-
-
-/* ピンク系の色 */
-body {
-    background-color: #ffffff; /* 淡いピンク */
-    color: #565656; /* 文字色を暗めに */
-}
-
-.navbar {
-    background-color: #ffcaf1 !important; /* 少し落ち着いたピンク */
-}
-
-.navbar-dark .navbar-nav .nav-link {
-    color: rgb(112, 112, 112) !important;
-}
-
-.navbar-dark .navbar-nav .nav-link:hover {
-    color: #ff4081 !important; /* ホバー時に明るいピンクに */
-}
-
-button, input[type="submit"] {
-    background-color: #ff2583; /* 明るいピンク */
-    color: #f4f4f4;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-top: 20px; /* ボタンに余白を追加 */
-    cursor: pointer;
-}
-
-button:hover, input[type="submit"]:hover {
-    background-color: #ff4081; /* ホバー時の色変更 */
-}
-
-h1, h2, h3, h4 {
-    color: #ff4081; /* 見出しをピンク */
-}
-
-textarea[name="text"], input[name="category"], input[name="title"] {
-    border: 2px solid #f06292; /* ピンク系の枠線 */
-    padding: 10px;
-    border-radius: 5px;
-    width: 100%; /* フル幅に設定 */
-    margin-bottom: 20px; /* フィールド間に余白を追加 */
-}
-
-textarea[name="text"] {
-    height: 150px; /* 高さを設定 */
-}
-
-form {
-    max-width: 600px; /* フォーム全体の幅を制限 */
-    margin: 0 auto; /* フォームを中央寄せ */
-    padding: 20px;
-    border: 1px solid #ffdae7; /* フォーム枠線 */
-    border-radius: 10px;
-    background-color: #fff6fa; /* フォーム背景を淡いピンクに */
-}
-
-
-/* 全画面モーダルのスタイル */
-.modal {
-    display: flex; /* 中央揃え用 */
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* 背景を暗くする */
-}
-
-.modal-content {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    padding: 30px;
-    width: 90%;
-    max-width: 600px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content h3 {
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.modal-content h4 {
-    margin: 10px 0;
-    color: #555;
-    line-height: 1.5;
-}
-
-.modal-content label {
-    display: block;
-    margin: 20px 0;
-    font-size: 1em;
-}
-
-.modal-content button {
-    background-color: #ff2583;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1.1em;
-}
-
-.modal-content button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-
-</style>
 
 {% block content %}
+    <style>
+        textarea[name="text"], input[name="category"], input[name="title"], input[name='ongaku_url']{
+            border: 2px solid #fad5e2; /* ピンク系の枠線 */
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%; /* フル幅に設定 */
+            margin-bottom: 20px; /* フィールド間に余白を追加 */
+        }
+
+        button, input[type="submit"] {
+            background-color: #ff2583; /* 明るいピンク */
+            color: #f4f4f4;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px; /* ボタンに余白を追加 */
+            cursor: pointer;
+        }
+
+        /* 全画面モーダルのスタイル */
+        .modal {
+
+            background-color: rgba(0, 0, 0, 0.8); /* 背景を暗くする */
+        }
+        
+        .modal-content {
+            background-color: #f8f9fa;
+
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        
+        .modal-content label {
+            display: block;
+            margin: 20px 0;
+            font-size: 1em;
+        }
+        
+        .modal-content button {
+            background-color: #ff2583;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        
+        .modal-content button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
     {% block plus_button %}
     {% endblock %}
     <div id="confirmationModal" class="modal" style="background-color: #3333333b;">
@@ -152,9 +74,9 @@ form {
                     <h2><br></h2>
                     <h4>利用規約と法律の遵守について</h4>
                     <p>
-                        ・著作権法に基づき、他人が作成した楽曲や歌、音楽の無断使用・アップロードは禁止されています。<br><br>
-                        ・他者が権利を有するコンテンツを無断でアップロードした場合、法的責任が生じる可能性がございますので、十分にご注意ください。<br><br>
-                        ・ご自身で作成された楽曲や、フリーライセンスで提供されている音楽のみをアップロードしてください。
+                        著作権法に基づき、他人が作成した楽曲や歌、音楽の無断使用・アップロードは禁止されています。<br><br>
+                        他者が権利を有するコンテンツを無断でアップロードした場合、法的責任が生じる可能性がございますので、十分にご注意ください。<br><br>
+                        ご自身で作成された楽曲や、フリーライセンスで提供されている音楽のみをアップロードしてください。
                     </p>
                     <h2><br></h2>
                     <h4>お願い</h4>
@@ -189,7 +111,7 @@ form {
         </div>
     </div>
 
-    <form method="post" enctype="multipart/form-data">  <!-- enctype を追加 -->
+    <form method="post" enctype="multipart/form-data" class="crieit">  <!-- enctype を追加 -->
         {% csrf_token %}
         
         <div class="p-2">
@@ -214,7 +136,7 @@ form {
         <div class="p-2">
             <label for="id_text">歌詞</label>
             <div>    
-                <textarea id="id_text" name="text" rows="15" cols="45%">{{ form.text.value }}</textarea>
+                <textarea type="submit" id="id_text" name="text" rows="15" cols="45%">{{ form.text.value }}</textarea>
             </div>
         </div>    
         

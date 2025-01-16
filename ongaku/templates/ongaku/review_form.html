@@ -11,15 +11,17 @@
                     対象音楽
                 </label>
                 <input class="form-control" value="{{ ongaku.title }}" readonly>
-                <p style="font-size: 0.9em; color: gray;">※ レビューは基本的に消せません。人として敬意を払ったレビューをしてください。</p>
+                <p style="font-size: 0.9em; color: gray; margin-top: 10px;">※ レビューは基本的に消せません。人として敬意を払ったレビューをしてください。</p>
                 <label>
                     タイトル
                 </label>
                 <input class="form-control" name="title">
+                <br>
                 <label>
                     本文
                 </label>
                 <textarea class="form-control" name="text" rows="3"></textarea>
+                <br><br>
                 <label>
                     星の数
                 </label>
@@ -36,4 +38,6 @@
             </div>
         </div>
     </form>
+    {% block is_authenticated %}
+    {% endblock %}
 {% endblock %}

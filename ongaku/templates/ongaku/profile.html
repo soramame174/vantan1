@@ -34,7 +34,7 @@
         {% endif %}
         <h6><br><br></h6>
 
-        <h5>一言: {{ profile.bio|default:"なし" }}</h5>
+        <h4>一言</h4><h5 style="white-space: pre-line;"><br>{{ profile.bio|default:"なし" }}</h5>
         <h6><br><br></h6>
 
         {% if profile.youtube_url %}
@@ -104,7 +104,7 @@
             {% for song in songs %}
                 {% if song.is_public %}
                     <ul>
-                        <h4><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
+                        <h4 style="margin-left: -45px; margin-top: 20px;"><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
                     </ul>
                 {% endif %}
             {% empty %}
@@ -138,7 +138,7 @@
                 width: 70px;  /* 画像サイズを20pxに縮小 */
                 height: 70px; /* 高さも20pxに調整 */
                 margin-left: 10px;
-                border-radius: 50%; /* 画像を丸くする */
+                border-radius: 20%; /* 画像を丸くする */
             }
         </style>
         
