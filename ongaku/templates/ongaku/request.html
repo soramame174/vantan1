@@ -17,6 +17,7 @@
     </form>
 
     <h3 class="mt-5">みんなのリクエスト一覧</h3>
+    <br>
     <ul class="list-group">
         {% for req in requests %}
             <li class="list-group-item">
@@ -34,6 +35,8 @@
                     <a href="{% url 'delete_request' req.id %}" class="btn">✖︎</a>
                 {% endif %}
             </li>
+        {% empty %}
+            <h4 style="margin-left: -40px;">現在はなし<br><br><br></h4>
         {% endfor %}
     </ul>
 </div>

@@ -25,7 +25,7 @@
                     {{ comment.user.userprofile.display_name|default:"匿名" }}
                 {% endif %}</strong><p style="word-wrap: break-word; word-break: break-word; white-space: normal;">内容: {{ comment.text }} <br>
                     {% if comment.url %}
-                        <p>関連リンク: <a href="{{ comment.url }}" target="_blank">{{ comment.url }}</a></p>
+                        <p style="font-size: 0.8em;">関連リンク: <a href="{{ comment.url }}" target="_blank" style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%; ">{{ comment.url }}</a></p>
                     {% endif %}
                 </p>
                 <span class="text-muted">コメント作成日: {{ comment.created_at|date:"Y.m/d H:i" }}</span>
@@ -34,7 +34,7 @@
                 {% endif %}
             </li>
         {% empty %}
-        <h4 style="margin-left: -40px;">現在はなし<br><br><br><br></h4>
+            <h4 style="margin-left: -40px;">現在はなし<br><br><br><br></h4>
         {% endfor %}
     </ul>
 
