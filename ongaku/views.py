@@ -31,13 +31,78 @@ from .models import MaintenanceConfig
 from django.http import HttpResponse
 import datetime
 
+from .models import Request, Comment
+from .forms import CommentForm
+
+from django.contrib.auth.decorators import login_required
 
 def top(request):
-    # トップページをレンダリング
     return render(request, 'ongaku/top.html')
 
 def about(request):
     return render(request, 'about.html')
+
+# リクエストフォーム表示と投稿処理
+@login_required
+def request_view(request):
+    if request.method == 'POST':
+        request_text = request.POST.get('request_text')
+        new_request = Request(text=request_text, user=request.user)
+        new_request.save()
+        return redirect('request_view')  # リダイレクトしてフォームをリセット
+
+    # 投稿されたリクエストを取得して表示
+    requests = Request.objects.all().order_by('-created_at')
+    return render(request, 'ongaku/request.html', {'requests': requests})
+
+# リクエスト詳細ページとコメント投稿処理
+@login_required
+def request_detail(request, request_id):
+    req = get_object_or_404(Request, id=request_id)
+    comments = req.comments.all()  # このリクエストに関連するコメントを取得
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.request = req  # コメントをリクエストに紐づける
+            new_comment.user = request.user  # コメントの投稿者を現在のユーザーに設定
+            new_comment.save()
+            return redirect('request_detail', request_id=req.id)  # コメント投稿後にリクエスト詳細ページにリダイレクト
+    else:
+        form = CommentForm()
+
+    return render(request, 'ongaku/request_detail.html', {
+        'request': req,  # テンプレート変数名を修正
+        'comments': comments,
+        'form': form,
+    })
+
+
+# リクエスト削除処理
+@login_required
+def delete_request(request, request_id):
+    req = get_object_or_404(Request, id=request_id)
+    
+    # リクエストの投稿者が現在のユーザーであることを確認
+    if req.user == request.user:
+        req.delete()  # リクエストを削除
+        messages.success(request, 'リクエストが削除されました。')  # 削除メッセージを表示
+        return redirect('request_view')  # リダイレクトしてリスト表示
+    else:
+        messages.error(request, '他のユーザーのリクエストを削除することはできません。')  # エラーメッセージ
+        return redirect('request_view')  # リストに戻る
+
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    # コメントを削除できるのはコメントしたユーザーだけ
+    if not comment.can_delete(request.user):
+        return HttpResponseForbidden("あなたはこのコメントを削除する権限がありません。")
+    
+    # コメントを削除
+    comment.delete()
+    return redirect('request_detail', request_id=comment.request.id)
+
 
 
 def check_maintenance():

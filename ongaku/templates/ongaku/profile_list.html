@@ -24,7 +24,7 @@
         </h3>
         <p>ユーザーID: {{ user.username|default:"なし"  }}</p>
         {% load tz %}
-        <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y.m.d H:i" }}</p>
+        <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y.m/d H:i" }}</p>
         <a href="{% url 'change_display_name' %}">表示名を変更</a>
         <h3><br></h3>
 

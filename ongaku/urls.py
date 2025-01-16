@@ -4,6 +4,11 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
+    path('requests/', views.request_view, name='request_view'),
+    path('requests/<int:request_id>/', views.request_detail, name='request_detail'),
+    path('requests/delete/<int:request_id>/', views.delete_request, name='delete_request'),
+    path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+
     # ユーザープロフィール関連
     path('follow/<int:user_id>/', views.follow_user, name='follow'),
     path('unfollow/<int:user_id>/', views.unfollow_user, name='unfollow'),

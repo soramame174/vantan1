@@ -1,0 +1,60 @@
+<!-- request_detail.html -->
+
+{% extends 'base.html' %}
+{% block title %}リクエスト詳細{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>リクエスト詳細</h2>
+    <h5>リクエスト内容| {{ request.text }}</h5>
+    <p><br></p>
+    <p><strong>投稿者:</strong>
+        {% if request.user.userprofile.display_name == None %}
+            {{ request.user.userprofile.display_name|default:"匿名" }}{{ request.user.id }}
+        {% else %}
+            {{ request.user.userprofile.display_name|default:"匿名" }}
+        {% endif %} | <strong>作成日:</strong> {{ request.created_at|date:"Y.m/d H:i" }}</p>
+
+    <h3>コメント</h3>
+    <ul class="list-group">
+        {% for comment in comments %}
+            <li class="list-group-item">
+                <strong>コメントしたユーザー: {% if comment.user.userprofile.display_name == None %}
+                    {{ comment.user.userprofile.display_name|default:"匿名" }}{{ comment.user.id }}
+                {% else %}
+                    {{ comment.user.userprofile.display_name|default:"匿名" }}
+                {% endif %}</strong><p style="word-wrap: break-word; word-break: break-word; white-space: normal;">内容: {{ comment.text }} <br>
+                    {% if comment.url %}
+                        <p>関連リンク: <a href="{{ comment.url }}" target="_blank">{{ comment.url }}</a></p>
+                    {% endif %}
+                </p>
+                <span class="text-muted">コメント作成日: {{ comment.created_at|date:"Y.m/d H:i" }}</span>
+                {% if comment.user == user %}
+                    <a class="btn" href="{% url 'delete_comment' comment.id %}" style="margin-left: -260px; margin-top: 100px;">コメントを削除</a>
+                {% endif %}
+            </li>
+        {% empty %}
+        <h4 style="margin-left: -40px;">現在はなし<br><br><br><br></h4>
+        {% endfor %}
+    </ul>
+
+    <h4 class="mt-4">コメントを投稿</h4>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_text">コメントを記入</label>
+            <textarea class="form-control" name="text" id="id_text" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="id_url">関連URL (任意)</label>
+            <input type="url" class="form-control" name="url" id="id_url" placeholder="https://example.com">
+        </div>
+        <button type="submit">コメント投稿</button>
+    </form>
+
+    <a href="{% url 'request_view' %}" class="btn mt-3">リストに戻る</a>
+</div>
+{% block is_authenticated %}
+{% endblock %}
+
+{% endblock %}

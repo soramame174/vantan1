@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Ongaku, Review, Category, UserProfile
+from .models import Ongaku, Review, Category, UserProfile, Request, Comment
+
 
 from .models import MaintenanceConfig
 
@@ -24,6 +25,26 @@ class UserProfileAdmin(admin.ModelAdmin):
         return obj.user.id
     get_user_id.admin_order_field = 'user__id'  # 並べ替え可能にする
     get_user_id.short_description = 'ユーザーID'  # 列名を設定
+
+# Requestモデルを管理画面に登録
+@admin.register(Request)
+class RequestAdmin(admin.ModelAdmin):
+    list_display = ('title', 'user', 'created_at')  # 表示するカラムを指定
+    search_fields = ('title', 'description')  # 検索可能なフィールドを指定
+    list_filter = ('created_at', 'user')  # フィルタリングできるフィールドを指定
+    actions = ['delete_selected']  # 一括削除を可能にする
+
+    # コメント削除用メソッドを管理画面に追加
+    def can_delete_comment(self, obj):
+        return obj.user == self.request.user  # リクエストをしたユーザーだけが削除可能
+
+# Commentモデルを管理画面に登録
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('content', 'user')  # 表示するカラムを指定
+    search_fields = ('content',)  # 検索可能なフィールドを指定
+    list_filter = ('user', 'created_at')  # フィルタリングできるフィールドを指定
+    actions = ['delete_selected']  # 一括削除を可能にする
 
 # Ongakuモデルの管理画面設定
 class OngakuAdmin(admin.ModelAdmin):

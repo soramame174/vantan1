@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+    
+{% block title %}リクエストフォーム{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>リクエストフォーム</h2>
+
+    <!-- フォーム -->
+    <form method="POST" action="{% url 'request_view' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="request_text" class="form-label">リクエスト内容</label>
+            <textarea class="form-control" id="request_text" name="request_text" rows="3" required></textarea>
+        </div>
+        <button type="submit">送信</button>
+    </form>
+
+    <h3 class="mt-5">みんなのリクエスト一覧</h3>
+    <ul class="list-group">
+        {% for req in requests %}
+            <li class="list-group-item">
+               リクエスト:  {{ req.text }}   
+                <span class="text-muted">
+                    <br>（投稿者: 
+                    {% if req.user.userprofile.display_name == None %}
+                        {{ req.user.userprofile.display_name|default:"匿名" }}{{ req.user.id }}
+                    {% else %}
+                        {{ req.user.userprofile.display_name|default:"匿名" }}
+                    {% endif %}）
+                </span>
+                <a href="{% url 'request_detail' req.id %}" class="btn">詳細</a>
+                {% if req.user == user %}
+                    <a href="{% url 'delete_request' req.id %}" class="btn">✖︎</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

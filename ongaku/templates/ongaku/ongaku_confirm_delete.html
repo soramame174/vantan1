@@ -8,4 +8,7 @@
         {% csrf_token %}
         <button type="submit">{{ object.title }}を削除する</button>
     </form>
+    <h1><br><br><br><br><br><br><br><br><br><br></h1>
+    {% block is_authenticated %}
+    {% endblock %}
 {% endblock %}

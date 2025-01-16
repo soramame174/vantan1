@@ -132,9 +132,13 @@ form {
     background-color: #ccc;
     cursor: not-allowed;
 }
+
+
 </style>
 
 {% block content %}
+    {% block plus_button %}
+    {% endblock %}
     <div id="confirmationModal" class="modal" style="background-color: #3333333b;">
         <div class="modal-content" style="background-color: #3333333b;">
             <div class="c-3 m-4 bg-light rounded" type="kasane" style="background-color: #3333338a;">
@@ -266,4 +270,6 @@ form {
             });
         });
     </script>
-{% endblock content %}
+    {% block is_authenticated %}
+    {% endblock %}
+{% endblock %}

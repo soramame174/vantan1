@@ -1,5 +1,5 @@
 from django import forms
-from .models import Ongaku, Category, UserProfile, Folder
+from .models import Ongaku, Category, UserProfile, Folder, Comment
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -17,6 +17,15 @@ class UserProfileForm(forms.ModelForm):
                 raise forms.ValidationError("この表示名はすでに使用されています。別の名前を選んでください。")
         return display_name
 
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text', 'url']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 3, 'placeholder': 'コメントを入力...'}),
+        }
+        text = forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'コメントを入力してください...'}))
 
 class FolderForm(forms.ModelForm):
     class Meta:

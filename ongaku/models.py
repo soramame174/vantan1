@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User  # Userモデルをインポート
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.timezone import now
 
 from .consts import MAX_PATE
@@ -13,6 +14,41 @@ class MaintenanceConfig(models.Model):
     start_time = models.DateTimeField()  # メンテナンス開始時刻
     end_time = models.DateTimeField()    # メンテナンス終了時刻
     is_active = models.BooleanField(default=False)  # メンテナンス有効化スイッチ
+
+class Request(models.Model):
+    title = models.CharField(max_length=100, default="タイトルを記入してください")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # リクエストをしたユーザー
+    description = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+    text = models.TextField(max_length=100) 
+
+    def __str__(self):
+        return self.title
+
+    # コメント削除用メソッド
+    def can_delete_comment(self, user):
+        return self.user == user  # リクエストをしたユーザーだけが削除可能
+    
+    def get_comments(self):
+        return self.comments.all()
+
+
+class Comment(models.Model):
+    text = models.TextField(max_length=300)
+    request = models.ForeignKey(Request, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField(default="")
+    url = models.URLField(blank=True, null=True) 
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+    def __str__(self):
+        return self.content
+
+    # コメント削除用メソッド
+    def can_delete(self, user):
+        return self.user == user  # コメントをしたユーザーだけが削除可能
+
 
 CATEGORY = (
     ('Pop', 'ポップ'),
