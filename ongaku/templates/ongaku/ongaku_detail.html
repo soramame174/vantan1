@@ -91,7 +91,7 @@
                                 {% else %}
                                     {{ object.user.userprofile.display_name|default:"匿名" }}
                                 {% endif %}
-                            </a> 様
+                            </a>
                             {% if object.user.userprofile.profile_picture %}
                                 <!-- プロフィール画像を小さく表示 -->
                                 <img src="{{ object.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
@@ -103,7 +103,7 @@
                     {% endif %}
                     
                     <div>
-                        <h6 class="card-title mt-4">投稿日: {{ object.created_at|date:"Y.m.d H:i" }}</h6>
+                        <h6 class="card-title mt-4">投稿日: {{ object.created_at|date:"Y.m/d H:i" }}</h6>
                     </div>
                 </span>
                 
@@ -279,7 +279,7 @@
                                                 {{ review.user.userprofile.display_name|default:"匿名" }}{{ uesr.id }}
                                             {% else %}
                                                 {{ review.user.userprofile.display_name|default:"匿名" }}
-                                            {% endif %} 様)
+                                            {% endif %})
                                         </span>
                                         <p>内容: {{ review.text }}</p>
                                         <p>評価: {{ review.rate }}</p>

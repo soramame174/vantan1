@@ -35,6 +35,12 @@
             transform: translateY(-8px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
+
+    @media (max-width: 1200px) {
+        .misenai {
+            display: none;
+        }
+    }
 </style>
 
 <div class="row">
@@ -189,10 +195,9 @@
                                         {{ item.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                                     {% else %}
                                         {{ item.user.userprofile.display_name|default:"匿名" }}
-                                    {% endif %} 様
-                                    {% if user.userprofile.profile_picture %}
-                                        <!-- プロフィール画像を小さく表示 -->
-                                        <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                    {% endif %}
+                                    {% if item.user.userprofile.profile_picture %}
+                                        <img src="{{ item.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                                     {% endif %})
                                 </span>
                                 <h6 class="card-title mt-4">ジャンル: {{ item.category|default:"なし" }}</h6>
@@ -226,24 +231,37 @@
         </div>
     </div>
 
-    <!-- 右側の再生回数順おすすめセクション
+    <!-- 右側の再生回数順おすすめセクション -->
     <div class="col-3 misenai">
         <div>
             <div class="border border_color misenai" type="tokubetu">
-                <h2>再生回数トップ10</h2>
+                <h2 style="text-align: center; margin-top: 20px;">再生回数トップ10</h2>
+
+                <div>
+                    <p class="responsive-line" style="color: #ff4081;">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+                </div>
             
                 {% if recommended %}
                     <ul>
                         {% for ongaku in recommended %}
-                            {% if item.is_public %}
+                            {% if ongaku.is_public %}
                                 <li>
-                                    <h3>{{ ongaku.title }}</h3>
+                                    <h4>{{ ongaku.title }}</h4>
                                     <div class="misenai" style="display: block;">
-                                        <span>(投稿ユーザー: {{ ongaku.user.userprofile.display_name|default:"匿名" }}様)</span>
+                                        <span>(投稿ユーザー: 
+                                            {% if ongaku.user.userprofile.display_name == None %}
+                                                {{ ongaku.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                                            {% else %}
+                                                {{ ongaku.user.userprofile.display_name|default:"匿名" }}
+                                            {% endif %}
+                                            {% if ongaku.user.userprofile.profile_picture %}
+                                                <img src="{{ ongaku.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                            {% endif %})
+                                        </span>
                                         {% if ongaku.thumbnail %}
                                             <img src="{{ ongaku.thumbnail.url }}" class="img-thumbnail" style="width: 600px; height: auto;" />
                                         {% endif %}
-                                        <h6 class="card-title mt-4">ジャンル: {{ ongaku.category.name|default:"なし" }}</h6>
+                                        <h6 class="card-title mt-4">ジャンル: {{ ongaku.category|default:"なし" }}</h6>
                                         <p>再生回数: {{ ongaku.play_count }}</p>
                                     </div>
                                     <div class="mt-2">
@@ -259,7 +277,7 @@
                 {% endif %}
             </div>
         </div>
-    </div> -->
+    </div>
 </div>
 {% endblock %}
 

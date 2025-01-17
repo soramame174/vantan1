@@ -6,7 +6,7 @@
     {% else %}
         {{ user.userprofile.display_name|default:"匿名" }}
     {% endif %}
-     様のプロフィール
+    のプロフィール
 {% endblock %}
 
 {% block content %}
@@ -15,7 +15,6 @@
         <div class="profile-container">
             <h1>
                 {% if user.userprofile.profile_picture %}
-                    <!-- プロフィール画像を小さく表示 -->
                     <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                 {% endif %}
                 <!-- 名前とプロフィール画像を横並びに表示 -->
@@ -24,7 +23,7 @@
                         {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                     {% else %}
                         {{ user.userprofile.display_name|default:"匿名" }}
-                    {% endif %} 様のプロフィール
+                    {% endif %}のプロフィール
                 </span>
             </h1>
         </div>
@@ -160,7 +159,7 @@
                                 {% else %}
                                     {{ user.userprofile.display_name|default:"匿名" }}
                                 {% endif %}
-                            </a> 様
+                            </a>
                         </li>
                     </h5>
                 </ul>
