@@ -48,6 +48,12 @@
                 border-radius: 25px; /* 角をなくす */
             }
 
+            .kuu:hover {
+                font-weight: bold; /* 文字を太く */
+                transform: translateY(-1px);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
+
             .navbar-toggler-icon {
                 background-color: #ff4081; /* ハンバーガーメニューの色をピンクに変更 */
             }
@@ -340,15 +346,16 @@
                 <span class="close" style="color: #ff4081;" onclick="closeModal()">&times;</span>
                 <h2>選択してください</h2>
                 <ul>
-                    <li><a href="{% url 'create-ongaku' %}" style="font-size: 24px;">音楽追加</a></li>
-                    <li><a href="{% url 'request_view' %}" style="font-size: 24px; margin-top: 25px;">リクエスト</a></li>
+                    <li><a class="kuu p-1" href="{% url 'create-ongaku' %}" style="font-size: 24px;">音楽追加</a></li>
+                    <li><a class="kuu p-1" href="{% url 'request_view' %}" style="font-size: 24px; margin-top: 25px;">リクエスト</a></li>
                     <h6><br><br></h6>
-                    <li><button onclick="toggleDarkMode()">ダークモードオン/オフ</button></li>
+                    <li><button class="kuu" onclick="toggleDarkMode()">ダークモードオン/オフ</button></li>
                 </ul>
             </div>
         </div>
 
         <style>
+
             /* プラスボタンのスタイル */
             #plusButton {
                 position: fixed;
