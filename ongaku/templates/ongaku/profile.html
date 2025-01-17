@@ -150,7 +150,7 @@
         
         {% if followed_users %}        
             {% for user in followed_users %}
-                <ul>
+                <ul style="margin-left: -40px;">
                     <h5>
                         <li>
                             <a href="{% url 'profile' user.pk %}">

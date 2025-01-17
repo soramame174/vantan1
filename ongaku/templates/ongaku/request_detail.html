@@ -32,7 +32,7 @@
 </style>
 
 <div class="container mt-5">
-    <h2>リクエスト詳細</h2>
+    <h2 style="margin-left: -5px;">リクエスト詳細</h2>
     <h5 style="white-space: pre-line; margin-top: 40px;">
         <div style="margin-top: -50px;">
             {{ request.text }}
@@ -57,7 +57,7 @@
         {% for comment in comments %}
             <li class="list-group-item" style="margin-left: -40px;">
                 <strong>コメントしたユーザー: 
-                    <a href="{% url 'profile' request.user.pk %}">
+                    <a href="{% url 'profile' comment.user.pk %}">
                     {% if comment.user.userprofile.display_name == None %}
                         {{ comment.user.userprofile.display_name|default:"匿名" }}{{ comment.user.id }}
                     {% else %}
@@ -85,6 +85,17 @@
         <p class="responsive-line">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
     </div>
     <h4 class="mt-4">コメントを投稿</h4>
+    <div class="alert alert-info mt-3">
+        <h5>注意事項</h5>
+        <ul>
+            <li>他の利用者が心地よく利用できるよう、敬意と思いやりを持った投稿を心がけてください。</li>
+            <li>他人のプライバシーや個人情報を侵害する投稿は厳禁です。</li>
+            <li>音楽を愛する皆さんが安心して交流できる場を守るため、不適切な言動はお控えください。</li>
+            <li>著作権を尊重し、他人の楽曲や作品を許可なく利用することはおやめください。</li>
+            <li>質問や意見を交換する際には、相手の意見に耳を傾け、建設的なコミュニケーションを心がけてください。</li>
+            <li>音楽を楽しむ全ての人々が安心して利用できるよう、差別的または攻撃的な発言は慎んでください。</li>
+        </ul>
+    </div>
     <form method="POST">
         {% csrf_token %}
         <div class="form-group">

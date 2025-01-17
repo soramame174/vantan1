@@ -35,7 +35,7 @@
 
         
         {% for song in request.user.songs.all %}
-            <ul>
+            <ul style="margin-left: -40px;">
                 <h4><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h4>
             </ul>
         {% empty %}
@@ -49,7 +49,7 @@
 
         {% if folders %}
             <p>フォルダの数: {{ folders.count }}</p>
-            <ul>
+            <ul style="margin-left: -40px;">
                 {% for folder in folders %}
                     <li>
                         <h4>
@@ -73,7 +73,7 @@
         <h3><br></h3>
         <h3>お気に入り</h3>
         {% for song in request.user.favorite_songs.all %}
-            <ul>
+            <ul style="margin-left: -40px;">
                 <h4>
                     <li>
                         <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>

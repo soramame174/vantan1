@@ -32,8 +32,20 @@
 
 </style>
 <div class="container mt-5">
-    <h2>リクエストフォーム</h2>
-
+    <h2 style="margin-left: -5px;">リクエストフォーム</h2>
+    <div class="alert alert-info mt-3">
+        <h5>注意事項</h5>
+        <ul>
+            <li>他の利用者が心地よく利用できるよう、敬意と思いやりを持った投稿を心がけてください。</li>
+            <li>他人のプライバシーや個人情報を侵害する投稿は厳禁です。</li>
+            <li>音楽を愛する皆さんが安心して交流できる場を守るため、不適切な言動はお控えください。</li>
+            <li>著作権を尊重し、他人の楽曲や作品を許可なく利用することはおやめください。</li>
+            <li>質問や意見を交換する際には、相手の意見に耳を傾け、建設的なコミュニケーションを心がけてください。</li>
+            <li>音楽を楽しむ全ての人々が安心して利用できるよう、差別的または攻撃的な発言は慎んでください。</li>
+        </ul>
+    </div>
+    
+    
     <!-- フォーム -->
     <form method="POST" action="{% url 'request_view' %}">
         {% csrf_token %}
@@ -59,8 +71,9 @@
                 </div>
                 <div style="margin-top: -45px;">{{ req.text }}</div></h5>
                 <span class="text-muted">
-                    <br>（投稿者: 
-                    <a href="{% url 'profile' request.user.pk %}">
+                    <br>
+                    (投稿者: 
+                    <a href="{% url 'profile' req.user.pk %}">
                     {% if req.user.userprofile.display_name == None %}
                         {{ req.user.userprofile.display_name|default:"匿名" }}{{ req.user.id }}
                     {% else %}
@@ -68,10 +81,10 @@
                     {% endif %}</a>
                     {% if req.user.userprofile.profile_picture %}
                         <img src="{{ req.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-                    {% endif %}
+                    {% endif %})
                 </span>
                 <br>
-                <a href="{% url 'request_detail' req.id %}" class="btn">詳細</a>
+                <a href="{% url 'request_detail' req.id %}" style="margin-left: -10px;" class="btn">詳細</a>
                 {% if req.user == user %}
                      | <a href="{% url 'delete_request' req.id %}" class="btn">✖︎</a>
                 {% endif %}
