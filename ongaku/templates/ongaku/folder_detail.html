@@ -5,37 +5,249 @@
 {% block content %}
 
 <div class="folder-detail">
-    <h3>フォルダ名: {{ folder.name }}</h3>
-    <h6><br><br></h6>
+    <h3>フォルダ名: 
+        {% if folder.user == request.user %}
+            <form action="{% url 'update_folder_name' folder.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <input type="text" name="name" value="{{ folder.name }}" style="font-size: 18px; padding: 5px 10px;">
+                <button type="submit" style="background-color: #ff4081; color: white; border: none; cursor: pointer; font-size: 16px;">更新</button>
+            </form>
+            <!-- 公開・非公開切り替えボタン -->
+            <form method="POST" action="{% url 'toggle_folder_visibility' folder.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer;">
+                    {% if folder.is_public %}
+                        非公開にする
+                    {% else %}
+                        公開する
+                    {% endif %}
+                </button>
+            </form>
+        {% else %}
+            <span>{{ folder.name }}</span>
+        {% endif %}
+    </h3>
 
-    <h3>フォルダに含まれる音楽</h3>
-    <ul style="margin-left: -40px;">
+    <h3><br><br>フォルダに含まれる音楽</h3>
+    <ul id="song-list" style="list-style: none; padding: 0;">
         {% for song in folder.songs.all %}
-            <h4>
-                <li>
-                    <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
+            <li data-id="{{ song.id }}" style="font-size: 18px; margin-bottom: 8px;">
+                <div class="border border_color p-4 mb-2" draggable="true" style="width: 620px; cursor: grab; display: flex; flex-direction: column; align-items: flex-start;">
+                    {% if folder.user == request.user %}
+                        <span style="background-color: #ff4081; height: 4px; width: 25px; margin-bottom: 4px; border-radius: 2px;"></span>
+                        <span style="background-color: #ff4081; height: 4px; width: 25px; margin-bottom: 4px; border-radius: 2px;"></span>
+                        <span style="background-color: #ff4081; height: 4px; width: 25px; border-radius: 2px;"></span>
         
+                        <!-- 曲タイトル -->
+                        <h3 style="margin: 0; margin-top: -30px; margin-left: 40px;">{{ song.title }}</h3>
+                    {% else %}
+                        <h3 style="margin: 0;">{{ song.title }}</h3>
+                    {% endif %}
+                    
+                    <!-- オーディオプレイヤー -->
+                    {% if song.audio_file %}
+                        <audio id="audioPlayer{{ song.pk }}" controls style="width: 100%; max-width: 600px; margin-top: 10px;">
+                            <source src="{{ song.audio_file.url }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    {% endif %}
+                    
+                    <!-- 詳細リンク -->
+                    <a href="{% url 'detail-ongaku' song.pk %}" class="btn" style="margin-top: 20px;">詳細へ</a>
+                    
                     <!-- 削除ボタン -->
-                    <form action="{% url 'remove_song_from_folder' folder.id song.id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit btn" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
-                    </form>
-                </li>
-            </h4>
+                    {% if folder.user == request.user %}
+                        <form action="{% url 'remove_song_from_folder' folder.id song.id %}" method="POST" style="margin-top: -40px; margin-left: 40px;">
+                            {% csrf_token %}
+                            <button type="submit" style="background: none; border: none; color: #ff4081; font-size: 18px; cursor: pointer;">
+                                ✖ 
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </li>
         {% empty %}
             <p>このフォルダには音楽が含まれていません。</p>
         {% endfor %}
     </ul>
-    <h3><br><br></h3>
-    <form action="{% url 'delete_folder' folder.id %}" method="POST">
-        {% csrf_token %}
-        <button type="submit">このフォルダを削除</button>
-    </form>
+    {% if folder.user == request.user %}
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const audioPlayers = document.querySelectorAll("audio");
+                let currentAudioPlayer = null;  // 現在再生中のオーディオを追跡
+        
+                // 各オーディオプレイヤーにイベントを設定
+                audioPlayers.forEach((audioPlayer) => {
+                    // 再生ボタンが押された時の処理
+                    audioPlayer.addEventListener("play", () => {
+                        // 他のすべてのオーディオを停止
+                        if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
+                            currentAudioPlayer.pause();
+                            currentAudioPlayer.currentTime = 0;  // 曲を最初からに戻す
+                        }
+        
+                        // 現在再生中のオーディオを更新
+                        currentAudioPlayer = audioPlayer;
+                    });
+        
+                    // 再生終了時の次のオーディオ再生設定
+                    audioPlayer.addEventListener("ended", () => {
+                        const nextAudioPlayer = getNextAudioPlayer(audioPlayer);
+                        if (nextAudioPlayer) {
+                            nextAudioPlayer.play().catch((error) => {
+                                console.error("次のオーディオの再生エラー:", error);
+                            });
+                        }
+                    });
+                });
+        
+                // 次のオーディオプレイヤーを取得
+                function getNextAudioPlayer(currentPlayer) {
+                    const currentIndex = Array.from(audioPlayers).indexOf(currentPlayer);
+                    return audioPlayers[currentIndex + 1] || null;
+                }
+        
+                const songList = document.getElementById("song-list");
+                let draggedItem = null;
+        
+                // ドラッグ開始
+                songList.addEventListener("dragstart", (e) => {
+                    if (e.target.tagName === "DIV" && e.target.getAttribute("draggable") === "true") {
+                        draggedItem = e.target.parentElement;
+                        e.target.style.opacity = "0.5";
+                    }
+                });
+        
+                // ドラッグ終了
+                songList.addEventListener("dragend", (e) => {
+                    if (e.target.tagName === "DIV") {
+                        e.target.style.opacity = "";
+                    }
+                });
+        
+                // ドラッグオーバー
+                songList.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(songList, e.clientY);
+                    if (draggedItem && afterElement == null) {
+                        songList.appendChild(draggedItem);
+                    } else if (draggedItem) {
+                        songList.insertBefore(draggedItem, afterElement);
+                    }
+                });
+        
+                // ドロップ
+                songList.addEventListener("drop", () => {
+                    if (!draggedItem) return;
+        
+                    const order = Array.from(songList.children).map((item) => item.dataset.id);
+                    fetch("{% url 'update_song_order' folder.id %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}",
+                        },
+                        body: JSON.stringify({ order }),
+                    }).then((response) => {
+                        if (!response.ok) {
+                            alert("順序の保存に失敗しました。");
+                        }
+                    });
+        
+                    // 順番が変わった場合に次のオーディオを再生
+                    const nextAudioPlayer = getNextAudioPlayer(currentAudioPlayer);
+                    if (nextAudioPlayer) {
+                        nextAudioPlayer.play();
+                    }
+                });
+        
+                // ドラッグ位置取得
+                function getDragAfterElement(container, y) {
+                    const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+                    return draggableElements.reduce(
+                        (closest, child) => {
+                            const box = child.getBoundingClientRect();
+                            const offset = y - box.top - box.height / 2;
+                            if (offset < 0 && offset > closest.offset) {
+                                return { offset: offset, element: child };
+                            } else {
+                                return closest;
+                            }
+                        },
+                        { offset: Number.NEGATIVE_INFINITY }
+                    ).element;
+                }
+            });
+        </script>
+    {% else %}
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const audioPlayers = document.querySelectorAll("audio");
+                let currentAudioPlayer = null;  // 現在再生中のオーディオを追跡
+        
+                // 各オーディオプレイヤーにイベントを設定
+                audioPlayers.forEach((audioPlayer) => {
+                    // 再生ボタンが押された時の処理
+                    audioPlayer.addEventListener("play", () => {
+                        // 他のすべてのオーディオを停止
+                        if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
+                            currentAudioPlayer.pause();
+                            currentAudioPlayer.currentTime = 0;  // 曲を最初からに戻す
+                        }
+        
+                        // 現在再生中のオーディオを更新
+                        currentAudioPlayer = audioPlayer;
+                    });
+        
+                    // 再生終了時の次のオーディオ再生設定
+                    audioPlayer.addEventListener("ended", () => {
+                        const nextAudioPlayer = getNextAudioPlayer(audioPlayer);
+                        if (nextAudioPlayer) {
+                            nextAudioPlayer.play().catch((error) => {
+                                console.error("次のオーディオの再生エラー:", error);
+                            });
+                        }
+                    });
+                });
+        
+                // 次のオーディオプレイヤーを取得
+                function getNextAudioPlayer(currentPlayer) {
+                    const currentIndex = Array.from(audioPlayers).indexOf(currentPlayer);
+                    return audioPlayers[currentIndex + 1] || null;
+                }
+        
+                const songList = document.getElementById("song-list");
+                let draggedItem = null;
+
+                // ドラッグ位置取得
+                function getDragAfterElement(container, y) {
+                    const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+                    return draggableElements.reduce(
+                        (closest, child) => {
+                            const box = child.getBoundingClientRect();
+                            const offset = y - box.top - box.height / 2;
+                            if (offset < 0 && offset > closest.offset) {
+                                return { offset: offset, element: child };
+                            } else {
+                                return closest;
+                            }
+                        },
+                        { offset: Number.NEGATIVE_INFINITY }
+                    ).element;
+                }
+            });
+        </script>
+    {% endif %}
+
+    {% if folder.user == request.user %}
+        <!-- フォルダ削除ボタン（自分の作成したフォルダのみ削除できる） -->
+        <form action="{% url 'delete_folder' folder.id %}" method="POST" style="margin-top: 20px;">
+            {% csrf_token %}
+            <button type="submit" style="font-size: 16px; padding: 5px 10px;">このフォルダを削除</button>
+        </form>
+    {% endif %}
 </div>
-<h3><br></h3>
-<a href="{% url 'profile_list' %}">プロフィールページに戻る</a>
-{% block is_authenticated %}
-{% endblock %}
+
+<a href="{% url 'profile_list' %}" style="margin-top: 20px; display: block; font-size: 16px; text-decoration: none;" class="btn">プロフィールページに戻る</a>
 
 {% endblock %}
-

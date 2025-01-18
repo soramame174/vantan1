@@ -132,6 +132,11 @@ class Ongaku(models.Model):
         blank=True
     )
 
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
     @property
     def has_audio_file(self):
         return bool(self.audio_file)  # audio_file が存在すれば True を返す
@@ -198,6 +203,7 @@ class UserProfile(models.Model):
 class Folder(models.Model):
     name = models.CharField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_public = models.BooleanField(default=False)  # 公開・非公開の状態を管理
     songs = models.ManyToManyField(Ongaku, related_name='folders', blank=True)
 
     def __str__(self):

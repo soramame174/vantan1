@@ -54,9 +54,10 @@
                     <li>
                         <h4>
                             <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
+
                             <form method="POST" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
+                                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer; font-size: 25px;" class="btn">✖</button>
                             </form>
                         </h4>
                     </li>

@@ -36,6 +36,9 @@ from .forms import CommentForm
 
 from django.contrib.auth.decorators import login_required
 
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 def top(request):
     return render(request, 'ongaku/top.html')
 
@@ -264,6 +267,10 @@ def add_song_to_folder(request, song_id):
         'user_folders': available_folders  # 追加されていないフォルダだけを渡す
     })
 
+def public_folders(request):
+    # 公開されているフォルダを取得
+    public_folders = Folder.objects.filter(is_public=True)
+    return render(request, 'ongaku/public_folders.html', {'public_folders': public_folders})
 
 
 def add_to_favorites(request, pk):
@@ -506,6 +513,19 @@ def increment_play_count(request, pk):
             return JsonResponse({'success': False, 'error': '音楽が見つかりませんでした'}, status=404)
     return JsonResponse({'success': False, 'error': '無効なリクエスト'}, status=400)
 
+def update_folder_name(request, folder_id):
+    folder = Folder.objects.get(id=folder_id)
+    if request.method == "POST":
+        new_name = request.POST.get("name")
+        folder.name = new_name
+        folder.save()
+        return redirect('folder_detail', folder_id=folder.id)  # 更新後、フォルダ詳細ページにリダイレクト
+
+def toggle_folder_visibility(request, folder_id):
+    folder = Folder.objects.get(id=folder_id, user=request.user)
+    folder.is_public = not folder.is_public  # 公開・非公開を切り替え
+    folder.save()
+    return redirect('profile_list')  # プロフィールページにリダイレクト
 
 def update_play_count(request, song_id):
     if request.method == "POST":
@@ -513,6 +533,22 @@ def update_play_count(request, song_id):
         song.play_count += 1
         song.save()
         return JsonResponse({'play_count': song.play_count})
+    
+def update_song_order(request, folder_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            order = data.get("order", [])
+            folder = get_object_or_404(Folder, id=folder_id)
+
+            for index, song_id in enumerate(order):
+                song = folder.songs.get(id=song_id)
+                song.order = index
+                song.save()
+
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
 
 def add_ongaku(request):
     if request.method == 'POST':

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}公開フォルダ{% endblock %}
+
+{% block content %}
+<h1 class="c-3 m-4">公開フォルダ一覧</h1>
+
+<div class="c-3 m-4 bg-light rounded">
+    <div class="border border_color p-4 mb-4">
+        {% if public_folders %}
+            <p>公開されているフォルダは以下の通りです:</p>
+            <ul style="margin-left: -40px;">
+                {% for folder in public_folders %}
+                    <li>
+                        <h4>
+                            <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
+                        </h4>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>現在公開されているフォルダはありません。</p>
+            <br><br><br><br><br><br><br><br><br><br><br>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

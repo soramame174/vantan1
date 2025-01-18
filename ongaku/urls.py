@@ -22,7 +22,11 @@ urlpatterns = [
     path('remove_song_from_folder/<int:folder_id>/<int:song_id>/', views.remove_song_from_folder, name='remove_song_from_folder'),
     path('create_folder/', views.create_folder, name='create_folder'),
     path('folder/<int:folder_id>/', views.folder_detail, name='folder_detail'),
+    path('toggle_folder_visibility/<int:folder_id>/', views.toggle_folder_visibility, name='toggle_folder_visibility'),
+    path('folder/<int:folder_id>/update/', views.update_folder_name, name='update_folder_name'),
+    path('folder/<int:folder_id>/update_order/', views.update_song_order, name='update_song_order'),
     path('folder/delete/<int:folder_id>/', views.delete_folder, name='delete_folder'),
+    path('public_folders/', views.public_folders, name='public_folders'),
 
     # その他の機能
     path('register/', views.register, name='register'),
