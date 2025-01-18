@@ -50,6 +50,10 @@
                             <source src="{{ song.audio_file.url }}" type="audio/mpeg">
                             Your browser does not support the audio element.
                         </audio>
+                        <div>
+                            <p id="playCount{{ song.pk }}">再生回数: {{ song.play_count }}</p>
+                            <h6><br></h6>
+                        </div>
                     {% endif %}
                     
                     <!-- 詳細リンク -->
@@ -72,6 +76,49 @@
     </ul>
     {% if folder.user == request.user %}
         <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                                        const audioPlayers = document.querySelectorAll('[id^="audioPlayer"]');  // すべてのaudioPlayerを選択
+                                        audioPlayers.forEach(audioPlayer => {
+                                            audioPlayer.addEventListener('ended', function () {
+                                                const songId = audioPlayer.id.replace('audioPlayer', '');  // IDから曲のIDを抽出
+                                                incrementPlayCount(songId);  // 再生回数をインクリメント
+                                            });
+                                        });
+                                    });
+
+                                    function incrementPlayCount(songId) {
+                                        fetch(`/increment-play-count/${songId}/`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRFToken': getCookie('csrftoken'),  // CSRFトークンをヘッダーに追加
+                                            },
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.success) {
+                                                const playCountElement = document.getElementById(`playCount${songId}`);
+                                                if (playCountElement) {
+                                                    playCountElement.textContent = `再生回数: ${data.play_count}`;
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    function getCookie(name) {
+                                        let cookieValue = null;
+                                        if (document.cookie && document.cookie !== '') {
+                                            const cookies = document.cookie.split(';');
+                                            for (let i = 0; i < cookies.length; i++) {
+                                                const cookie = cookies[i].trim();
+                                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        return cookieValue;
+                                    }
             document.addEventListener("DOMContentLoaded", () => {
                 const audioPlayers = document.querySelectorAll("audio");
                 let currentAudioPlayer = null;  // 現在再生中のオーディオを追跡

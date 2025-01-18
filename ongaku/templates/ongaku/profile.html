@@ -10,6 +10,14 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    a {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+</style>
+
 <div class="c-3 m-4 bg-light rounded" type="kasane">
     <div class="border border_color p-4 mb-4">
         <div class="profile-container">
@@ -35,7 +43,7 @@
 
         <h4>一言</h4><h5 style="white-space: pre-line;"><br>{{ profile.bio|default:"なし" }}</h5>
         <h6><br><br></h6>
-
+        
         {% if profile.youtube_url %}
             <p>YouTube URL: <a href="{{ profile.youtube_url }}" target="_blank">{{ profile.youtube_url }}</a></p>
             <h6><br><br></h6>

@@ -527,12 +527,17 @@ def toggle_folder_visibility(request, folder_id):
     folder.save()
     return redirect('profile_list')  # プロフィールページにリダイレクト
 
-def update_play_count(request, song_id):
-    if request.method == "POST":
-        song = get_object_or_404(Ongaku, id=song_id)
-        song.play_count += 1
-        song.save()
-        return JsonResponse({'play_count': song.play_count})
+@csrf_exempt  # CSRFトークンを無視する場合（POSTリクエストのため）
+def update_play_count(request, audio_id):
+    if request.method == 'POST':
+        try:
+            audio = Ongaku.objects.get(id=audio_id)
+            audio.play_count += 1  # 再生回数を増加
+            audio.save()
+            return JsonResponse({'status': 'success'})
+        except Ongaku.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': '音楽が見つかりませんでした'}, status=404)
+    return JsonResponse({'status': 'error', 'message': '無効なリクエスト'}, status=400)
     
 def update_song_order(request, folder_id):
     if request.method == "POST":
