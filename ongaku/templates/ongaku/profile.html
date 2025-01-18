@@ -110,7 +110,7 @@
         
             {% for song in songs %}
                 {% if song.is_public %}
-                    <ul>
+                    <ul style="margin-left: 5px;">
                         <h4 style="margin-left: -45px; margin-top: 20px;"><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
                     </ul>
                 {% endif %}

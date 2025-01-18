@@ -10,7 +10,7 @@
             <form action="{% url 'update_folder_name' folder.id %}" method="POST" style="display: inline;">
                 {% csrf_token %}
                 <input type="text" name="name" value="{{ folder.name }}" style="font-size: 18px; padding: 5px 10px;">
-                <button type="submit" style="background-color: #ff4081; color: white; border: none; cursor: pointer; font-size: 16px;">更新</button>
+                <button type="submit" class="hover-button" style="width: 90px; height: 50px; font-size: 18px;">更新</button>
             </form>
             <!-- 公開・非公開切り替えボタン -->
             <form method="POST" action="{% url 'toggle_folder_visibility' folder.id %}" style="display:inline;">
@@ -288,9 +288,9 @@
 
     {% if folder.user == request.user %}
         <!-- フォルダ削除ボタン（自分の作成したフォルダのみ削除できる） -->
-        <form action="{% url 'delete_folder' folder.id %}" method="POST" style="margin-top: 20px;">
+        <form method="POST" action="{% url 'delete_folder' folder.id %}" style="margin-top: 20px;">
             {% csrf_token %}
-            <button type="submit" style="font-size: 16px; padding: 5px 10px;">このフォルダを削除</button>
+            <button type="submit" class="hover-button">このフォルダを削除</button>
         </form>
     {% endif %}
 </div>

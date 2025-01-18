@@ -36,7 +36,7 @@
         
         {% for song in request.user.songs.all %}
             <ul style="margin-left: -40px;">
-                <h4><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h4>
+                <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
             </ul>
         {% empty %}
             <h5>まだ曲を作成していません。</h5>
@@ -52,14 +52,14 @@
             <ul style="margin-left: -40px;">
                 {% for folder in folders %}
                     <li>
-                        <h4>
+                        <h5>
                             <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
 
                             <form method="POST" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer; font-size: 25px;" class="btn">✖</button>
+                                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer; font-size: 20px;" class="btn">✖</button>
                             </form>
-                        </h4>
+                        </h5>
                     </li>
                 {% endfor %}
             </ul>
@@ -75,11 +75,11 @@
         <h3>お気に入り</h3>
         {% for song in request.user.favorite_songs.all %}
             <ul style="margin-left: -40px;">
-                <h4>
+                <h5>
                     <li>
                         <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
                     </li>
-                </h4>
+                </h5>
             </ul>
         {% empty %}
             <p>お気に入りはありません。</p>
