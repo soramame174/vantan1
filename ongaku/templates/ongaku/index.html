@@ -188,6 +188,7 @@
                                 {% endif %}
                                 {% if item.thumbnail %}
                                     <img src="{{ item.thumbnail.url }}" class="img-thumbnail" style="width: 100%; height: auto;" />
+                                    <br><br>
                                 {% endif %}
                                 <span>
                                     (投稿ユーザー: 
@@ -259,6 +260,7 @@
                                             {% endif %})
                                         </span>
                                         {% if ongaku.thumbnail %}
+                                            <br><br>
                                             <img src="{{ ongaku.thumbnail.url }}" class="img-thumbnail" style="width: 600px; height: auto;" />
                                         {% endif %}
                                         <h6 class="card-title mt-4">ジャンル: {{ ongaku.category|default:"なし" }}</h6>
