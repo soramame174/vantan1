@@ -238,14 +238,14 @@
             <div class="border border_color misenai" type="tokubetu">
                 <h2 style="text-align: center; margin-top: 20px;">再生回数トップ</h2>
 
-                <div>
-                    <p class="responsive-line" style="color: #ff4081;">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
-                </div>
             
                 {% if recommended %}
                     <ul>
                         {% for ongaku in recommended %}
                             {% if ongaku.is_public %}
+                                <div>
+                                    <p class="responsive-line" style="color: #ff4081;">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+                                </div>
                                 <li>
                                     <h4>{{ ongaku.title }}</h4>
                                     <div class="misenai" style="display: block;">
