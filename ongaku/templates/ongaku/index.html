@@ -117,7 +117,9 @@
                                     </div>
                                 {% else %}
                                     {% if item.user == request.user %}
-                                        <p>音声ファイルがありません。</p>
+                                        <p>音声ファイルがありません。<br><br></p>
+                                    {% else %}
+                                        <h5><br><br></h5>
                                     {% endif %}
                                 {% endif %}
                                 
