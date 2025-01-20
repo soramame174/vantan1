@@ -191,15 +191,15 @@
                                     <br><br>
                                 {% endif %}
                                 <span>
-                                    (投稿ユーザー: 
+                                    投稿ユーザー: 
+                                    {% if item.user.userprofile.profile_picture %}
+                                        <img src="{{ item.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                    {% endif %}
                                     {% if item.user.userprofile.display_name == None %}
                                         {{ item.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                                     {% else %}
                                         {{ item.user.userprofile.display_name|default:"匿名" }}
                                     {% endif %}
-                                    {% if item.user.userprofile.profile_picture %}
-                                        <img src="{{ item.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-                                    {% endif %})
                                 </span>
                                 <h6 class="card-title mt-4">ジャンル: {{ item.category|default:"なし" }}</h6>
                                 <div class="mt-3">
@@ -249,15 +249,15 @@
                                 <li>
                                     <h4>{{ ongaku.title }}</h4>
                                     <div class="misenai" style="display: block;">
-                                        <span>(投稿ユーザー: 
+                                        <span>投稿ユーザー: 
+                                            {% if ongaku.user.userprofile.profile_picture %}
+                                                <img src="{{ ongaku.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                            {% endif %}
                                             {% if ongaku.user.userprofile.display_name == None %}
                                                 {{ ongaku.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                                             {% else %}
                                                 {{ ongaku.user.userprofile.display_name|default:"匿名" }}
                                             {% endif %}
-                                            {% if ongaku.user.userprofile.profile_picture %}
-                                                <img src="{{ ongaku.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-                                            {% endif %})
                                         </span>
                                         {% if ongaku.thumbnail %}
                                             <br><br>

@@ -52,7 +52,7 @@
             {% else %}
                 {{ request.user.userprofile.display_name|default:"匿名" }}
             {% endif %}
-        </a> | <strong>リクエスト作成日:</strong> {{ request.created_at|date:"Y.m/d H:i" }}
+        </a> | <strong>リクエスト作成日:</strong> {{ request.created_at|date:"Y-m-d H:i" }}
     </h5>
 
     <h3 style="margin-top: 70px;">コメント</h3>
@@ -75,7 +75,7 @@
                         <p style="font-size: 0.8em; margin-top: -20px;">関連リンク: <a href="{{ comment.url }}" target="_blank" style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%;">{{ comment.url }}</a></p>
                     {% endif %}
                 </h5>
-                <p class="text-muted" style="margin-top: -50px;">コメント作成日: {{ comment.created_at|date:"Y.m/d H:i" }}</p>
+                <p class="text-muted" style="margin-top: -50px;">コメント作成日: {{ comment.created_at|date:"Y-m-d H:i" }}</p>
                 {% if comment.user == user %}
                     <a class="btn p-1" href="{% url 'delete_comment' comment.id %}" style="margin-left: -5px; margin-top: -15px;">コメントを削除</a>
                 {% endif %}

@@ -91,11 +91,11 @@
                                 {% else %}
                                     {{ object.user.userprofile.display_name|default:"匿名" }}
                                 {% endif %}
+                                {% if object.user.userprofile.profile_picture %}
+                                    <!-- プロフィール画像を小さく表示 -->
+                                    <img src="{{ object.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                {% endif %}
                             </a>
-                            {% if object.user.userprofile.profile_picture %}
-                                <!-- プロフィール画像を小さく表示 -->
-                                <img src="{{ object.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-                            {% endif %}
                         </h5>
                     </div>
                     {% if object.user == request.user %}
@@ -103,7 +103,7 @@
                     {% endif %}
                     
                     <div>
-                        <h6 class="card-title mt-4">投稿日: {{ object.created_at|date:"Y.m/d H:i" }}</h6>
+                        <h6 class="card-title mt-4">投稿日: {{ object.created_at|date:"Y-m-d H:i" }}</h6>
                     </div>
                 </span>
                 

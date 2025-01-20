@@ -9,22 +9,22 @@
     <div class="border border_color p-4 mb-4">
         <h3>
             表示名:
-            <a href="{% url 'profile' user.pk %}"> 
+            <a href="{% url 'profile' user.pk %}">
+                {% if user.userprofile.profile_picture %}
+                <!-- プロフィール画像を小さく表示 -->
+                <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                {% endif %}
                 {% if request.user.userprofile.display_name == None %}
                     {{ request.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                 {% else %}
                     {{ request.user.userprofile.display_name|default:"匿名" }}
                 {% endif %}
             </a>
-            {% if user.userprofile.profile_picture %}
-                <!-- プロフィール画像を小さく表示 -->
-                <img src="{{ user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-            {% endif %}
             <!-- 名前とプロフィール画像を横並びに表示 -->
         </h3>
         <p>ユーザーID: {{ user.username|default:"なし"  }}</p>
         {% load tz %}
-        <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y.m/d H:i" }}</p>
+        <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y-m-d H:i" }}</p>
         <a href="{% url 'change_display_name' %}">表示名を変更</a>
         <h3><br></h3>
 
