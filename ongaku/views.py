@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import YourModel
 from django.db.models import Avg, Q, Count
 from django.shortcuts import render, get_object_or_404, redirect
@@ -579,13 +579,19 @@ def add_ongaku(request):
 def search_view(request):
     query = request.GET.get('query', '')
     
+    # 英語->日本語のジャンル変換辞書を作成
+    category_dict = dict(CATEGORY)
+    reverse_category_dict = {v: k for k, v in category_dict.items()}  # 日本語→英語の辞書
+
     if query:
+        genre_query = reverse_category_dict.get(query, query)  # 日本語が一致すれば英語に変換
         search_results = Ongaku.objects.filter(
             Q(title__icontains=query) |
             Q(category__icontains=query) |
+            Q(category__icontains=genre_query) |  # 英語でも検索
             Q(custom_category__icontains=query) |
-            Q(user__username__icontains=query) |  # username での検索
-            Q(user__userprofile__display_name__icontains=query)   # display_name での検索
+            Q(user__username__icontains=query) |
+            Q(user__userprofile__display_name__icontains=query)
         ).annotate(
             match_count=Count('title')
         ).order_by('-match_count')
@@ -755,7 +761,8 @@ CATEGORY = (
     ('Anison', 'アニソン'),
     ('Future Bass', 'フューチャーベース'),
     ('Vocaloid', 'ボカロ'),
-    ('Healing', '癒し')
+    ('Healing', '癒し'),
+    ('Ragutaimu', 'ラグタイム')
 )
 
 def index_view(request):
@@ -777,13 +784,24 @@ def index_view(request):
     if selected_category and selected_category in genres:
         music_queryset = music_queryset.filter(category=selected_category)
 
-    # 再生回数が多いトップ10
-    recommended = music_queryset.order_by('-play_count')[:10]
+    # 再生回数が多いトップリスト
+    recommended_queryset = music_queryset.order_by('-play_count')
+
+    # おすすめリストのページネーション（5個ずつ表示）
+    recommended_paginator = Paginator(recommended_queryset, 5)
+    recommended_page_number = request.GET.get('recommended_page', 1)
+
+    try:
+        recommended_page_obj = recommended_paginator.page(recommended_page_number)
+    except PageNotAnInteger:
+        recommended_page_obj = recommended_paginator.page(1)
+    except EmptyPage:
+        recommended_page_obj = recommended_paginator.page(recommended_paginator.num_pages)
 
     # 平均評価でランキング
     ranking_list = music_queryset.annotate(avg_rating=Avg('review__rate')).order_by('-avg_rating')
 
-    # ページネーションの設定
+    # ページネーションの設定（ランキング用）
     paginator = Paginator(ranking_list, ITEM_PER_PAGE)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.page(page_number)
@@ -795,7 +813,7 @@ def index_view(request):
             'genres': CATEGORY,  # ジャンルリスト
             'selected_category': selected_category,  # 選択中のジャンル
             'music_list': music_queryset,
-            'recommended': recommended,
+            'recommended_page_obj': recommended_page_obj,  # おすすめリスト（ページネーション対応）
             'ranking_list': ranking_list,
             'page_obj': page_obj,
         },

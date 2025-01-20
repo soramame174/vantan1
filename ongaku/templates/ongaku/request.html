@@ -74,14 +74,14 @@
                     <br>
                     (投稿者: 
                     <a href="{% url 'profile' req.user.pk %}">
+                    {% if req.user.userprofile.profile_picture %}
+                        <img src="{{ req.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                    {% endif %}
                     {% if req.user.userprofile.display_name == None %}
                         {{ req.user.userprofile.display_name|default:"匿名" }}{{ req.user.id }}
                     {% else %}
                         {{ req.user.userprofile.display_name|default:"匿名" }}
-                    {% endif %}</a>
-                    {% if req.user.userprofile.profile_picture %}
-                        <img src="{{ req.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-                    {% endif %})
+                    {% endif %}</a>)
                 </span>
                 <br>
                 <a href="{% url 'request_detail' req.id %}" style="margin-left: -10px;" class="btn">詳細</a>

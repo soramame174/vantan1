@@ -86,14 +86,14 @@
                         <h5>
                             投稿ユーザー: 
                             <a href="{% url 'profile' object.user.pk %}">
+                                {% if object.user.userprofile.profile_picture %}
+                                    <!-- プロフィール画像を小さく表示 -->
+                                    <img src="{{ object.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                {% endif %}
                                 {% if object.user.userprofile.display_name == None %}
                                     {{ object.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
                                 {% else %}
                                     {{ object.user.userprofile.display_name|default:"匿名" }}
-                                {% endif %}
-                                {% if object.user.userprofile.profile_picture %}
-                                    <!-- プロフィール画像を小さく表示 -->
-                                    <img src="{{ object.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                                 {% endif %}
                             </a>
                         </h5>
@@ -318,13 +318,17 @@
                                     <h3 class="h4">{{ review.title }}</h3>
                                     <div class="px-2">
                                         <span>(投稿ユーザー: 
+                                            {% if review.user.userprofile.profile_picture %}
+                                                <!-- プロフィール画像を小さく表示 -->
+                                                <img src="{{ review.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                                            {% endif %}
                                             {% if review.user.userprofile.display_name == None %}
                                                 {{ review.user.userprofile.display_name|default:"匿名" }}{{ uesr.id }}
                                             {% else %}
                                                 {{ review.user.userprofile.display_name|default:"匿名" }}
                                             {% endif %})
                                         </span>
-                                        <p>内容: {{ review.text }}</p>
+                                        <p style="white-space: pre-line;">内容: {{ review.text }}</p>
                                         <p>評価: {{ review.rate }}</p>
                                     </div>
                                 </div>

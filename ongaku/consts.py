@@ -1,5 +1,5 @@
 MAX_PATE = 5
-ITEM_PER_PAGE = 30
+ITEM_PER_PAGE = 15  # 30件ごとにページを分ける
 
 # COMMON_CATEGORIES = [
 #     'ポップ',

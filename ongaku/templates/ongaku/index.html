@@ -32,7 +32,7 @@
     }
 
     .feature:hover {
-            transform: translateY(-8px);
+            transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
@@ -101,7 +101,7 @@
                 {% if item.is_public %}
                     <div class="col-md-4 col-sm-6"> <!-- レスポンシブで2列/3列切り替え -->
                             <div class="border border_color p-4 mb-2" type="tokubetu">
-                                <h3 class="song-title">{{ item.title }}</h3>
+                                <h3 class="song-title" style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%;">{{ item.title }}</h3>
 
                                 {% if item.audio_file %}
                                     <audio id="audioPlayer{{ item.pk }}" controls style="width: 100%; max-width: 100%;">
@@ -202,6 +202,7 @@
                                     {% endif %}
                                 </span>
                                 <h6 class="card-title mt-4">ジャンル: {{ item.category|default:"なし" }}</h6>
+
                                 <div class="mt-3">
                                     <a href="{% url 'detail-ongaku' item.pk %}" class="btn feature p-1">詳細へ</a>
                                 </div>
@@ -213,22 +214,25 @@
                 {% endif %}
             {% endfor %}
         </div>
-
         <!-- ページネーション -->
-        <div class="pagination">
-            {% if page_obj.has_previous %}
-                <a href="?page=1">&laquo; 最初のページ</a>
-                <a href="?page={{ page_obj.previous_page_number }}">前のページ</a>
-            {% endif %}
-
-            <span class="current">
-                ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-            </span>
-
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">次のページ</a>
-                <a href="?page={{ page_obj.paginator.num_pages }}">最終ページ &raquo;</a>
-            {% endif %}
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0 auto; margin-top: 50px;">
+            <div class="pagination" style="display: inline-flex; justify-content: center; align-items: center;">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; 最初へ</a>
+                    <p style="color: #e8e8e8; margin: 0 10px;">|</p>
+                    <a href="?page={{ page_obj.previous_page_number }}">&lt; 前へ</a>
+                {% endif %}
+        
+                <span class="current">
+                    ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">次へ &gt;</a>
+                    <p style="color: #e8e8e8; margin: 0 10px;">|</p>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">最後へ &raquo;</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -238,16 +242,15 @@
             <div class="border border_color misenai" type="tokubetu">
                 <h2 style="text-align: center; margin-top: 20px;">再生回数トップ</h2>
 
-            
-                {% if recommended %}
+                {% if recommended_page_obj %}
                     <ul>
-                        {% for ongaku in recommended %}
+                        {% for ongaku in recommended_page_obj %}
                             {% if ongaku.is_public %}
                                 <div>
                                     <p class="responsive-line" style="color: #ff4081;">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
                                 </div>
                                 <li>
-                                    <h4>{{ ongaku.title }}</h4>
+                                    <h4 style="word-wrap: break-word; word-break: break-word; white-space: normal; transition: color 0.3s ease, text-decoration 0.3s ease; max-width: 100%;">{{ ongaku.title }}</h4>
                                     <div class="misenai" style="display: block;">
                                         <span>投稿ユーザー: 
                                             {% if ongaku.user.userprofile.profile_picture %}
@@ -274,6 +277,31 @@
                             {% endif %}
                         {% endfor %}
                     </ul>
+
+                    <!-- ページネーションリンク -->
+                    <div class="pagination" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0 auto;">
+                        <span class="step-links" style="display: flex; justify-content: center; align-items: center;>
+                            <div style="display: flex; justify-content: center; align-items: center;">
+                                {% if recommended_page_obj.has_previous %}
+                                    <a href="?recommended_page=1">&laquo; 最初</a>
+                                    <p style="margin-top: 13px; color: #e8e8e8;">|</p>
+                                    <a href="?recommended_page={{ recommended_page_obj.previous_page_number }}">&lt; 前</a>
+                                {% endif %}
+
+                                <span class="current">
+                                    ページ {{ recommended_page_obj.number }}/{{ recommended_page_obj.paginator.num_pages }}
+                                </span>
+
+                                {% if recommended_page_obj.has_next %}
+                                    <a href="?recommended_page={{ recommended_page_obj.next_page_number }}">次 &gt;</a>
+                                    <p style="margin-top: 13px; color: #e8e8e8;">|</p>
+                                    <a href="?recommended_page={{ recommended_page_obj.paginator.num_pages }}">最後 &raquo;</a>
+                                {% endif %}
+                            </div>
+                        </span>
+                    </div>
+
+
                 {% else %}
                     <p>おすすめの音楽はありません。</p>
                 {% endif %}

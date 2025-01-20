@@ -61,14 +61,14 @@
             <li class="list-group-item" style="margin-left: -40px;">
                 <strong>コメントしたユーザー: 
                     <a href="{% url 'profile' comment.user.pk %}">
+                    {% if comment.user.userprofile.profile_picture %}
+                        <img src="{{ comment.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
+                    {% endif %}
                     {% if comment.user.userprofile.display_name == None %}
                         {{ comment.user.userprofile.display_name|default:"匿名" }}{{ comment.user.id }}
                     {% else %}
                         {{ comment.user.userprofile.display_name|default:"匿名" }}
                     {% endif %}</a>
-                    {% if comment.user.userprofile.profile_picture %}
-                        <img src="{{ comment.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
-                    {% endif %}
                 </strong>
                 <h5 style="word-wrap: break-word; word-break: break-word; white-space: normal; white-space: pre-line; margin-top: 10px;">{{ comment.text }}<br>
                     {% if comment.url %}
