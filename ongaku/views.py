@@ -334,18 +334,12 @@ def profile(request, user_id):
     else:
         followed_users = User.objects.none()  # 未ログイン時は空のクエリセット
     
-    # 曲のページネーション設定
-    songs = request.user.songs.all()
-    paginator = Paginator(songs, 15)  # 1ページに15曲表示
-    page_number = request.GET.get('page')  # ページ番号を取得
-    page_obj = paginator.get_page(page_number)  # ページオブジェクトを取得
 
     context = {
         'user': user_profile.user,
         'folders': folders,
         'favorite_songs': favorite_songs,
         'followed_users': followed_users,  # フォロー中のユーザーを渡す
-        'page_obj': page_obj,  # ページオブジェクトをテンプレートに渡す
     }
 
     return render(request, 'ongaku/profile_list.html', context)
