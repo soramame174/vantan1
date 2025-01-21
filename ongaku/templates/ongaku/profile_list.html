@@ -27,21 +27,20 @@
         <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y-m-d H:i" }}</p>
         <a href="{% url 'change_display_name' %}">表示名を変更</a>
         <h3><br></h3>
-
-        <h3><br></h3>
-
-        <!-- 自分で作った曲 -->
-        <h3>自分の作品リスト</h3>
-
         
-        {% for song in request.user.songs.all %}
+        <h3><br></h3>
+        <h3>お気に入り</h3>
+        {% for song in request.user.favorite_songs.all %}
             <ul style="margin-left: -40px;">
-                <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
+                <h5>
+                    <li>
+                        <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
+                    </li>
+                </h5>
             </ul>
         {% empty %}
-            <h5>まだ曲を作成していません。</h5>
+            <p>お気に入りはありません。</p>
         {% endfor %}
-        
 
         <h3><br></h3>
 
@@ -71,21 +70,40 @@
 
 
         <a href="{% url 'create_folder' %}">フォルダを作成</a> 
+        
+
         <h3><br></h3>
-        <h3>お気に入り</h3>
-        {% for song in request.user.favorite_songs.all %}
+
+        <!-- 自分で作った曲 -->
+        <h3>自分の作品リスト</h3>
+
+        
+        {% for song in request.user.songs.all %}
             <ul style="margin-left: -40px;">
-                <h5>
-                    <li>
-                        <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
-                    </li>
-                </h5>
+                <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
             </ul>
         {% empty %}
-            <p>お気に入りはありません。</p>
+            <h5>まだ曲を作成していません。</h5>
         {% endfor %}
 
+        <!-- ページネーションのリンク -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; 最初</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">前のページ</a>
+                {% endif %}
 
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">次のページ</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">最後</a>
+                {% endif %}
+            </span>
+        </div>
     
         <h3><br><br></h3>
         {% if request.user.is_authenticated %}

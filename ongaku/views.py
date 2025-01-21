@@ -187,6 +187,11 @@ def user_profile(request, user_id):
     follower_count = Follow.objects.filter(followed=user).count()  # フォロワー数を取得
     following_count = Follow.objects.filter(follower=user).count()  # フォローしているユーザー数を取得
 
+    # フォロワーリストを取得
+    follower_users = User.objects.filter(
+        id__in=Follow.objects.filter(followed=user).values('follower')
+    )  # フォロワーのユーザーを取得
+
     return render(request, 'ongaku/profile.html', {
         'profile': profile,
         'user': user,
@@ -196,37 +201,36 @@ def user_profile(request, user_id):
         'is_own_profile': is_own_profile,  # 自分のプロフィールかどうかを渡す
         'follower_count': follower_count,
         'following_count': following_count,
+        'follower_users': follower_users,  # フォロワーリストを渡す
         'has_audio_file': has_audio_file,  # 音楽ファイルがあるかどうかのフラグを渡す
     })
 
 
-def profile_view(request):
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user.profile)
-        user = request.user
-        folders = user.userprofile.folders.all() if hasattr(user, 'userprofile') else []
-        
-        if form.is_valid():
-            form.save()
-            return redirect('profile')
-    else:
-        form = UserProfileForm(instance=request.user.profile)
+
+def profile_view(request, user_id):
+    target_user = get_object_or_404(User, id=user_id)
 
     # フォロワー数とフォロー数を取得
-    follower_count = Follow.objects.filter(following=request.user).count()
-    following_count = Follow.objects.filter(follower=request.user).count()
+    follower_count = Follow.objects.filter(followed=target_user).count()
+    following_count = Follow.objects.filter(follower=target_user).count()
 
-    # デバッグ用のログ出力
-    logger.debug(f"follower_count: {follower_count}, following_count: {following_count}")
+    # フォロワーとフォローしているユーザーを取得
+    followers = target_user.followers.all()  # 'followers' で取得
+    following = target_user.following.all()  # 'following' で取得
 
-    return render(request, 'ongaku/profile.html', {
-        'form': form,
-        'user': request.user,
-        'folders': folders,
+    # フォロワーとフォロー中のユーザーリスト
+    follower_users = followers
+    following_users = following
+
+    context = {
+        'target_user': target_user,
         'follower_count': follower_count,
         'following_count': following_count,
-    })
+        'follower_users': follower_users,
+        'following_users': following_users,
+    }
 
+    return render(request, 'ongaku/profile.html', context)
 
 
 @login_required
@@ -330,12 +334,18 @@ def profile(request, user_id):
     else:
         followed_users = User.objects.none()  # 未ログイン時は空のクエリセット
     
+    # 曲のページネーション設定
+    songs = request.user.songs.all()
+    paginator = Paginator(songs, 15)  # 1ページに15曲表示
+    page_number = request.GET.get('page')  # ページ番号を取得
+    page_obj = paginator.get_page(page_number)  # ページオブジェクトを取得
 
     context = {
         'user': user_profile.user,
         'folders': folders,
         'favorite_songs': favorite_songs,
         'followed_users': followed_users,  # フォロー中のユーザーを渡す
+        'page_obj': page_obj,  # ページオブジェクトをテンプレートに渡す
     }
 
     return render(request, 'ongaku/profile_list.html', context)

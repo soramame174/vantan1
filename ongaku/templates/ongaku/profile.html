@@ -35,13 +35,24 @@
                 </span>
             </h1>
         </div>
+        <h6><br></h6>
+
+        <h4>一言</h4><h5 style="white-space: pre-line;"><br>{{ profile.bio|default:"なし" }}</h5>
+        <h6><br><br></h6>
         {% if not user == request.user %}
             <p><strong>フォロワー数:</strong> {% if follower_count %}{{ follower_count }}{% else %}0{% endif %}</p>
             <p><strong>フォロー数:</strong> {% if following_count %}{{ following_count }}{% else %}0{% endif %}</p>
         {% endif %}
-        <h6><br><br></h6>
-
-        <h4>一言</h4><h5 style="white-space: pre-line;"><br>{{ profile.bio|default:"なし" }}</h5>
+        <!-- フォローボタン -->
+        {% if not is_own_profile %}
+            <form method="POST" action="{% url 'follow' user.id %}">
+                {% csrf_token %}
+                <button type="submit">
+                    {% if is_following %} フォロー解除 {% else %} フォローする {% endif %}
+                </button>
+            </form>
+        {% endif %}
+        
         <h6><br><br></h6>
         
         {% if profile.youtube_url %}
@@ -52,20 +63,6 @@
         {% if profile.twitter_url %}
             <h6><br><br></h6>
             <p>X(旧Twitter) URL: <a href="{{ profile.twitter_url }}" target="_blank">{{ profile.twitter_url }}</a></p>
-        {% endif %}
-
-        <h6><br><br></h6>
-
-        {% if not is_own_profile %}
-            <!-- フォローボタン -->
-            <form method="POST" action="{% url 'follow' user.id %}">
-                {% csrf_token %}
-                {% if is_following %}
-                    <button type="submit">フォロー解除</button>
-                {% else %}
-                    <button type="submit">フォローする</button>
-                {% endif %}
-            </form>
         {% endif %}    
         
         <script>
@@ -126,6 +123,13 @@
         <div>
             <p class="responsive-line">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
         </div>
+        <!-- フォロー/フォロワー表示切り替えボタン -->
+        {% if user == request.user %}
+            <div class="toggle-buttons">
+                <button id="toggle-following" onclick="toggleList('following-list')">フォローリスト</button>
+                <button id="toggle-followers" onclick="toggleList('followers-list')">フォロワーリスト</button>
+            </div>
+        {% endif %}
         
         <style>
             .responsive-line {
@@ -149,33 +153,74 @@
             }
         </style>
         
-        <h3>あなたのフォロー中のユーザーリスト</h3>
+        
         {% if user == request.user %}
             <p><strong>フォロワー数:</strong> {% if follower_count %}{{ follower_count }}{% else %}0{% endif %}</p>
             <p><strong>フォロー数:</strong> {% if following_count %}{{ following_count }}{% else %}0{% endif %}</p>
         {% endif %}
 
-        
-        {% if followed_users %}        
-            {% for user in followed_users %}
+        <div id="following-list" style="display: none;">
+            <h3>あなたのフォロー中のユーザーリスト</h3>
+            {% if followed_users %}        
                 <ul style="margin-left: -40px;">
-                    <h5>
-                        <li>
-                            <a href="{% url 'profile' user.pk %}">
-                                {% if user.userprofile.display_name == None %}
-                                    {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
-                                {% else %}
-                                    {{ user.userprofile.display_name|default:"匿名" }}
-                                {% endif %}
-                            </a>
-                        </li>
-                    </h5>
+                    {% for user in followed_users %}
+                        <h4>
+                            <li>
+                                <a href="{% url 'profile' user.pk %}">
+                                    {% if user.userprofile.display_name == None %}
+                                        {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                                    {% else %}
+                                        {{ user.userprofile.display_name|default:"匿名" }}
+                                    {% endif %}
+                                </a>
+                            </li>
+                        </h4>
+                    {% endfor %}
                 </ul>
-            {% endfor %}
-        {% else %}
-            <p>あなたのフォロー中のユーザーはまだいません。</p>
-        {% endif %}
+            {% else %}
+                <p>あなたのフォロー中のユーザーはまだいません。</p>
+            {% endif %}
+        </div>
+
+        <!-- フォロワーリスト -->
+        <div id="followers-list" style="display: none;">
+            <h3>あなたのフォロワーリスト</h3>
+            {% if follower_users %}
+                <ul style="margin-left: -40px;">
+                    {% for user in follower_users %}
+                        <h4>
+                            <li>
+                                <a href="{% url 'profile' user.pk %}">
+                                    {% if user.userprofile.display_name == None %}
+                                        {{ user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                                    {% else %}
+                                        {{ user.userprofile.display_name }}
+                                    {% endif %}
+                                </a>        
+                            </li>
+                        </h4>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>フォロワーはまだいません。</p>
+            {% endif %}
+        </div>
+
         <h1><br><br></h1>
+
+
+        <script>
+            function toggleList(listId) {
+                document.getElementById('following-list').style.display = 'none';
+                document.getElementById('followers-list').style.display = 'none';
+        
+                document.getElementById(listId).style.display = 'block';
+            }
+        
+            // 初期表示をフォローリストに設定
+            toggleList('following-list');
+        </script>
+
     </div>
 </div>
 {% block is_authenticated %}
