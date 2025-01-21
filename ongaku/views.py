@@ -414,7 +414,6 @@ def favorite_song(request, song_id):
 @login_required
 def profile_list(request):
     """プロフィールリスト表示"""
-    # UserProfileが存在しない場合は作成
     try:
         userprofile = request.user.userprofile
     except UserProfile.DoesNotExist:
@@ -422,7 +421,19 @@ def profile_list(request):
         messages.info(request, "プロフィールが自動的に作成されました。")
 
     folders = Folder.objects.filter(user=request.user)  # ユーザーのフォルダを取得
-    return render(request, 'ongaku/profile_list.html', {'userprofile': userprofile, 'folders': folders})
+    songs = request.user.songs.all()  # ユーザーの作成した曲を取得
+
+    paginator = Paginator(songs, 10)  # 1ページに10曲
+    page_number = request.GET.get('page')  # URLパラメータからページ番号を取得
+    page_obj = paginator.get_page(page_number)  # ページオブジェクトを取得
+
+    context = {
+        'userprofile': userprofile,
+        'folders': folders,
+        'page_obj': page_obj,  # ページオブジェクトを渡す
+    }
+    return render(request, 'ongaku/profile_list.html', context)
+
 
 
 def register_view(request):

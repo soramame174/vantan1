@@ -77,23 +77,38 @@
         <!-- 自分で作った曲 -->
         <h3>自分の作品リスト</h3>
 
-        
-        {% for song in request.user.songs.all %}
-            <ul style="margin-left: -40px;">
-                <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
-            </ul>
-        {% empty %}
-            <h5>まだ曲を作成していません。</h5>
-        {% endfor %}
-    
-        <h3><br><br></h3>
-        {% if request.user.is_authenticated %}
-            <form method="post" action="{% url 'accounts:logout' %}">
-                {% csrf_token %}
-                <button type="btn" class="submit" type="submit">ログアウト</button>
-            </form>
-        {% endif %}
+<!-- 自分で作った曲 -->
+{% for song in page_obj %}
+    <ul style="margin-left: -40px;">
+        <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
+    </ul>
+{% empty %}
+    <h5>まだ曲を作成していません。</h5>
+{% endfor %}
+
+<!-- ページネーション -->
+<div style="display: flex; width: 100%; margin: 0 auto;">
+    <div class="pagination" style="display: inline-flex;">
+        <span class="step-links" style="display: flex; width: 100%; margin: 0 auto;">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; 最初へ</a>
+                <p style="color: #e8e8e8; margin: 0 10px;">|</p>
+                <a href="?page={{ page_obj.previous_page_number }}">&lt; 前へ</a>
+            {% endif %}
+
+            <span class="current">
+                ページ {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">次へ &gt;</a>
+                <p style="color: #e8e8e8; margin: 0 10px;">|</p>
+                <a href="?page={{ page_obj.paginator.num_pages }}">最後へ &raquo;</a>
+            {% endif %}
+        </span>
     </div>
+</div>
+
 </div>
 
 <style>
