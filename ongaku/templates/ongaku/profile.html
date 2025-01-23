@@ -117,7 +117,15 @@
 
         <h6><br><br><br><br></h6>
 
-        <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+        <div style="display: flex; width: 100%; margin: 0 auto;">
+            <div class="pagination" style="display: inline-flex;">
+                <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a>
+                {% if user == request.user %}
+                    <p style="color: #e8e8e8; margin: 0 10px; margin-top: 5px;">|</p>
+                    <a class="btn p-1" href="{% url 'profile_list' %}">プロフィール設定に戻る</a>
+                {% endif %}
+            </div>
+        </div>
 
         <p><br><br></p>
         <div>

@@ -777,7 +777,8 @@ CATEGORY = (
     ('Future Bass', 'フューチャーベース'),
     ('Vocaloid', 'ボカロ'),
     ('Healing', '癒し'),
-    ('Ragutaimu', 'ラグタイム')
+    ('Ragutaimu', 'ラグタイム'),
+    ('sound effects', '効果音')
 )
 
 def index_view(request):

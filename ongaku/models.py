@@ -89,7 +89,8 @@ CATEGORY = (
     ('Future Bass', 'フューチャーベース'),
     ('Vocaloid', 'ボカロ'),
     ('Healing', '癒し'),
-    ('Ragutaimu', 'ラグタイム')
+    ('Ragutaimu', 'ラグタイム'),
+    ('sound effects', '効果音')
 )
 
 
@@ -223,7 +224,7 @@ class FolderSong(models.Model):
     song = models.ForeignKey('Ongaku', on_delete=models.CASCADE, verbose_name="曲")
 
     class Meta:
-        unique_together = ('folder', 'song')  # 必要に応じてユニーク制約を設定
+        unique_together = ('folder', 'song')
 
 class Follow(models.Model):
     follower = models.ForeignKey(
@@ -246,7 +247,7 @@ class Follow(models.Model):
     def __str__(self):
         return f'{self.follower.username} follows {self.followed.username}'
     
-class YourModel(models.Model):  # 必要なモデルを定義
+class YourModel(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE)  # 修正完了
