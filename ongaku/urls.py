@@ -14,6 +14,7 @@ urlpatterns = [
     path('unfollow/<int:user_id>/', views.unfollow_user, name='unfollow'),
     path('profile/<int:user_id>/', views.user_profile, name='profile'),
     path('profile/', views.profile_list, name='profile_list'),
+    path('password-change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
 
     # お気に入りとフォルダ管理
     path('toggle_favorite/<int:pk>/', views.toggle_favorite, name='toggle_favorite'),

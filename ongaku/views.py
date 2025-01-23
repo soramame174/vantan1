@@ -34,6 +34,8 @@ import datetime
 from .models import Request, Comment
 from .forms import CommentForm
 
+from django.contrib.auth.views import PasswordChangeView
+
 from django.contrib.auth.decorators import login_required
 
 from django.views.decorators.csrf import csrf_exempt
@@ -122,6 +124,13 @@ def my_view(request):
     return HttpResponse("アプリケーションは動作中です。")
 
 logger = logging.getLogger(__name__)
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    template_name = 'password_change.html'
+    success_url = reverse_lazy('profile')  # パスワード変更後のリダイレクト先
+
+
 
 @login_required
 def follow_user(request, user_id):
