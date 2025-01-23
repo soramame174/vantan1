@@ -97,6 +97,7 @@
                         <a href="?page=1">&laquo; 最初へ</a>
                         <p style="color: #e8e8e8; margin: 0 10px;">|</p>
                         <a href="?page={{ page_obj.previous_page_number }}">&lt; 前へ</a>
+                        <p style="color: #e8e8e8; margin: 0 10px;"> </p>
                     {% endif %}
 
                     <span class="current">
@@ -104,6 +105,7 @@
                     </span>
 
                     {% if page_obj.has_next %}
+                    <p style="color: #e8e8e8; margin: 0 10px;"> </p>
                         <a href="?page={{ page_obj.next_page_number }}">次へ &gt;</a>
                         <p style="color: #e8e8e8; margin: 0 10px;">|</p>
                         <a href="?page={{ page_obj.paginator.num_pages }}">最後へ &raquo;</a>
