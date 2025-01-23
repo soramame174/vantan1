@@ -127,10 +127,8 @@ logger = logging.getLogger(__name__)
 
 
 class CustomPasswordChangeView(PasswordChangeView):
-    template_name = 'password_change.html'
-    success_url = reverse_lazy('profile')  # パスワード変更後のリダイレクト先
-
-
+    template_name = 'registration/password_change.html'
+    success_url = reverse_lazy('profile_list')  # パスワード変更後のリダイレクト先
 
 @login_required
 def follow_user(request, user_id):

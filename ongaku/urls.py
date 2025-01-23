@@ -1,6 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -15,7 +16,8 @@ urlpatterns = [
     path('profile/<int:user_id>/', views.user_profile, name='profile'),
     path('profile/', views.profile_list, name='profile_list'),
     path('password-change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
-
+    path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), name='password_change_done'),
+    
     # お気に入りとフォルダ管理
     path('toggle_favorite/<int:pk>/', views.toggle_favorite, name='toggle_favorite'),
     path('ongaku/<int:pk>/favorite/', views.toggle_favorite, name='toggle-favorite'),
