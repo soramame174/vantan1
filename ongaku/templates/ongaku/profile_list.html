@@ -82,7 +82,12 @@
         <!-- 自分で作った曲 -->
         {% for song in page_obj %}
             <ul style="margin-left: -40px;">
-                <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
+                <div style="display: flex; width: 100%; margin: 0 auto;">
+                    <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
+                    {% if not song.is_public %}
+                        <h4 style="margin-top: -5px; margin-left: 10px; height: 0px;">ロック</h4>
+                    {% endif %}
+                </div>
             </ul>
         {% empty %}
             <h5>まだ曲を作成していません。</h5>
