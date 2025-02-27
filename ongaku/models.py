@@ -20,7 +20,7 @@ class Request(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザー")  # リクエストをしたユーザー
     description = models.TextField(verbose_name="詳細")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="作成日時")
-    text = models.TextField(max_length=100, verbose_name="テキスト") 
+    text = models.TextField(max_length=100, verbose_name="テキスト")
 
     def __str__(self):
         return self.title
@@ -28,7 +28,7 @@ class Request(models.Model):
     # コメント削除用メソッド
     def can_delete_comment(self, user):
         return self.user == user  # リクエストをしたユーザーだけが削除可能
-    
+
     def get_comments(self):
         return self.comments.all()
 
@@ -38,7 +38,7 @@ class Comment(models.Model):
     request = models.ForeignKey(Request, related_name='comments', on_delete=models.CASCADE, verbose_name="リクエスト")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザー")
     content = models.TextField(default="", verbose_name="内容")
-    url = models.URLField(blank=True, null=True, verbose_name="URL") 
+    url = models.URLField(blank=True, null=True, verbose_name="URL")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="作成日時")
 
 
@@ -90,7 +90,11 @@ CATEGORY = (
     ('Vocaloid', 'ボカロ'),
     ('Healing', '癒し'),
     ('Ragutaimu', 'ラグタイム'),
-    ('sound effects', '効果音')
+    ('sound effects', '効果音'),
+    ('BGM', 'BGM'),
+    ('horror', 'ホラー'),
+    ('Japanese style', '和風'),
+    ('Western style', '洋風')
 )
 
 
@@ -110,7 +114,7 @@ class Ongaku(models.Model):
     thumbnail = models.ImageField(null=True, blank=True, verbose_name="サムネイル")
     category = models.CharField(
         max_length=100, choices=CATEGORY, null=True, blank=True, verbose_name="カテゴリー"
-    ) 
+    )
     custom_category = models.CharField(
         max_length=100,
         blank=True,
@@ -152,7 +156,7 @@ class Ongaku(models.Model):
         if Ongaku.objects.filter(title=self.title).exclude(pk=self.pk).exists():
             raise ValidationError(f"タイトル「{self.title}」はすでに存在します。別のタイトルを入力してください。")
 
-        if self.pk:  
+        if self.pk:
             old_instance = Ongaku.objects.filter(pk=self.pk).first()
             if old_instance and old_instance.audio_file != self.audio_file:
                 old_instance.audio_file.delete(save=False)
@@ -160,7 +164,7 @@ class Ongaku(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     def get_user_display_name(self):
         # ユーザーの表示名を取得
         if hasattr(self.user, 'profile') and self.user.profile:
@@ -169,7 +173,7 @@ class Ongaku(models.Model):
 
     def get_text_display(self):
         return self.text if self.text else "なし"
-    
+
     def get_category_display(self):
         if self.custom_category:
             return self.custom_category
@@ -230,13 +234,13 @@ class Follow(models.Model):
     follower = models.ForeignKey(
         User,
         related_name='following',  # フォローしているユーザー
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         verbose_name="フォロー"
     )
     followed = models.ForeignKey(
         User,
         related_name='followers',  # フォロワー
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         verbose_name="フォロワー"
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -246,7 +250,7 @@ class Follow(models.Model):
 
     def __str__(self):
         return f'{self.follower.username} follows {self.followed.username}'
-    
+
 class YourModel(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -261,7 +265,7 @@ class Review(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="投稿ユーザー")
 
     class Meta:
-        unique_together = ('ongaku', 'user') 
+        unique_together = ('ongaku', 'user')
 
     def __str__(self):
         return self.title
