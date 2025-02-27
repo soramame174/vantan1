@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="ja">
-    
+
     <head>
-        
+
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,9 +12,10 @@
 
         {% load static %}
 
-        <title>トップページ</title>
+        <title>トップページ|メロディノ</title>
 
-        <link rel="icon" href="{% static 'icon/favicon.ico' %}" type="image/x-icon">
+        <link rel="icon" href="{% get_media_prefix %}icon/favicon.ico" type="image/x-icon">
+
 
 
         <link rel="stylesheet" type="text/css" href="{% static 'ongaku/css/style.css' %}">
@@ -88,11 +89,11 @@
             color: #fff !important; /* 文字色を白に */
             font-weight: bold; /* 文字を太く */
         }
-        
+
         .hero {
             text-align: center;
             padding: 60px 20px;
-            background: url('/static/images/hero-bg.jpg') no-repeat center center/cover;
+            background: url('') no-repeat center center/cover;
             color: #fff;
         }
 
@@ -182,7 +183,7 @@
         <nav>
             <ul>
                 <li><a class="nav-link mx-3" href="/ongaku/">音楽ライブラリ</a></li>
-                <li><a class="nav-link mx-3" href="{% url 'about' %}">アバウト</a></li>
+                <li><a class="nav-link mx-3" href="/top/about/">アバウト</a></li>
                 {% if request.user.is_authenticated %}
                     <!-- プロフィール設定を見れるボタンを追加 -->
                     <li class="nav-item">
@@ -203,7 +204,7 @@
     <div class="hero">
         <h2>あなたの音楽を探してみよう</h2>
         <p>お気に入りのアーティストやジャンルを見つけてフリー音楽を楽しもう！</p>
-        <a href="/ongaku/" class="tamesi">
+        <a href="/ongaku/" class="tamesi" style="text-decoration:none;" >
             <div class="ima">
                 <h4>今すぐ試す</h4>
             </div>
@@ -211,25 +212,25 @@
     </div>
 
     <div class="features">
-        <a href="{% if request.user.is_authenticated %}{% url 'list-ongaku' %}{% else %}{% url 'accounts:signup' %}{% endif %}">
+        <a href="{% if request.user.is_authenticated %}{% url 'list-ongaku' %}{% else %}{% url 'accounts:signup' %}{% endif %}" style="text-decoration:none;" >
             <div class="feature">
-                <img src="{% static 'img/アーティスト.png' %}" alt="Discover Music">
+                <img src="{% get_media_prefix %}img/アーティスト.png" alt="Discover Music">
                 <h3>新しい音楽を発見</h3>
                 <p>最新のトラックや注目のアーティストをチェック！</p>
             </div>
         </a>
-    
-        <a href="{% if request.user.is_authenticated %}{% url 'list-ongaku' %}{% else %}{% url 'accounts:signup' %}{% endif %}">
+
+        <a href="{% if request.user.is_authenticated %}{% url 'list-ongaku' %}{% else %}{% url 'accounts:signup' %}{% endif %}" style="text-decoration:none;" >
             <div class="feature">
-                <img src="{% static 'img/音符.png' %}" alt="Favorite Songs">
+                <img src="{% get_media_prefix %}img/音符.png" alt="Favorite Songs">
                 <h3>お気に入りを保存</h3>
                 <p>好きな曲をお気に入りリストに追加しよう。</p>
             </div>
         </a>
-        
-        <a href="{% if request.user.is_authenticated %}{% url 'profile_list' %}{% else %}{% url 'accounts:signup' %}{% endif %}">
+
+        <a href="{% if request.user.is_authenticated %}{% url 'profile_list' %}{% else %}{% url 'accounts:signup' %}{% endif %}" style="text-decoration:none;" >
             <div class="feature">
-                <img src="{% static 'img/音符フォルダ.png' %}" alt="Create Playlists">
+                <img src="{% get_media_prefix %}img/音符フォルダ.png" alt="Create Playlists">
                 <h3>プレイリストを作成</h3>
                 <p>自分だけの音楽コレクションを簡単に整理！</p>
             </div>

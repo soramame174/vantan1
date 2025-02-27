@@ -4,6 +4,8 @@
 {% block h1 %}音楽削除{% endblock %}
 
 {% block content %}
+    {% block is_search %}
+    {% endblock %}
     <form method="post">
         {% csrf_token %}
         <button type="submit">{{ object.title }}を削除する</button>

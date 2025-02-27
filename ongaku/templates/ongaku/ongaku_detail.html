@@ -12,7 +12,7 @@
         display: flex;
         align-items: center;
     }
-    
+
 
     /* プロフィール画像のサイズをさらに小さく調整 */
     .profile-picture {
@@ -31,7 +31,7 @@
         background-color: #ffffff;
         color: #ff4081;
     }
-        
+
 
     .responsive-line {
         border-bottom: 2px solid #000; /* 線の色と太さを指定 */
@@ -39,7 +39,7 @@
         white-space: nowrap; /* テキストが折り返されないようにする */
         overflow: hidden; /* 親要素からはみ出さないようにする */
     }
-    
+
 </style>
     <div class="border border_color p-4 mb-2" type="tokubetu">
     {% if object.thumbnail %}
@@ -53,8 +53,8 @@
 
             <!-- 音楽タイトル -->
             <h2 class="h2 custom-title">{{ object.title }}</h2>
-            
-            
+
+
             {% if object.audio_file %}
                 <audio id="audioPlayer{{ object.pk }}" controls style="width: 100%; max-width: 100%;">
                     <source src="{{ object.audio_file.url }}" type="audio/mpeg">  <!-- MP3形式の場合 -->
@@ -67,13 +67,13 @@
                     <p>音声ファイルがありません。</p>
                 {% endif %}
             {% endif %}
-            
+
             {% if object.audio_file %}
                 <div>
                     <p id="playCount{{ object.pk }}">再生回数: {{ object.play_count }}</p>
                 </div>
             {% endif %}
-                
+
             <!-- 歌詞 -->
             <div>
                 <label>歌詞</label>
@@ -84,7 +84,7 @@
                     <!-- 音楽詳細ページ内に追加するユーザー情報セクション -->
                     <div class="profile-container">
                         <h5>
-                            投稿ユーザー: 
+                            投稿ユーザー:
                             <a href="{% url 'profile' object.user.pk %}">
                                 {% if object.user.userprofile.profile_picture %}
                                     <!-- プロフィール画像を小さく表示 -->
@@ -101,16 +101,17 @@
                     {% if object.user == request.user %}
                         <p>公開状態: {{ ongaku.is_public|yesno:"公開,非公開" }}</p>
                     {% endif %}
-                    
+
                     <div>
                         <h6 class="card-title mt-4">投稿日: {{ object.created_at|date:"Y-m-d H:i" }}</h6>
+
                     </div>
                 </span>
-                
-                
+
+
                 <h4><br></h4>
             </div>
-                
+
             <!-- ジャンル情報 -->
             <div class="category-info">
                 <h6 class="card-title mt-4">キーワード: {{ object.custom_category|default:"なし" }}</h6>
@@ -129,7 +130,7 @@
             <!-- アクションリンク -->
 
             <div>
-                
+
                 <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a> |
                 {% if object.user == request.user %}
                     <a href="{% url 'update-ongaku' object.pk %}" class="btn p-1">編集する</a> |
@@ -139,7 +140,7 @@
                     <a href="{% url 'review' object.pk %}" class="btn p-1">レビューする</a> |
                 {% endif %}
                     <a href="{% url 'add_song_to_folder' object.pk %}" class="btn p-1">音楽をフォルダに追加</a>
-    
+
                 {% if has_audio_file %}
                     <a href="{% url 'add_song_to_folder' object.pk %}" class="btn p-1">音楽をフォルダに追加</a>
                 {% endif %}
@@ -317,7 +318,7 @@
                                 <div>
                                     <h3 class="h4">{{ review.title }}</h3>
                                     <div class="px-2">
-                                        <span>(投稿ユーザー: 
+                                        <span>(投稿ユーザー:
                                             {% if review.user.userprofile.profile_picture %}
                                                 <!-- プロフィール画像を小さく表示 -->
                                                 <img src="{{ review.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">

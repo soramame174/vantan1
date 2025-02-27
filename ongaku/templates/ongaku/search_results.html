@@ -46,8 +46,8 @@
     </ul>
     <h6><br><br><br><br></h6>
     {% endif %}
-    
-    
+
+
 
     <h2>検索結果</h2>
     {% if search_results%}
@@ -58,7 +58,7 @@
                     <div class="border border_color p-4 mb-2" type="tokubetu">
                         <h4>
                             <li>{{ song.title }}</li>
-                            <span style="color: #fff;">
+                            <span>
                                 (投稿ユーザー:
                                 {% if song.user.userprofile.display_name == None %}
                                     {{ song.user.userprofile.display_name|default:"匿名" }}{{ song.user.id }}

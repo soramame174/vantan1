@@ -4,6 +4,8 @@
 {% block title %}リクエスト詳細{% endblock %}
 
 {% block content %}
+{% block is_search %}
+{% endblock %}
 <style>
     .responsive-line {
         margin-top: 40px;
@@ -59,7 +61,7 @@
     <ul class="list-group">
         {% for comment in comments %}
             <li class="list-group-item" style="margin-left: -40px;">
-                <strong>コメントしたユーザー: 
+                <strong>コメントしたユーザー:
                     <a href="{% url 'profile' comment.user.pk %}">
                     {% if comment.user.userprofile.profile_picture %}
                         <img src="{{ comment.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
@@ -88,7 +90,7 @@
         <p class="responsive-line">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
     </div>
     <h4 class="mt-4">コメントを投稿</h4>
-    
+
     <form method="POST">
         {% csrf_token %}
         <div class="form-group">

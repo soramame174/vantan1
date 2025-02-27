@@ -26,17 +26,17 @@
         {% load tz %}
         <p>アカウント作成日: {{ user.date_joined|timezone:"Asia/Tokyo"|date:"Y-m-d H:i" }}</p>
         <a href="{% url 'change_display_name' %}">表示変更</a>
-         | 
+         |
         <a href="{% url 'password_change' %}">パスワード変更</a>
         <h3><br></h3>
-        
+
         <h3><br></h3>
         <h3>お気に入り</h3>
         {% for song in request.user.favorite_songs.all %}
             <ul style="margin-left: -40px;">
                 <h5>
                     <li>
-                        <a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a>
+                        <a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a>
                     </li>
                 </h5>
             </ul>
@@ -54,7 +54,7 @@
                 {% for folder in folders %}
                     <li>
                         <h5>
-                            <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
+                            <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;" style="text-decoration:none;">{{ folder.name }}</a>
 
                             <form method="POST" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
                                 {% csrf_token %}
@@ -71,8 +71,8 @@
 
 
 
-        <a href="{% url 'create_folder' %}">フォルダを作成</a> 
-        
+        <a href="{% url 'create_folder' %}">フォルダを作成</a>
+
 
         <h3><br></h3>
 
@@ -83,7 +83,7 @@
         {% for song in page_obj %}
             <ul style="margin-left: -40px;">
                 <div style="display: flex; width: 100%; margin: 0 auto;">
-                    <h5><li><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></li></h5>
+                    <h5><li><a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a></li></h5>
                     {% if not song.is_public %}
                         <h4 style="margin-top: -5px; margin-left: 10px; height: 0px;">ロック</h4>
                     {% endif %}
@@ -99,9 +99,9 @@
             <div class="pagination" style="display: inline-flex;">
                 <span class="step-links" style="display: flex; width: 100%; margin: 0 auto;">
                     {% if page_obj.has_previous %}
-                        <a href="?page=1">&laquo; 最初へ</a>
+                        <a href="?page=1" style="text-decoration:none;">&laquo; 最初へ</a>
                         <p style="color: #e8e8e8; margin: 0 10px;">|</p>
-                        <a href="?page={{ page_obj.previous_page_number }}">&lt; 前へ</a>
+                        <a href="?page={{ page_obj.previous_page_number }}" style="text-decoration:none;">&lt; 前へ</a>
                         <p style="color: #e8e8e8; margin: 0 10px;"> </p>
                     {% endif %}
 
@@ -110,22 +110,23 @@
                     </span>
 
                     {% if page_obj.has_next %}
-                    <p style="color: #e8e8e8; margin: 0 10px;"> </p>
-                        <a href="?page={{ page_obj.next_page_number }}">次へ &gt;</a>
+                        <p style="color: #e8e8e8; margin: 0 10px;"> </p>
+                        <a href="?page={{ page_obj.next_page_number }}" style="text-decoration:none;">次へ &gt;</a>
                         <p style="color: #e8e8e8; margin: 0 10px;">|</p>
-                        <a href="?page={{ page_obj.paginator.num_pages }}">最後へ &raquo;</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" style="text-decoration:none;">最後へ &raquo;</a>
                     {% endif %}
                 </span>
             </div>
         </div>
         {% endif %}
-    <h3><br><br><br></h3>
-    {% if request.user.is_authenticated %}
-        <form method="post" action="{% url 'accounts:logout' %}">
-            {% csrf_token %}
-            <button type="btn" class="submit" type="submit">ログアウト</button>
-        </form>
-    {% endif %}
+        <h3><br><br><br></h3>
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="btn" class="submit" type="submit">ログアウト</button>
+            </form>
+        {% endif %}
+    </div>
 </div>
 
 <style>

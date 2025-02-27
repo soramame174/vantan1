@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
-    
+
 {% block title %}リクエストフォーム{% endblock %}
 
 {% block content %}
-
+{% block is_search %}
+{% endblock %}
 <style>
 
     .responsive-line {
@@ -44,8 +45,8 @@
             <li>音楽を楽しむ全ての人々が安心して利用できるよう、差別的または攻撃的な発言は慎んでください。</li>
         </ul>
     </div>
-    
-    
+
+
     <!-- フォーム -->
     <form method="POST" action="{% url 'request_view' %}">
         {% csrf_token %}
@@ -72,7 +73,7 @@
                 <div style="margin-top: -45px;">{{ req.text }}</div></h5>
                 <span class="text-muted">
                     <br>
-                    (投稿者: 
+                    (投稿者:
                     <a href="{% url 'profile' req.user.pk %}">
                     {% if req.user.userprofile.profile_picture %}
                         <img src="{{ req.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">

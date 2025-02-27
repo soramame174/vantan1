@@ -5,6 +5,8 @@
 
 
 {% block content %}
+    {% block is_search %}
+    {% endblock %}
     <style>
         textarea[name="text"], input[name="category"], input[name="title"], input[name='ongaku_url']{
             border: 2px solid #fad5e2; /* ピンク系の枠線 */
@@ -29,7 +31,7 @@
 
             background-color: rgba(0, 0, 0, 0.8); /* 背景を暗くする */
         }
-        
+
         .modal-content {
             background-color: #f8f9fa;
 
@@ -42,7 +44,7 @@
             margin: 20px 0;
             font-size: 1em;
         }
-        
+
         .modal-content button {
             background-color: #ff2583;
             color: white;
@@ -52,7 +54,7 @@
             cursor: pointer;
             font-size: 1.1em;
         }
-        
+
         .modal-content button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
@@ -81,6 +83,11 @@
                     <h4>お願い</h4>
                     <p>
                         アップロードを行う際には、必ず内容を十分にご確認いただき、責任を持ってご利用いただきますようお願い申し上げます。
+                    </p>
+                    <h2><br></h2>
+                    <h4>オススメ</h4>
+                    <p>
+                        先にURLを用意しておくと作成が楽に進められます。
                     </p>
                     <h6><br></h6>
                     <p class="responsive-line" style="color: #ff4081;">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
@@ -112,7 +119,7 @@
 
     <form method="post" enctype="multipart/form-data" class="crieit">  <!-- enctype を追加 -->
         {% csrf_token %}
-        
+
         <div class="p-2">
             <label for="title">タイトル</label>
             {{ form.title }}
@@ -122,8 +129,8 @@
             <label for="id_audio_file">音楽ファイル</label>
             <input type="file" name="audio_file" id="id_audio_file"> <!-- 手動でファイルフィールドをレンダリング -->
         </div>
-        
-        
+
+
 
         <div class="p-2">
             <label for="thumbnail">サムネイル</label>
@@ -134,11 +141,11 @@
         <!-- 歌詞入力 -->
         <div class="p-2">
             <label for="id_text">歌詞</label>
-            <div>    
+            <div>
                 <textarea type="submit" id="id_text" name="text" rows="15" cols="45%">{{ form.text.value }}</textarea>
             </div>
-        </div>    
-        
+        </div>
+
         <h6><br></h6>
 
         <div class="p-2">
@@ -155,16 +162,16 @@
             <input type="url" name="ongaku_url" id="ongaku_url" class="form-control form-control-lg font-weight-bold text-dark" value="{{ form.ongaku_url.value|default:'' }}">
             <small><p style="color: gray;">この曲のウェブサイトや音楽リンクを必ず入力してください。</p></small>
         </div>
-        
+
         <div class="p-2">
             <label for="is_public">公開設定</label>
             {{ form.is_public }}
             <div>
                 <small>公開にする場合はチェックしてください。</small>
             </div>
-        </div>        
-        
-            
+        </div>
+
+
         <div class="p-2">
             <button type="submit" class="tobi">追加する</button>
         </div>
@@ -189,6 +196,43 @@
                 modal.style.display = 'none'; // モーダルを非表示
                 form.style.display = 'block'; // フォームを表示
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const titleInput = document.querySelector('input[name="title"]');
+            const urlInput = document.querySelector('input[name="ongaku_url"]');
+            const addButton = document.querySelector('button[type="submit"]');
+
+            function isValidURL(url) {
+                // URLの正規表現チェック
+                const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w-.\/?%&=]*)?$/i;
+                return urlPattern.test(url);
+            }
+
+            function validateInputs() {
+                const titleFilled = titleInput.value.trim() !== '';
+                const urlFilled = urlInput.value.trim() !== '';
+                const urlValid = isValidURL(urlInput.value.trim());
+
+                if (titleFilled && urlFilled && urlValid) {
+                    addButton.disabled = false;
+                    addButton.style.backgroundColor = '#ff2583'; // 有効時の色
+                    addButton.style.cursor = 'pointer';
+                } else {
+                    addButton.disabled = true;
+                    addButton.style.backgroundColor = '#ccc'; // 無効時の色
+                    addButton.style.cursor = 'not-allowed';
+                }
+            }
+
+            // 入力欄の変更を監視
+            titleInput.addEventListener('input', validateInputs);
+            urlInput.addEventListener('input', validateInputs);
+
+            // 初期状態チェック
+            validateInputs();
         });
     </script>
     {% block is_authenticated %}

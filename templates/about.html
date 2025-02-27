@@ -1,186 +1,722 @@
+{% load static %}
+
 <!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" integrity="sha384-PJsj/BTMqILvmcej7ulplguok8ag4xFTPryRq8xevL7eBYSmpXKcbNVuy+P0RMgq" crossorigin="anonymous">
-    <title>アバウト</title>
-    <link rel="icon" href="icon/">
 
-    <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #ffbdbd;
-        }
+    <head>
 
-        header {
-            background: linear-gradient(90deg, #ff4081, #457b9d, #333);
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        header h1 {
-            margin: 0;
-            font-size: 2.8em;
-            font-weight: bold;
-        }
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" integrity="sha384-PJsj/BTMqILvmcej7ulplguok8ag4xFTPryRq8xevL7eBYSmpXKcbNVuy+P0RMgq" crossorigin="anonymous">
 
-        header nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 20px 0 0;
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-        }
+        {% load static %}
+        <title>{% block title %}{% endblock title %} | メロディノ</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'ongaku/css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}?v=1.0">
+        <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
-        header nav ul li {
-            display: inline;
-        }
+        <link rel="icon" href="{% get_media_prefix %}icon/favicon.ico" type="image/x-icon">
 
-        header nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2em;
-            padding: 10px 20px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
+        <style>
+            /* 基本的なテーマ設定 */
+            body {
+                background-color: #becce8;
+                color: #565656;
+                transition: background-color 0.5s, color 0.5s;
+            }
 
-        header nav ul li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-4px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
+            .dark-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: black;
+                opacity: 0.7;
+                display: none;
+                z-index: 1000;
+            }
 
-        .hero {
-            text-align: center;
-            padding: 60px 20px;
-            background: url('/static/images/hero-bg.jpg') no-repeat center center/cover;
-            color: #fff;
-        }
+            .navbar-collapse {
+                margin-left: 20px;
+            }
 
-        .hero h2 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-        }
+            .nav-link1 {
+                margin-top: 9px;
+                -webkit-text-stroke: 1px #ff4081;
+                color: #ffffff;
+                font-weight: bold; /* 文字を太く */
+                border-radius: 25px; /* 角をなくす */
+            }
 
-        .hero p {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-        }
+            .kuu:hover {
+                font-weight: bold; /* 文字を太く */
+                transform: translateY(-1px);
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            }
 
-        .hero .cta {
-            display: inline-block;
-            padding: 12px 25px;
-            font-size: 1.2em;
-            color: #fff;
-            background: #e63946;
-            border-radius: 25px;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
+            .navbar-toggler-icon {
+                position:absolute;
+                margin-top: -15px;
+                margin-left: -15px;
+                background-color: #ff4081; /* ハンバーガーメニューの色をピンクに変更 */
+            }
+            .navbar-toggler-icon:hover {
+                position:absolute;
+                margin-top: -15px;
+                margin-left: -15px;
+                background-color: #616161; /* ハンバーガーメニューの色をピンクに変更 */
+            }
 
-        .hero .cta:hover {
-            background-color: #d62828;
-        }
+            .navbar {
+                background-color: #f4e4f2 !important;
+                color: #181818;
+            }
 
-        .features {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 40px 20px;
-            background: #fff;
-        }
+            /* 通常モードでのホバー時のカスタム */
+            .navbar-nav .nav-link {
+                transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+                border-radius: 25px; /* 角をなくす */
+            }
 
-        .feature {
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            width: 300px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+            .navbar-nav .nav-link:hover {
+                background-color: #ff4081 !important; /* 背景色をピンクに */
+                color: #fff !important; /* 文字色を白に */
+                font-weight: bold; /* 文字を太く */
+                border-radius: 25px; /* 角をなくす */
+                transform: translateY(-1px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            }
 
-        .feature:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
+            /* ボタンのカスタマイズ */
+            .custom-file-upload {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                border-radius: 5px;
+            }
 
-        .feature img {
-            width: 100%;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
+            .custom-file-upload:hover {
+                background-color: #45a049;
+            }
 
-        .feature h3 {
-            font-size: 1.5em;
-            color: #1d3557;
-            margin-bottom: 10px;
-        }
 
-        .feature p {
-            font-size: 1em;
-            color: #666;
-        }
 
-        footer {
-            text-align: center;
-            padding: 20px 0;
-            background: linear-gradient(90deg, #333, #457b9d, #ff4081);
-            color: #fff;
-            margin-top: 30px;
-        }
+            /* ダークモード時のカスタム */
+            .dark-mode .navbar-nav .nav-link {
+                transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+            }
 
-        footer p {
-            margin: 0;
-            font-size: 0.9em;
-        }
-    </style>
+            .dark-mode .navbar-nav .nav-link:hover {
+                background-color: #333 !important; /* 背景色をピンクに */
+                color: #fff !important; /* 文字色を白に */
+                font-weight: bold; /* 文字を太く */
+            }
 
-</head>
-<body>
-    <header>
-        <h1>音楽の世界へようこそ！</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'top' %}">トップページに戻る</a></li>
-                <li><a href="/ongaku/">音楽ライブラリ</a></li>
-            </ul>
+            /* ホバー時にアイコンが拡大するエフェクト */
+            .navbar-nav .nav-link i {
+                transition: transform 0.3s ease;
+            }
+
+            .navbar-nav .nav-link:hover i {
+                transform: scale(1.2); /* アイコンを少し拡大 */
+            }
+
+
+            .favorite-list {
+                padding: 20px;
+                border: 2px solid #ffc7e8;
+                border-radius: 10px;
+            }
+
+            button {
+                background-color: #ff2583;
+                color: #f4f4f4;
+                border: none;
+                padding: 10px 30px;
+                border-radius: 5px;
+            }
+
+            a {
+                color: rgb(112, 112, 112) !important;
+            }
+
+            a:hover {
+                color: #ff4081 !important;
+            }
+
+            h1, h2, h3, h4, .h5 {
+                color: #ff4081;
+            }
+
+            footer {
+                margin-top: 30px;
+                background-color: #f8bbd0;
+                padding: 20px 0;
+                text-align: center;
+                color: #d7f6ff;
+            }
+
+            input[type="text"], input[type="password"], input[type="url"]:focus, input[type="email"], input[type="form-control"] div[class="rounded"] {
+                border: 1px solid #ffdae7;
+                padding: 10px;
+                border-radius: 5px;
+                width: 100%;
+            }
+
+            input[type="kensaku"] {
+                margin-right: 100px;
+                width: 100px;
+            }
+
+            input[type="text"]:focus, input[type="password"]:focus, input[type="url"]:focus, input[type="email"], .focus {
+                border-color: #ff4081;
+                outline: none;
+            }
+
+            div[type="kasane"] {
+                background-color: #333333;
+            }
+
+            div[type="tokubetu"] {
+                border-color: #ff4081;
+                border: 2px solid #ff4081 !important;
+                background-color: #ffff;
+            }
+
+            .dark-mode div[type="tokubetu"] {
+                border-color: #333333;
+                background-color: #333333;
+            }
+
+            button:hover{
+                background-color: #e03570; /* ホバー時の背景色 */
+            }
+
+            .hover-button {
+                background-color: #ff4081;
+                color: white;
+                padding: 5px 10px;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                transition: background-color 0.3s ease;
+            }
+
+            .hover-button:hover {
+                background-color: #fff; /* ホバー時の背景色 */
+                color: #ff4081;
+            }
+
+
+            /* ダークモード */
+            .dark-mode {
+                background-color: #181818;
+                color: #f4f4f4;
+            }
+
+            .dark-mode .navbar {
+                background-color: #333333 !important;
+                border: 2xp solid #ff4081 !important;
+            }
+
+            .dark-mode footer {
+                background-color: #222222;
+                color: #b4b4b4;
+            }
+
+            .dark-mode .navbar-nav .nav-link {
+                color: #f4f4f4 !important;
+            }
+
+            .dark-mode .navbar-nav .nav-link:hover {
+                color: #ff4081 !important;
+            }
+
+            .dark-mode .p-4 {
+                background-color: #333333;
+                color: #f4f4f4;
+            }
+
+
+            .navbar-brand {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start; /* 左寄せ */
+            }
+
+            /* スマホ版のスタイル */
+            @media (max-width: 991px) {
+                .navbar-brand {
+                    justify-content: center; /* 中央寄せ */
+                    margin: 0 auto;
+                    text-align: center;
+                    position: relative; /* 相対位置で調整 */
+                }
+            }
+
+
+            /* モバイル端末への対応 */
+            @media (max-width: 768px) {
+                body {
+                    font-size: 20px;
+                }
+
+                .navbar-nav {
+                    width: 100%;
+                    flex-direction: column;
+                    text-align: center;
+                    font-display: center;
+                }
+
+                .ongakutuika {
+                    left: 200px;
+                    transform: none;
+                }
+
+                .navbar-nav form {
+                    display: flex;
+                    justify-content: center;
+                    width: 100%;
+                }
+
+                .navbar-nav form input {
+                    margin-top: 10px;
+                    max-width: 340px;
+                    height: 25px;
+                }
+            }
+
+            /* ピンク背景の時に文字色を変更 */
+            .navbar-dark .navbar-nav .nav-link,
+            .navbar-nav form input {
+                color: #ff4081 !important;
+            }
+
+            .navbar-dark .navbar-nav .nav-link:hover {
+                color: #f4f4f4 !important;
+            }
+
+            /* 検索フォームの配置 */
+            .search-form {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                max-width: 300px;
+                margin-left: 20px;
+            }
+            .search-form input {
+                width: 100%;
+                height: 30px;
+                border-radius: 20px;
+                border: 1px solid #ff4081;
+                padding-left: 10px;
+            }
+
+            .timer-end-message {
+                text-align: center;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 50px;
+                color: #ffffff82;
+                -webkit-text-stroke: 1px #ff408082;
+                z-index: 1050;  /* 他の要素よりも手前に表示 */
+                font-weight: bold;
+                display: none; /* Hidden by default */
+            }
+
+        </style>
+    </head>
+    <body id="body">
+        <div class="dark-overlay" id="overlay"></div>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-success sticky-top">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="width: 10px; background-color: #00000000;">
+                    <span class="navbar-toggler-icon"></span> <!-- ハンバーガーメニューの色をピンクに変更 -->
+                </button>
+                <div class="navbar-brand">
+                    <a style="margin: 0 auto; margin-left: -1px; text-align: center; text-decoration:none;" href="#">
+                        <img style="width: auto; height: 30px;" src="{% get_media_prefix %}icon/MandN1.png" alt="logo">
+                        メロディノ
+                    </a>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav" style="margin-left: -4.5%;">
+                        <li class="nav-item">
+                            <a class="nav-link mx-3" href="{% url 'list-ongaku' %}">音楽一覧</a>
+                        </li>
+                        {% if request.user.is_authenticated %}
+                            <li>
+                                <a class="nav-link mx-3" href="{% url 'profile_list' %}">プロフィール設定</a>
+                            </li>
+                            <li>
+                                <p class="mx-3" style="color: #ff4081 !important; margin-top: 8px;">現在選択中のジャンル: {% if selected_category %}{{ selected_category }}{% else %}all{% endif %}</p>
+                            </li>
+                            <li>
+                                <!-- タイマー表示 -->
+                                <div class="nav-link1 mx-3" id="timerDisplay"></div>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link mx-3" href="{% url 'accounts:login' %}">ログイン</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link mx-3" href="{% url 'accounts:signup' %}">会員登録</a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="{% url 'top' %}">トップページに戻る</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
         </nav>
-    </header>
-    <h2><br></h2>
-    <div class="c-3 m-4 bg-light rounded" type="kasane">
-        <div class="border border_color p-4 mb-4">
-            <div class="container">
-                <h2><br><br></h2>
-                <h2>アバウト</h2>
-                <p>このサイトは、音楽を愛するすべての人々のために設計されています。お気に入りの曲を簡単に探して、素晴らしい音楽ライフを楽しんでください。</p>
-                <h2><br><br><br><br></h2>
-                <h3>サイトの目的は二つ</h3>
-                <h5>1. </h5>
-                <p>音楽の探索や創作活動を簡単で楽しいものにするため、最新の楽曲やアーティストを紹介し、ユーザーが自分だけのプレイリストを作成できるようにします。</p>
-                <h5>2. </h5>
-                <p>いつでも使えるフリー音楽を提供し、様々なクリエイターを応援したいと考えています。これにより、音楽制作や動画コンテンツなどで利用できる楽曲を手軽に入手し、クリエイター同士のネットワークを強化します。</p>
-                <h2><br><br></h2>
-                <p>このサイトの目標は、音楽の力で日々の生活に彩りを加えることです。このサイトで新しい音楽を発見し、心を豊かにする体験を提供できることを楽しみにしています。</p>
-                <h2><br><br></h2>
+        {% block is_search %}
+        {% if request.user.is_authenticated %}
+        <!-- 常に表示される検索フォーム -->
+        <div class="search-form">
+            <form method="GET" action="{% url 'search' %}">
+                <p></p>
+                <input type="text kensaku" name="query" placeholder="検索" aria-label="Search">
+                <p></p>
+            </form>
+        </div>
+        {% endif %}
+        {% endblock %}
+        {% block plus_button %}
+        <!-- プラスボタン -->
+        <button id="plusButton" class="border_color plus-button btn" onclick="openModal(); animateButton()">
+            ＋
+        </button>
+
+        <!-- モーダルダイアログ -->
+        <div id="modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" style="color: #ff4081;" onclick="closeModal()">&times;</span>
+                <h2>選択してください</h2>
+                <ul>
+                    <li><a class="kuu p-1" href="{% url 'create-ongaku' %}" style="font-size: 24px; margin-top: 25px;">音楽追加</a></li>
+                    <li><a class="kuu p-1" href="{% url 'request_view' %}" style="font-size: 24px; margin-top: 25px;">リクエスト</a></li>
+                    <li><a class="kuu p-1" href="{% url 'public_folders' %}" style="font-size: 24px; margin-top: 25px;">公開フォルダ</a></li>
+                    <h6><br><br></h6>
+                    <li><button class="kuu" onclick="toggleDarkMode()">ダークモードオン/オフ</button></li>
+                </ul>
             </div>
         </div>
-    </div>
-    
 
-    <footer>
-        <p>&copy; 2024 メロディノ</p>
-    </footer>
-</body>
+        <style>
+
+            /* プラスボタンのスタイル */
+            #plusButton {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+                font-size: 24px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #ff4081;
+                color: #fff;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            }
+
+            /* プラスボタンのホバーアニメーション */
+            #plusButton:hover {
+                background-color: #ffffff;
+                color: #ff4081;
+                transform: translateY(-4px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+                transform: scale(1.1);
+            }
+
+            ul li {
+                list-style-type: none;  /* 丸いアイコンを削除 */
+                padding-left: 0;  /* リストアイテムのインデントを削除 */
+            }
+
+            /* モーダルのスタイル */
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-content {
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                width: 450px;
+                text-align: center;
+                position: relative;
+            }
+
+            .close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 18px;
+                cursor: pointer;
+            }
+
+            /* クリック時のアニメーション */
+            @keyframes buttonClickAnimation {
+                0% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.2);
+                }
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            /* アニメーションが適用されるクラス */
+            .animateClick {
+                animation: buttonClickAnimation 0.3s ease-out;
+            }
+
+            /* モーダルの表示 */
+            .modal.show {
+                animation: fadeIn 0.3s ease-out;
+            }
+
+            /* モーダルの非表示 */
+            .modal.hide {
+                animation: fadeOut 0.3s ease-out;
+            }
+
+            /* フェードイン/フェードアウト */
+            @keyframes fadeIn {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+
+            @keyframes fadeOut {
+                0% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+        </style>
+
+        <script>
+            // モーダルを開く
+            function openModal() {
+                const modal = document.getElementById("modal");
+                modal.style.display = "flex";
+                modal.classList.add("show");
+                modal.classList.remove("hide");
+
+                // モーダル外クリックで閉じるイベントを追加
+                modal.addEventListener("click", handleOutsideClick);
+            }
+
+            // モーダルを閉じる
+            function closeModal() {
+                const modal = document.getElementById("modal");
+                modal.style.display = "none";
+                modal.classList.add("hide");
+                modal.classList.remove("show");
+
+                // イベントリスナーを削除
+                modal.removeEventListener("click", handleOutsideClick);
+            }
+
+            // モーダル外をクリックした時に閉じる処理
+            function handleOutsideClick(event) {
+                const modalContent = document.querySelector(".modal-content");
+                if (!modalContent.contains(event.target)) {
+                    closeModal();
+                }
+            }
+
+            // クリック時にボタンにアニメーションを追加
+            function animateButton() {
+                const button = document.getElementById("plusButton");
+                button.classList.add("animateClick");
+
+                // アニメーションが終わった後にクラスを削除
+                setTimeout(() => {
+                    button.classList.remove("animateClick");
+                }, 300); // アニメーションの時間に合わせて300ms後にクラスを削除
+            }
+        </script>
+
+        {% endblock %}
+
+
+        <div class="p-4">
+            <h1>{% block h1 %}{% endblock %}</h1>
+            {% block content %}{% endblock content %}
+        </div>
+        {% block is_authenticated %}
+        {% if request.user.is_authenticated %}
+            <!-- タイマー設定フォーム -->
+            <div class="container mt-4">
+                <label for="timerSelect" style="color: #ff4081;">ブラックタイマーを設定 (オフ/オン | 1分〜10時間まで):</label>
+                <select id="timerSelect" class="form-select">
+                    <option value="0">オフ/解除</option>
+                    <option value="1">オン</option>
+                    <option value="60000">1分</option>
+                    <option value="90000">1分30秒</option>
+                    <option value="180000">3分</option>
+                    <option value="300000">5分</option>
+                    <option value="600000">10分</option>
+                    <option value="900000">15分</option>
+                    <option value="1200000">20分</option>
+                    <option value="1800000">30分</option>
+                    <option value="3600000">1時間</option>
+                    <option value="5400000">1時間30分</option>
+                    <option value="7200000">2時間</option>
+                    <option value="10800000">3時間</option>
+                    <option value="14400000">4時間</option>
+                    <option value="18000000">5時間</option>
+                    <option value="25200000">7時間</option>
+                    <option value="36000000">10時間</option>
+                </select>
+                <button onclick="setTimer()">実行</button>
+            </div>
+        {% endif %}
+        {% endblock %}
+            <footer>
+                <p style="margin-top: 12px; text-align: center;">&copy; 2024 メロディノ</p>
+            </footer>
+
+        <!-- 画面を暗くするオーバーレイ -->
+        <div id="overlay" style="box-shadow: 0 16px 21px rgba(0, 0, 0, 0.2); display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 999;"></div>
+
+        <div class="timer-end-message" id="timerEndMessage"><span>タイマー終了!</span><h5>リロードまたは画面を押して解除</h5></div>
+
+        <script>
+
+            // ページ読み込み時に、localStorageからモード設定を読み込む
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+            }
+
+            // ダークモード切り替え
+            function toggleDarkMode() {
+                const isDarkMode = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+            }
+
+            let countdownTimer;
+
+            // ページ読み込み時にタイマーを復元
+            window.onload = function () {
+                const timerDisplay = document.getElementById("timerDisplay");
+                const overlay = document.getElementById("overlay");
+
+                // 保存された残り時間を取得
+                const savedRemainingTime = parseInt(localStorage.getItem("remainingTime"), 10);
+                const isTimerActive = localStorage.getItem("isTimerActive") === "true";
+
+                if (isTimerActive && savedRemainingTime > 0) {
+                    timerDisplay.style.display = "block";
+                    startCountdown(savedRemainingTime); // タイマーを再開
+                } else {
+                    timerDisplay.style.display = "none";
+                    overlay.style.display = "none";
+                }
+
+            };
+
+            // タイマー設定
+            function setTimer() {
+                const timerValue = parseInt(document.getElementById("timerSelect").value, 10);
+                const timerDisplay = document.getElementById("timerDisplay");
+                const timerEndMessage = document.getElementById("timerEndMessage");
+
+                // 「なし」が選ばれた場合
+                if (timerValue === 0) {
+                    resetTimer();
+                    timerDisplay.style.display = "none"; // タイマー表示を非表示
+                    timerEndMessage.style.display = "none";
+                    return;
+                }
+
+                resetTimer(); // タイマーをリセット
+                timerDisplay.style.display = "block";
+                localStorage.setItem("isTimerActive", "true");
+                startCountdown(timerValue); // カウントダウン開始
+            }
+
+            // タイマー開始
+            function startCountdown(initialTime) {
+                const timerDisplay = document.getElementById("timerDisplay");
+                const overlay = document.getElementById("overlay");
+                let remainingTime = initialTime;
+
+                // `localStorage` に現在の残り時間を保存
+                localStorage.setItem("remainingTime", remainingTime);
+
+                countdownTimer = setInterval(function () {
+                    let hours = formatToTwoDigits(Math.floor(remainingTime / 3600000)); // 時間
+                    let minutes = formatToTwoDigits(Math.floor((remainingTime % 3600000) / 60000)); // 分
+                    let seconds = formatToTwoDigits(Math.floor((remainingTime % 60000) / 1000)); // 秒
+
+                    timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+
+                    // タイマー終了
+                    if (remainingTime <= 0) {
+                        clearInterval(countdownTimer);
+                        localStorage.setItem("remainingTime", "0");
+                        localStorage.setItem("isTimerActive", "false");
+                        overlay.style.display = "block";
+                        timerDisplay.textContent = " ";
+                        timerEndMessage.style.display = "block";  // Show "タイマー終了！"
+                        return;
+                    }
+
+                    remainingTime -= 1000; // 1秒ずつ減らす
+                    localStorage.setItem("remainingTime", remainingTime); // 残り時間を保存
+                }, 1000);
+            }
+
+            // 2桁のゼロ埋めを手動で実現
+            function formatToTwoDigits(num) {
+                return num < 10 ? "0" + num : num.toString();
+            }
+
+            // タイマーをリセット
+            function resetTimer() {
+                clearInterval(countdownTimer);
+                localStorage.setItem("remainingTime", "0");
+                localStorage.setItem("isTimerActive", "false");
+                document.getElementById("timerDisplay").textContent = ""; // タイマーの表示を消す
+                timerEndMessage.style.display = "none";
+                document.getElementById("overlay").style.display = "none"; // 画面を暗くしない
+            }
+
+            // クリック時に画面を元の明るさに戻す
+            document.addEventListener("click", function () {
+                if (document.getElementById("overlay").style.display === "block") {
+                    resetTimer();
+                }
+            });
+
+        </script>
+
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

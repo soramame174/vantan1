@@ -52,28 +52,28 @@
                 </button>
             </form>
         {% endif %}
-        
+
         <h6><br><br></h6>
-        
+
         {% if profile.youtube_url %}
             <p>YouTube URL: <a href="{{ profile.youtube_url }}" target="_blank">{{ profile.youtube_url }}</a></p>
             <h6><br><br></h6>
         {% endif %}
-        
+
         {% if profile.twitter_url %}
             <h6><br><br></h6>
             <p>X(旧Twitter) URL: <a href="{{ profile.twitter_url }}" target="_blank">{{ profile.twitter_url }}</a></p>
-        {% endif %}    
-        
+        {% endif %}
+
         <script>
             document.getElementById('follow-form').addEventListener('submit', function(event) {
                 event.preventDefault();  // デフォルトのフォーム送信をキャンセル
-                
+
                 var form = this;
                 var url = form.action;
                 var method = form.method;
                 var csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-        
+
                 fetch(url, {
                     method: method,
                     headers: {
@@ -104,11 +104,11 @@
 
         <h2>作品リスト</h2>
         <span>※ 公開設定されてないものは表示されていません</span>
-        
+
             {% for song in songs %}
                 {% if song.is_public %}
                     <ul style="margin-left: 5px;">
-                        <h4 style="margin-left: -45px; margin-top: 20px;"><li><h5><a href="{% url 'detail-ongaku' song.pk %}">{{ song.title }}</a></h5></li></h4>
+                        <h4 style="margin-left: -45px; margin-top: 20px;"><li><h5><a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a></h5></li></h4>
                     </ul>
                 {% endif %}
             {% empty %}
@@ -138,7 +138,7 @@
                 <button id="toggle-followers" onclick="toggleList('followers-list')">フォロワーリスト</button>
             </div>
         {% endif %}
-        
+
         <style>
             .responsive-line {
                 width: 100%; /* 幅を100%に設定して親要素に合わせる */
@@ -160,8 +160,8 @@
                 border-radius: 20%; /* 画像を丸くする */
             }
         </style>
-        
-        
+
+
         {% if user == request.user %}
             <p><strong>フォロワー数:</strong> {% if follower_count %}{{ follower_count }}{% else %}0{% endif %}</p>
             <p><strong>フォロー数:</strong> {% if following_count %}{{ following_count }}{% else %}0{% endif %}</p>
@@ -169,7 +169,7 @@
 
         <div id="following-list" style="display: none;">
             <h3>あなたのフォロー中のユーザーリスト</h3>
-            {% if followed_users %}        
+            {% if followed_users %}
                 <ul style="margin-left: -40px;">
                     {% for user in followed_users %}
                         <h4>
@@ -204,7 +204,7 @@
                                     {% else %}
                                         {{ user.userprofile.display_name }}
                                     {% endif %}
-                                </a>        
+                                </a>
                             </li>
                         </h4>
                     {% endfor %}
@@ -221,10 +221,10 @@
             function toggleList(listId) {
                 document.getElementById('following-list').style.display = 'none';
                 document.getElementById('followers-list').style.display = 'none';
-        
+
                 document.getElementById(listId).style.display = 'block';
             }
-        
+
             // 初期表示をフォローリストに設定
             toggleList('following-list');
         </script>

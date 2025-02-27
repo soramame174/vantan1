@@ -5,11 +5,13 @@
 {% block title %}表示設定{% endblock %}
 
 {% block content %}
+{% block is_search %}
+{% endblock %}
 <h2>表示名を変更</h2>
 
 <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    
+
     <div>
         <label for="display_name">表示名</label>
         {{ form.display_name }}
@@ -26,8 +28,8 @@
     <div>
         <h6><br><br></h6>
         <label for="bio">一言</label>
-        <div>
-            {{ form.bio }}
+        <div class="form-group">
+            <textarea id="bio" name="bio" class="form-control" style="width: 100%; overflow-wrap: break-word; word-wrap: break-word;" rows="3">{{ form.bio.value|default:"" }}</textarea>
         </div>
     </div>
 
@@ -54,7 +56,7 @@
         <label for="twitter_url">X(旧Twitter)のURL</label>
         <input name="twitter_url" id="twitter_url" class="form-control" value="{{ form.twitter_url.value|default:'' }}">
     </div>
-    
+
 
     <h6><br><br></h6>
 
