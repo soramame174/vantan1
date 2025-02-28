@@ -33,7 +33,7 @@
     <ul id="song-list" style="list-style: none; padding: 0; width: 100%;">
         {% for song in folder.songs.all %}
             <li data-id="{{ song.id }}" style="font-size: 18px; margin-bottom: 8px; width: 100%;">
-                <div class="border border_color p-4 mb-2" draggable="true" style="width: 100%; cursor: grab; display: flex; flex-direction: column; align-items: flex-start;">
+                <div class="border border_color p-4 mb-2" draggable="true" style="width: 100%; cursor: grab; display: flex; flex-direction: column; align-items: flex-start; background-color: #333;">
                     {% if folder.user == request.user %}
                         <span style="background-color: #ff4081; height: 4px; width: 25px; margin-bottom: 4px; border-radius: 2px;"></span>
                         <span style="background-color: #ff4081; height: 4px; width: 25px; margin-bottom: 4px; border-radius: 2px;"></span>
@@ -66,7 +66,7 @@
 
                     <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
                         <!-- 再生回数 -->
-                        <p id="playCount{{ song.pk }}" style="margin: 0;">再生回数: {{ song.play_count }}</p>
+                        <p id="playCount{{ song.pk }}" style="margin: 0; margin-left: 60px; color: #fff;">再生回数: {{ song.play_count }}</p>
 
                         <!-- 詳細リンク -->
                         <a href="{% url 'detail-ongaku' song.pk %}" class="btn" style="margin-top: 0; margin-right: 60px; position: relative; z-index: 10;">詳細へ</a>
@@ -88,7 +88,9 @@
 
 
         {% empty %}
+            <h3><br></h3>
             <p>このフォルダには音楽が含まれていません。</p>
+            <h3><br></h3>
         {% endfor %}
     </ul>
     {% if folder.user == request.user %}
