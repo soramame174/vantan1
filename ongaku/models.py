@@ -188,7 +188,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="ユーザー")
     songs = models.ManyToManyField(Ongaku, verbose_name="作った曲")  # ユーザーが作成した曲の関連
     display_name = models.CharField(max_length=60, unique=True, blank=True, null=True, verbose_name="表示名")
-    bio = models.TextField(blank=True, null=True, verbose_name="自己紹介文")  # 自己紹介
+    bio = models.TextField(max_length=35, blank=True, null=True, verbose_name="自己紹介文")  # 自己紹介
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, verbose_name="アイコン")
     youtube_url = models.URLField(blank=True, null=True, verbose_name="YouTube")  # YouTube URL
     twitter_url = models.URLField(blank=True, null=True, verbose_name="x(Twitter)")  # Twitter URL
