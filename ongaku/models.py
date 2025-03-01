@@ -20,7 +20,7 @@ class Request(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザー")  # リクエストをしたユーザー
     description = models.TextField(verbose_name="詳細")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="作成日時")
-    text = models.TextField(max_length=100, verbose_name="テキスト")
+    text = models.TextField(max_length=450, verbose_name="テキスト")
 
     def __str__(self):
         return self.title
@@ -34,7 +34,7 @@ class Request(models.Model):
 
 
 class Comment(models.Model):
-    text = models.TextField(max_length=300, verbose_name="コメント")
+    text = models.TextField(max_length=500, verbose_name="コメント")
     request = models.ForeignKey(Request, related_name='comments', on_delete=models.CASCADE, verbose_name="リクエスト")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="ユーザー")
     content = models.TextField(default="", verbose_name="内容")
@@ -113,10 +113,10 @@ class Ongaku(models.Model):
     audio_file = models.FileField(upload_to='music/', null=True, blank=True, verbose_name="音楽ファイル")
     thumbnail = models.ImageField(null=True, blank=True, verbose_name="サムネイル")
     category = models.CharField(
-        max_length=100, choices=CATEGORY, null=True, blank=True, verbose_name="カテゴリー"
+        max_length=200, choices=CATEGORY, null=True, blank=True, verbose_name="カテゴリー"
     )
     custom_category = models.CharField(
-        max_length=100,
+        max_length=150,
         blank=True,
         help_text="検索時に見つかりやすくなります。",
         verbose_name="カスタムカテゴリー"
@@ -187,7 +187,7 @@ class Ongaku(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="ユーザー")
     songs = models.ManyToManyField(Ongaku, verbose_name="作った曲")  # ユーザーが作成した曲の関連
-    display_name = models.CharField(max_length=100, unique=True, blank=True, null=True, verbose_name="表示名")
+    display_name = models.CharField(max_length=60, unique=True, blank=True, null=True, verbose_name="表示名")
     bio = models.TextField(blank=True, null=True, verbose_name="自己紹介文")  # 自己紹介
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, verbose_name="アイコン")
     youtube_url = models.URLField(blank=True, null=True, verbose_name="YouTube")  # YouTube URL
@@ -254,7 +254,7 @@ class Follow(models.Model):
 class YourModel(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)  # 修正完了
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
