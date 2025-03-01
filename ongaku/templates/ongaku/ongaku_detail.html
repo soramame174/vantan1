@@ -51,9 +51,11 @@
     {% endif %}
         <div class="border border_color p-4 mb-4">
 
-            <!-- 音楽タイトル -->
-            <h2 class="h2 custom-title">{{ object.title }}</h2>
-
+            <div style="display: flex;">
+                <!-- 音楽タイトル -->
+                <h2 class="h2 custom-title">{{ object.title }}</h2>
+                <a href="#action" style="margin-top: auto; margin-left: 890px;" class="btn p-1 btn-lg">行動ボタンへ</a>
+            </div>
 
             {% if object.audio_file %}
                 <audio id="audioPlayer{{ object.pk }}" controls style="width: 100%; max-width: 100%;">
@@ -129,7 +131,7 @@
             <h4><br><br></h4>
             <!-- アクションリンク -->
 
-            <div>
+            <div id="action">
 
                 <a href="{% url 'list-ongaku' %}" class="btn p-1">一覧へ</a> |
                 {% if object.user == request.user %}
