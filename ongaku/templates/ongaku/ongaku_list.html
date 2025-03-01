@@ -77,7 +77,7 @@
         <p>現在選択中のジャンル: {% if selected_category %}{{ selected_category }}{% else %}all{% endif %}</p>
 
         <!-- 音楽リストの表示 -->
-        <h2>{% if selected_category %}「{{ selected_category }}」の曲{% else %}「all」の曲{% endif %}</h2>
+        <h2>{% if selected_category %}『{{ selected_category }}』の曲{% else %}『all』の曲{% endif %}</h2>
 
         <!-- ジャンルが選択されていないときのメッセージ -->
         {% if not music_list %}
