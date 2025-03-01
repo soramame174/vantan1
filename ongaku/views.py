@@ -7,8 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponseForbidden
 from django.urls import reverse, reverse_lazy
 from .forms import OngakuForm, FolderForm, UserProfileForm, Folder, AddSongToFolderForm, RegisterForm
-from .models import Ongaku, Review, UserProfile, User, Follow
-from .models import Folder
+from .models import Ongaku, Review, UserProfile, User, Follow, Folder
 from .consts import ITEM_PER_PAGE
 from django.contrib.auth.decorators import login_required
 from django.views.generic import (
@@ -45,7 +44,7 @@ def top(request):
     return render(request, 'ongaku/top.html')
 
 def about(request):
-    return render(request, 'about.html')
+    return render(request, 'ongaku/about.html')
 
 # リクエストフォーム表示と投稿処理
 @login_required
@@ -87,7 +86,7 @@ def request_detail(request, request_id):
 @login_required
 def delete_request(request, request_id):
     req = get_object_or_404(Request, id=request_id)
-    
+
     # リクエストの投稿者が現在のユーザーであることを確認
     if req.user == request.user:
         req.delete()  # リクエストを削除
@@ -99,11 +98,11 @@ def delete_request(request, request_id):
 
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
-    
+
     # コメントを削除できるのはコメントしたユーザーだけ
     if not comment.can_delete(request.user):
         return HttpResponseForbidden("あなたはこのコメントを削除する権限がありません。")
-    
+
     # コメントを削除
     comment.delete()
     return redirect('request_detail', request_id=comment.request.id)
@@ -133,7 +132,7 @@ class CustomPasswordChangeView(PasswordChangeView):
 @login_required
 def follow_user(request, user_id):
     followed_user = get_object_or_404(User, pk=user_id)
-    
+
     # フォロー済みか確認
     is_following = Follow.objects.filter(follower=request.user, followed=followed_user).exists()
 
@@ -283,6 +282,20 @@ def public_folders(request):
     public_folders = Folder.objects.filter(is_public=True)
     return render(request, 'ongaku/public_folders.html', {'public_folders': public_folders})
 
+def search_public_folders(request):
+    query = request.GET.get('q', '')
+    if query:
+        # 検索クエリが入力されている場合
+        public_folders_search = Folder.objects.filter(name__icontains=query, is_public=True)
+    else:
+        public_folders_search = []
+
+    public_folders = Folder.objects.filter(is_public=True)
+    return render(request, 'ongaku/public_folders.html', {
+        'query': query,
+        'public_folders_search': public_folders_search,
+        'public_folders': public_folders,
+    })
 
 def add_to_favorites(request, pk):
     song = get_object_or_404(Ongaku, pk=pk)
@@ -340,7 +353,7 @@ def profile(request, user_id):
         )
     else:
         followed_users = User.objects.none()  # 未ログイン時は空のクエリセット
-    
+
 
     context = {
         'user': user_profile.user,
@@ -560,7 +573,7 @@ def update_play_count(request, audio_id):
         except Ongaku.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': '音楽が見つかりませんでした'}, status=404)
     return JsonResponse({'status': 'error', 'message': '無効なリクエスト'}, status=400)
-    
+
 def update_song_order(request, folder_id):
     if request.method == "POST":
         try:
@@ -588,7 +601,7 @@ def add_ongaku(request):
             return redirect('success_url')  # 成功後のリダイレクト
     else:
         form = OngakuForm()
-    
+
     return render(request, 'add_ongaku.html', {'form': form})
 
 
@@ -600,7 +613,7 @@ def add_ongaku(request):
 
 def search_view(request):
     query = request.GET.get('query', '')
-    
+
     # 英語->日本語のジャンル変換辞書を作成
     category_dict = dict(CATEGORY)
     reverse_category_dict = {v: k for k, v in category_dict.items()}  # 日本語→英語の辞書
@@ -636,7 +649,7 @@ def search_view(request):
         recommended_songs = Ongaku.objects.filter(
             title__icontains=search_history[-1]
         ).exclude(search_count=0)[:5]
-    
+
     # ランダムな曲の取得
     random_songs = Ongaku.objects.exclude(search_count=0).order_by('?')[:5] if not recommended_songs else []
 
@@ -661,10 +674,10 @@ def delete_history(request):
 def ongaku_detail(request, pk):
     """音楽詳細ページ"""
     ongaku = get_object_or_404(Ongaku, pk=pk)
-    
+
     # 音楽オブジェクトに関連するフォルダを取得
     folders = Folder.objects.filter(song=ongaku)
-    
+
     # お気に入り状態をチェック
     is_favorited = False
     if request.user.is_authenticated:
@@ -678,7 +691,7 @@ def ongaku_detail(request, pk):
         'folders': folders,
         'is_favorited': is_favorited,
     }
-    
+
     return render(request, 'ongaku/ongaku_detail.html', context)
 
 
@@ -785,7 +798,11 @@ CATEGORY = (
     ('Vocaloid', 'ボカロ'),
     ('Healing', '癒し'),
     ('Ragutaimu', 'ラグタイム'),
-    ('sound effects', '効果音')
+    ('sound effects', '効果音'),
+    ('BGM', 'BGM'),
+    ('horror', 'ホラー'),
+    ('Japanese style', '和風'),
+    ('Western style', '洋風')
 )
 
 def index_view(request):
@@ -878,7 +895,7 @@ class CreateOngakuView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user
 
         return super().form_valid(form)
-    
+
 
     def create_ongaku(request):
         if request.method == 'POST':
@@ -893,7 +910,7 @@ class CreateOngakuView(LoginRequiredMixin, CreateView):
 
         return render(request, 'ongaku/create_ongaku.html', {'form': form, 'ongaku': ongaku})
 
-    
+
 class DeleteOngakuView(LoginRequiredMixin, DeleteView):
     template_name = 'ongaku/ongaku_confirm_delete.html'
     model = Ongaku
@@ -925,16 +942,16 @@ class UpdateOngakuView(LoginRequiredMixin, UpdateView):
             form = OngakuForm(instance=ongaku)
 
         return render(request, 'ongaku_update.html', {'form': form})
-    
+
     def get_object(self, queryset=None):
-        
+
         obj = super().get_object(queryset)
 
         if obj.user != self.request.user:
             raise PermissionDenied
-        
+
         return get_object_or_404(Ongaku, pk=self.kwargs['pk'])
-    
+
     def get_success_url(self):
         return reverse('detail-ongaku', kwargs={'pk': self.object.id})
 
@@ -946,17 +963,17 @@ class CreateReviewView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ongaku'] = Ongaku.objects.get(pk=self.kwargs['ongaku_id'])
-        
+
         return context
-    
+
     def form_valid(self, form):
         form.instance.user = self.request.user
 
         return super().form_valid(form)
-    
+
     def get_success_url(self):
         return reverse('detail-ongaku', kwargs={'pk': self.object.ongaku.id})
-    
+
 class OngakuDetailView(DetailView):
     model = Ongaku
     template_name = 'ongaku_detail.html'  # テンプレート名

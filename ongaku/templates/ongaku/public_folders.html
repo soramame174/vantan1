@@ -5,11 +5,42 @@
 {% block content %}
 {% block is_search %}
 {% endblock %}
+
+<!-- 検索フォーム -->
+<form method="GET" action="{% url 'search_public_folders' %}" class="mb-4 search-form">
+    <input type="text kensaku" name="q" value="{{ query }}" placeholder="フォルダを検索" class="form-control" style="width: 300px; display: inline-block;">
+</form>
+
 <h1 class="c-3 m-4">公開フォルダ一覧</h1>
 
 <div class="c-3 m-4 bg-light rounded">
     <div class="border border_color p-4 mb-4">
         {% if public_folders %}
+            <!-- 検索結果の表示 -->
+            {% if public_folders_search %}
+                <h3>検索結果</h3>
+                <ul style="margin-left: -40px;">
+                    {% for folder in public_folders_search %}
+                        <li>
+                            <h4>
+                                <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
+                            </h4>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div>
+                    <p class="responsive-line">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
+                </div>
+                <style>
+                    .responsive-line {
+                        width: 100%; /* 幅を100%に設定して親要素に合わせる */
+                        white-space: nowrap; /* テキストが折り返されないようにする */
+                        overflow: hidden; /* 親要素からはみ出さないようにする */
+                    }
+                </style>
+            {% endif %}
+
+            <!-- 公開フォルダの表示 -->
             <p>公開されているフォルダは以下の通りです:</p>
             <ul style="margin-left: -40px;">
                 {% for folder in public_folders %}

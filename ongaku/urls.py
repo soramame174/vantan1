@@ -17,7 +17,7 @@ urlpatterns = [
     path('profile/', views.profile_list, name='profile_list'),
     path('password-change/', views.CustomPasswordChangeView.as_view(), name='password_change'),
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), name='password_change_done'),
-    
+
     # お気に入りとフォルダ管理
     path('toggle_favorite/<int:pk>/', views.toggle_favorite, name='toggle_favorite'),
     path('ongaku/<int:pk>/favorite/', views.toggle_favorite, name='toggle-favorite'),
@@ -30,6 +30,7 @@ urlpatterns = [
     path('folder/<int:folder_id>/update_order/', views.update_song_order, name='update_song_order'),
     path('folder/delete/<int:folder_id>/', views.delete_folder, name='delete_folder'),
     path('public_folders/', views.public_folders, name='public_folders'),
+    path('search_public_folders/', views.search_public_folders, name='search_public_folders'),
 
     # その他の機能
     path('register/', views.register, name='register'),
@@ -59,3 +60,11 @@ urlpatterns = [
 # 静的ファイルとメディアファイルの設定
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# 開発環境では静的ファイルを提供する設定を追加
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS)
+
+# 本番環境の静的ファイルの設定
+if not settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
