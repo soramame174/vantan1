@@ -85,18 +85,18 @@
         <!-- 音楽リストの表示 -->
         <h2>{% if selected_category %}『{{ selected_category }}』の曲{% else %}『all』の曲{% endif %}</h2>
 
-        <!-- ジャンルが選択されていないときのメッセージ -->
-        {% if not music_list %}
-        <p>選択されたジャンルには曲がありません。</p>
-        <h2><br><br><br><br><br><br></h2>
-        {% endif %}
-
         <h5><br><br></h5>
 
         <!-- 音楽をページごとに30個ずつ表示 -->
         <div class="row">
             <h2>音楽一覧</h2>
             <h2><br></h2>
+            <!-- ジャンルが選択されていないときのメッセージ -->
+            {% if not music_list %}
+                <p>選択されたジャンルには曲がありません。</p>
+                <h2><br><br><br><br><br><br></h2>
+            {% endif %}
+
             {% for item in page_obj %}
                 {% if item.is_public %}
                     <div class="col-md-4 col-sm-6"> <!-- レスポンシブで2列/3列切り替え -->
@@ -108,13 +108,15 @@
                                         <source src="{{ item.audio_file.url }}" type="audio/mpeg">
                                         Your browser does not support the audio element.
                                     </audio>
-                                    <!-- 音量調整 -->
-                                    <div class="p-1" style="margin-left: -5px;">
-                                        <label for="volumeControl{{ item.pk }}">音量調整</label>
-                                        <input type="range" id="volumeControl{{ item.pk }}" min="0" max="1" step="0.01" value="1" oninput="setVolume(this.value, {{ item.pk }})">
-                                        <span id="volumeValue{{ item.pk }}">100%</span> <!-- 音量のパーセンテージを表示 -->
 
+                                    <!-- 音量調整 -->
+                                    <div class="p-1" style="margin-left: -5px;" id="volumeControlContainer{{ item.pk }}">
+                                        <label for="volumeControl{{ item.pk }}">音量調整</label>
+                                        <input type="range" id="volumeControl{{ item.pk }}" min="0" max="1" step="0.01" value="1">
+                                        <span id="volumeValue{{ item.pk }}">100%</span> <!-- 音量のパーセンテージを表示 -->
                                     </div>
+                                    <p id="iosVolumeWarning{{ item.pk }}" style="display: none; color: red;">iPhoneでは音量ボタンで調整してください。</p>
+
                                 {% else %}
                                     {% if item.user == request.user %}
                                         <p>音声ファイルがありません。<br><br></p>
@@ -123,7 +125,24 @@
                                     {% endif %}
                                 {% endif %}
 
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); // モバイル端末判定
+                                        const volumeControlContainer = document.getElementById('volumeControlContainer{{ item.pk }}');  // 音量調整の親要素
 
+                                        if (isMobile) {
+                                            // モバイル端末の場合、音量調整を非表示にする
+                                            volumeControlContainer.style.display = 'none';
+                                            const iosWarning = document.getElementById('iosVolumeWarning{{ item.pk }}');
+                                            if (iosWarning) {
+                                                iosWarning.style.display = 'block'; // iOS向け警告表示
+                                            }
+                                        } else {
+                                            // PCの場合、音量調整を表示
+                                            volumeControlContainer.style.display = 'block';
+                                        }
+                                    });
+                                </script>
                                 <script>
                                     let remainingTimer;
                                     let remainingTime; // ここで変数を定義
@@ -138,7 +157,18 @@
 
                                     document.addEventListener('DOMContentLoaded', function () {
                                         const audioPlayers = document.querySelectorAll('[id^="audioPlayer"]');  // すべてのaudioPlayerを選択
+
                                         audioPlayers.forEach(audioPlayer => {
+                                            const playerId = audioPlayer.id.replace('audioPlayer', '');  // IDから曲のIDを抽出
+
+                                            // 音量調整スライダーの変更をリスン
+                                            const volumeControl = document.getElementById('volumeControl' + playerId);
+                                            if (volumeControl) {
+                                                volumeControl.addEventListener('input', function () {
+                                                    setVolume(volumeControl.value, playerId);  // 音量を設定
+                                                });
+                                            }
+
                                             audioPlayer.addEventListener('ended', function () {
                                                 const songId = audioPlayer.id.replace('audioPlayer', '');  // IDから曲のIDを抽出
                                                 incrementPlayCount(songId);  // 再生回数をインクリメント
@@ -180,12 +210,15 @@
                                         return cookieValue;
                                     }
                                 </script>
+
+
                                 {% if item.audio_file %}
                                     <div>
                                         <p id="playCount{{ item.pk }}">再生回数: {{ item.play_count }}</p>
                                         <h6><br></h6>
                                     </div>
                                 {% endif %}
+
                                 {% if item.thumbnail %}
                                     <img src="{{ item.thumbnail.url }}" class="img-thumbnail" style="width: 100%; height: auto;" />
                                     <br><br>
@@ -216,7 +249,7 @@
         </div>
         <!-- ページネーション -->
         <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 0 auto; margin-top: 50px;">
-            <div class="pagination" style="display: inline-flex; justify-content: center; align-items: center; margin-top: 250px;">
+            <div class="pagination" style="display: inline-flex; justify-content: center; align-items: center; margin-top: 50px;">
                 {% if page_obj.has_previous %}
                     <a href="?page=1">&laquo; 最初へ</a>
                     <p style="color: #e8e8e8; margin: 0 10px;">|</p>

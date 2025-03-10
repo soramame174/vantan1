@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}お気に入り{% endblock %}
+
+{% block content %}
+<div class="folder-detail">
+<h1>お気に入り</h1>
+<p>お気に入り数: {{ request.user.favorite_songs.all.count }}</p>
+    <ul id="song-list" style="list-style: none; padding: 0; width: 100%;">
+        {% for song in request.user.favorite_songs.all %}
+            <li data-id="{{ song.id }}" style="font-size: 18px; margin-bottom: 8px; width: 100%;">
+                <div class="border border_color p-4 mb-2" draggable="true" style="width: 100%; cursor: grab; display: flex; flex-direction: column; align-items: flex-start; background-color: #333;">
+                    {% if folder.user == request.user %}
+                        <!-- 曲タイトル -->
+                        <h3 style="margin: 0; margin-top: -30px; margin-left: 40px;">{{ song.title }}</h3>
+                    {% else %}
+                        <h3 style="margin: 0;">{{ song.title }}</h3>
+                    {% endif %}
+
+                    <div style="display: flex; align-items: center; width: 100%; margin-top: 10px;">
+                        <!-- 画像 -->
+                        {% if song.thumbnail %}
+                            <div style="margin-right: 10px;">
+                                <img src="{{ song.thumbnail.url }}" class="img-thumbnail" style="width: 60px; height: auto;" />
+                            </div>
+                        {% else %}
+                            <div style="margin-right: 60px;"></div>
+                        {% endif %}
+
+                        <!-- オーディオプレイヤー -->
+                        {% if song.audio_file %}
+                            <audio id="audioPlayer{{ song.pk }}" controls style="width: 100%; max-width: 520px;">
+                                <source src="{{ song.audio_file.url }}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        {% endif %}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
+                        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
+                            <!-- 再生回数 -->
+                            <p id="playCount{{ song.pk }}" style="margin: 0; margin-left: 60px; color: #fff;">再生回数: {{ song.play_count }}</p>
+
+                            <!-- 詳細リンク -->
+                            <a href="{% url 'detail-ongaku' song.pk %}" class="btn p-1" style="margin-top: 10px; top: -13px; margin-right: 0%; position: relative; z-index: 10;">詳細へ</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <h3><br></h3>
+            <p>お気に入りはありません。</p>
+            <h3><br></h3>
+        {% endfor %}
+    </ul>
+</div>
+
+<a href="{% url 'profile_list' %}" style="margin-top: 20px; display: block; font-size: 16px; text-decoration: none;" class="btn">プロフィールページに戻る</a>
+
+<style>
+    .responsive-line {
+        border-bottom: 2px solid #000; /* 線の色と太さを指定 */
+        width: 100%; /* 幅を100%に設定して親要素に合わせる */
+        white-space: nowrap; /* テキストが折り返されないようにする */
+        overflow: hidden; /* 親要素からはみ出さないようにする */
+    }
+</style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let currentAudioPlayer = null;
+
+            const audioPlayers = document.querySelectorAll('[id^="audioPlayer"]');
+            audioPlayers.forEach(audioPlayer => {
+                audioPlayer.addEventListener('play', function () {
+                    if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
+                        currentAudioPlayer.pause();
+                        currentAudioPlayer.currentTime = 0;
+                    }
+                    currentAudioPlayer = audioPlayer;
+                });
+
+                audioPlayer.addEventListener('ended', function () {
+                    const songId = audioPlayer.id.replace('audioPlayer', '');
+                    incrementPlayCount(songId);  // 再生回数を増やす
+                    const nextAudioPlayer = getNextAudioPlayer(audioPlayer);
+                    if (nextAudioPlayer) {
+                        nextAudioPlayer.play().catch((error) => {
+                            console.error("次のオーディオの再生エラー:", error);
+                        });
+                    }
+                });
+            });
+
+            function incrementPlayCount(songId) {
+                fetch(`/increment-play-count/${songId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const playCountElement = document.getElementById(`playCount${songId}`);
+                        if (playCountElement) {
+                            playCountElement.textContent = `再生回数: ${data.play_count}`;
+                        }
+                    }
+                });
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function getNextAudioPlayer(currentPlayer) {
+                const currentIndex = Array.from(audioPlayers).indexOf(currentPlayer);
+                return audioPlayers[currentIndex + 1] || null;
+            }
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            const audioPlayers = document.querySelectorAll("audio");
+            let currentAudioPlayer = null;
+
+            audioPlayers.forEach((audioPlayer) => {
+                audioPlayer.addEventListener("play", () => {
+                    if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
+                        currentAudioPlayer.pause();
+                        currentAudioPlayer.currentTime = 0;
+                    }
+                    currentAudioPlayer = audioPlayer;
+                });
+
+                audioPlayer.addEventListener("ended", () => {
+                    const nextAudioPlayer = getNextAudioPlayer(audioPlayer);
+                    if (nextAudioPlayer) {
+                        nextAudioPlayer.play().catch((error) => {
+                            console.error("次のオーディオの再生エラー:", error);
+                        });
+                    }
+                });
+            });
+
+            function getNextAudioPlayer(currentPlayer) {
+                const currentIndex = Array.from(audioPlayers).indexOf(currentPlayer);
+                return audioPlayers[currentIndex + 1] || null;
+            }
+        });
+    </script>
+
+{% endblock %}

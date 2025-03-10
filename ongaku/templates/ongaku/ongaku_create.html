@@ -108,10 +108,6 @@
                     <p style="font-size: 0.9em; color: gray;">
                         ※ チェックボックスを選択するまでボタンは有効になりません。
                     </p>
-                    <p class="responsive-line" style="color: #ff4081;">ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー</p>
-                    <p style="font-size: 0.9em; color: gray;">
-                        もしこの画面が作成ボタンを押した際に表示された場合、URLが記入されてないためです。記入して再度お試しください。
-                    </p>
                 </div>
             </div>
         </div>
@@ -122,25 +118,26 @@
 
         <div class="p-2">
             <label for="title">タイトル</label>
+            <label style="color: #ff3333;">(必須)</label>
             {{ form.title }}
         </div>
 
         <div class="p-2 form-group">
-            <label for="id_audio_file">音楽ファイル</label>
+            <label for="id_audio_file">音楽ファイル(任意)</label>
             <input type="file" name="audio_file" id="id_audio_file"> <!-- 手動でファイルフィールドをレンダリング -->
         </div>
 
 
 
         <div class="p-2">
-            <label for="thumbnail">サムネイル</label>
+            <label for="thumbnail">サムネイル(任意)</label>
             {{ form.thumbnail }}
         </div>
         <h6><br></h6>
 
         <!-- 歌詞入力 -->
         <div class="p-2">
-            <label for="id_text">歌詞</label>
+            <label for="id_text">歌詞(任意)</label>
             <div>
                 <textarea type="submit" id="id_text" name="text" rows="15" cols="45%">{{ form.text.value }}</textarea>
             </div>
@@ -149,16 +146,17 @@
         <h6><br></h6>
 
         <div class="p-2">
-            <label for="category">ジャンル</label>
+            <label for="category">ジャンル(任意)</label>
             {{ form.category }}
         </div>
         <div class="p-2">
-            <label for="category">キーワード</label>
+            <label for="category">キーワード(任意)</label>
             {{ form.custom_category }}
             <span><p style="color: gray;">検索時に見つかりやすくなります。<br>(一言書いても大丈夫なので自由に書いてください)</p></span>
         </div>
         <div class="form-group p-2">
             <label for="ongaku_url">この曲のURL</label>
+            <label style="color: #ff3333;">(必須)</label>
             <input type="url" name="ongaku_url" id="ongaku_url" class="form-control form-control-lg font-weight-bold text-dark" value="{{ form.ongaku_url.value|default:'' }}">
             <small><p style="color: gray;">この曲のウェブサイトや音楽リンクを必ず入力してください。</p></small>
         </div>
@@ -167,7 +165,7 @@
             <label for="is_public">公開設定</label>
             {{ form.is_public }}
             <div>
-                <small>公開にする場合はチェックしてください。</small>
+                <small>公開する場合はチェックしてください。非公開の場合URLを知っているユーザーのみ開けるようになります。</small>
             </div>
         </div>
 

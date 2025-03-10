@@ -32,17 +32,13 @@
 
         <h3><br></h3>
         <h3>お気に入り</h3>
-        {% for song in request.user.favorite_songs.all %}
-            <ul style="margin-left: -40px;">
-                <h5>
-                    <li>
-                        <a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a>
-                    </li>
-                </h5>
-            </ul>
-        {% empty %}
+        {% if request.user.favorite_songs.all %}
+            <!-- お気に入りがある場合、ページへのリンクを表示 -->
+            <a href="{% url 'favorite' %}" style="text-decoration:none;">お気に入りページ</a>
+        {% else %}
+            <!-- お気に入りがない場合、メッセージを表示 -->
             <p>お気に入りはありません。</p>
-        {% endfor %}
+        {% endif %}
 
         <h3><br></h3>
 
@@ -53,14 +49,21 @@
             <ul style="margin-left: -40px;">
                 {% for folder in folders %}
                     <li>
-                        <h5>
-                            <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;" style="text-decoration:none;">{{ folder.name }}</a>
+                        <div class="pagination" style="display: inline-flex;">
+                            <h5>
+                                <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;" style="text-decoration:none;">{{ folder.name }}</a>
 
-                            <form method="POST" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer; font-size: 20px;" class="btn">✖</button>
-                            </form>
-                        </h5>
+                                <form method="POST" action="{% url 'delete_folder' folder.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer; font-size: 20px;" class="btn">✖</button>
+                                </form>
+                            </h5>
+                            {% if not folder.is_public %}
+                                <img src="https://soramamekotori174.pythonanywhere.com/media/img/rock.png"
+                                 alt="Discover Music"
+                                 style="margin-top: 7px; margin-left: 10px; height: 30px;">
+                            {% endif %}
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
@@ -85,7 +88,10 @@
                 <div style="display: flex; width: 100%; margin: 0 auto;">
                     <h5><li><a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a></li></h5>
                     {% if not song.is_public %}
-                        <h4 style="margin-top: -5px; margin-left: 10px; height: 0px;">ロック</h4>
+                        <img src="https://soramamekotori174.pythonanywhere.com/media/img/rock.png"
+                         alt="Discover Music"
+                         style="margin-top: -5px; margin-left: 10px; height: 30px;">
+
                     {% endif %}
                 </div>
             </ul>

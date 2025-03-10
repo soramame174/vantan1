@@ -22,9 +22,11 @@
                 <ul style="margin-left: -40px;">
                     {% for folder in public_folders_search %}
                         <li>
+                            <p></p>
                             <h4>
                                 <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
                             </h4>
+                            <p></p>
                         </li>
                     {% endfor %}
                 </ul>
@@ -46,7 +48,7 @@
                 {% for folder in public_folders %}
                     <li>
                         <h4>
-                            <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
+                            <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;">{{ folder.name }}</a>
                         </h4>
                     </li>
                 {% endfor %}

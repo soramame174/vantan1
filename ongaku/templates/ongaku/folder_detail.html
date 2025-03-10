@@ -3,6 +3,40 @@
 {% block title %}{{ folder.name }}の中身{% endblock %}
 
 {% block content %}
+
+<style>
+    /* デフォルトでは非表示 */
+.mobile-controls {
+    display: none;
+}
+
+/* スマホ（幅 768px 以下）の場合のみ表示 */
+@media (max-width: 768px) {
+    .mobile-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+        background: #444;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .mobile-controls label {
+        color: white;
+        margin-bottom: 5px;
+    }
+    .mobile-controls button {
+        background-color: #ff4081;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 5px;
+    }
+}
+
+</style>
+
 {% block is_search %}
 {% endblock %}
 <div class="folder-detail">
@@ -24,12 +58,22 @@
                     {% endif %}
                 </button>
             </form>
+            <h6>注意:公開するとフォルダ内の非公開曲も公開されます。</h6>
         {% else %}
             <span>{{ folder.name }}</span>
+            <div>
+                <label>フォルダ作成者:</label>
+                {% if folder.user.userprofile.display_name == None %}
+                    {{ folder.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                {% else %}
+                    {{ folder.user.userprofile.display_name|default:"匿名" }}
+                {% endif %}
+            </div>
         {% endif %}
     </h3>
 
     <h3><br><br>フォルダに含まれる音楽</h3>
+    <p>フォルダ内の数: {{ folder.songs.all.count }}</p>
     <ul id="song-list" style="list-style: none; padding: 0; width: 100%;">
         {% for song in folder.songs.all %}
             <li data-id="{{ song.id }}" style="font-size: 18px; margin-bottom: 8px; width: 100%;">
@@ -63,25 +107,24 @@
                             </audio>
                         {% endif %}
                     </div>
-
                     <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
-                        <!-- 再生回数 -->
-                        <p id="playCount{{ song.pk }}" style="margin: 0; margin-left: 60px; color: #fff;">再生回数: {{ song.play_count }}</p>
+                        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 10px;">
+                            <!-- 再生回数 -->
+                            <p id="playCount{{ song.pk }}" style="margin: 0; margin-left: 60px; color: #fff;">再生回数: {{ song.play_count }}</p>
 
-                        <!-- 詳細リンク -->
-                        <a href="{% url 'detail-ongaku' song.pk %}" class="btn" style="margin-top: 0; margin-right: 60px; position: relative; z-index: 10;">詳細へ</a>
+                            <!-- 詳細リンク -->
+                            <a href="{% url 'detail-ongaku' song.pk %}" class="btn p-1" style="margin-top: 10px; top: -13px; margin-right: -85%; position: relative; z-index: 10;">詳細へ</a>
+                        </div>
+                        <!-- 削除ボタンを一番右に配置 -->
+                        {% if folder.user == request.user %}
+                            <form action="{% url 'remove_song_from_folder' folder.id song.id %}" style="display: flex; justify-content: flex-end; width: 100%; margin-top: -10px; top: -50px;" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: #ff4081; font-size: 18px; cursor: pointer; padding: 2px; margin-left: 0; margin-top: 7px;">
+                                    ✖
+                                </button>
+                            </form>
+                        {% endif %}
                     </div>
-
-                    <!-- 削除ボタンを一番右に配置 -->
-                    {% if folder.user == request.user %}
-                        <form action="{% url 'remove_song_from_folder' folder.id song.id %}" style="display: flex; justify-content: flex-end; width: 100%; margin-top: -41px;" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" style="background: none; border: none; color: #ff4081; font-size: 18px; cursor: pointer; padding: 2px; margin-left: 0; margin-top: 7px;">
-                                ✖
-                            </button>
-                        </form>
-                    {% endif %}
-
                 </div>
             </li>
 
@@ -96,67 +139,62 @@
     {% if folder.user == request.user %}
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                                        const audioPlayers = document.querySelectorAll('[id^="audioPlayer"]');  // すべてのaudioPlayerを選択
-                                        audioPlayers.forEach(audioPlayer => {
-                                            audioPlayer.addEventListener('ended', function () {
-                                                const songId = audioPlayer.id.replace('audioPlayer', '');  // IDから曲のIDを抽出
-                                                incrementPlayCount(songId);  // 再生回数をインクリメント
-                                            });
-                                        });
-                                    });
+                const audioPlayers = document.querySelectorAll('[id^="audioPlayer"]');
+                audioPlayers.forEach(audioPlayer => {
+                    audioPlayer.addEventListener('ended', function () {
+                        const songId = audioPlayer.id.replace('audioPlayer', '');
+                        incrementPlayCount(songId);
+                    });
+                });
+            });
 
-                                    function incrementPlayCount(songId) {
-                                        fetch(`/increment-play-count/${songId}/`, {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'X-CSRFToken': getCookie('csrftoken'),  // CSRFトークンをヘッダーに追加
-                                            },
-                                        })
-                                        .then(response => response.json())
-                                        .then(data => {
-                                            if (data.success) {
-                                                const playCountElement = document.getElementById(`playCount${songId}`);
-                                                if (playCountElement) {
-                                                    playCountElement.textContent = `再生回数: ${data.play_count}`;
-                                                }
-                                            }
-                                        });
-                                    }
+            function incrementPlayCount(songId) {
+                fetch(`/increment-play-count/${songId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const playCountElement = document.getElementById(`playCount${songId}`);
+                        if (playCountElement) {
+                            playCountElement.textContent = `再生回数: ${data.play_count}`;
+                        }
+                    }
+                });
+            }
 
-                                    function getCookie(name) {
-                                        let cookieValue = null;
-                                        if (document.cookie && document.cookie !== '') {
-                                            const cookies = document.cookie.split(';');
-                                            for (let i = 0; i < cookies.length; i++) {
-                                                const cookie = cookies[i].trim();
-                                                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        return cookieValue;
-                                    }
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
             document.addEventListener("DOMContentLoaded", () => {
                 const audioPlayers = document.querySelectorAll("audio");
-                let currentAudioPlayer = null;  // 現在再生中のオーディオを追跡
+                let currentAudioPlayer = null;
 
-                // 各オーディオプレイヤーにイベントを設定
                 audioPlayers.forEach((audioPlayer) => {
-                    // 再生ボタンが押された時の処理
                     audioPlayer.addEventListener("play", () => {
-                        // 他のすべてのオーディオを停止
                         if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
                             currentAudioPlayer.pause();
-                            currentAudioPlayer.currentTime = 0;  // 曲を最初からに戻す
+                            currentAudioPlayer.currentTime = 0;
                         }
-
-                        // 現在再生中のオーディオを更新
                         currentAudioPlayer = audioPlayer;
                     });
 
-                    // 再生終了時の次のオーディオ再生設定
                     audioPlayer.addEventListener("ended", () => {
                         const nextAudioPlayer = getNextAudioPlayer(audioPlayer);
                         if (nextAudioPlayer) {
@@ -167,7 +205,6 @@
                     });
                 });
 
-                // 次のオーディオプレイヤーを取得
                 function getNextAudioPlayer(currentPlayer) {
                     const currentIndex = Array.from(audioPlayers).indexOf(currentPlayer);
                     return audioPlayers[currentIndex + 1] || null;
@@ -176,7 +213,6 @@
                 const songList = document.getElementById("song-list");
                 let draggedItem = null;
 
-                // ドラッグ開始
                 songList.addEventListener("dragstart", (e) => {
                     if (e.target.tagName === "DIV" && e.target.getAttribute("draggable") === "true") {
                         draggedItem = e.target.parentElement;
@@ -184,14 +220,12 @@
                     }
                 });
 
-                // ドラッグ終了
                 songList.addEventListener("dragend", (e) => {
                     if (e.target.tagName === "DIV") {
                         e.target.style.opacity = "";
                     }
                 });
 
-                // ドラッグオーバー
                 songList.addEventListener("dragover", (e) => {
                     e.preventDefault();
                     const afterElement = getDragAfterElement(songList, e.clientY);
@@ -202,7 +236,6 @@
                     }
                 });
 
-                // ドロップ
                 songList.addEventListener("drop", () => {
                     if (!draggedItem) return;
 
@@ -220,14 +253,12 @@
                         }
                     });
 
-                    // 順番が変わった場合に次のオーディオを再生
                     const nextAudioPlayer = getNextAudioPlayer(currentAudioPlayer);
                     if (nextAudioPlayer) {
                         nextAudioPlayer.play();
                     }
                 });
 
-                // ドラッグ位置取得
                 function getDragAfterElement(container, y) {
                     const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
                     return draggableElements.reduce(
@@ -249,23 +280,17 @@
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const audioPlayers = document.querySelectorAll("audio");
-                let currentAudioPlayer = null;  // 現在再生中のオーディオを追跡
+                let currentAudioPlayer = null;
 
-                // 各オーディオプレイヤーにイベントを設定
                 audioPlayers.forEach((audioPlayer) => {
-                    // 再生ボタンが押された時の処理
                     audioPlayer.addEventListener("play", () => {
-                        // 他のすべてのオーディオを停止
                         if (currentAudioPlayer && currentAudioPlayer !== audioPlayer) {
                             currentAudioPlayer.pause();
-                            currentAudioPlayer.currentTime = 0;  // 曲を最初からに戻す
+                            currentAudioPlayer.currentTime = 0;
                         }
-
-                        // 現在再生中のオーディオを更新
                         currentAudioPlayer = audioPlayer;
                     });
 
-                    // 再生終了時の次のオーディオ再生設定
                     audioPlayer.addEventListener("ended", () => {
                         const nextAudioPlayer = getNextAudioPlayer(audioPlayer);
                         if (nextAudioPlayer) {
@@ -276,7 +301,6 @@
                     });
                 });
 
-                // 次のオーディオプレイヤーを取得
                 function getNextAudioPlayer(currentPlayer) {
                     const currentIndex = Array.from(audioPlayers).indexOf(currentPlayer);
                     return audioPlayers[currentIndex + 1] || null;
@@ -285,7 +309,6 @@
                 const songList = document.getElementById("song-list");
                 let draggedItem = null;
 
-                // ドラッグ位置取得
                 function getDragAfterElement(container, y) {
                     const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
                     return draggableElements.reduce(

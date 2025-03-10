@@ -46,6 +46,9 @@ def top(request):
 def about(request):
     return render(request, 'ongaku/about.html')
 
+def favorite(request):
+    return render(request, 'ongaku/favorite.html')
+
 # リクエストフォーム表示と投稿処理
 @login_required
 def request_view(request):
