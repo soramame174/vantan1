@@ -178,6 +178,9 @@ def user_profile(request, user_id):
     # ログインしているユーザーがそのユーザーをフォローしているかどうかを確認
     is_following = Follow.objects.filter(follower=request.user, followed=profile.user).exists() if request.user.is_authenticated else False
 
+    # ユーザーが作成した公開フォルダを取得
+    folders = Folder.objects.filter(user=user, is_public=True)
+
     # ユーザーが作成した曲を取得
     songs = user.songs.all()
 
@@ -212,6 +215,7 @@ def user_profile(request, user_id):
         'following_count': following_count,
         'follower_users': follower_users,  # フォロワーリストを渡す
         'has_audio_file': has_audio_file,  # 音楽ファイルがあるかどうかのフラグを渡す
+        'folders': folders,  # 公開フォルダを渡す
     })
 
 

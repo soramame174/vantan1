@@ -62,12 +62,12 @@
         {% else %}
             <span>{{ folder.name }}</span>
             <div>
-                <label>フォルダ作成者:</label>
+                <label>フォルダ作成者:</label><a href="{% url 'profile' folder.user.pk %}">
                 {% if folder.user.userprofile.display_name == None %}
-                    {{ folder.user.userprofile.display_name|default:"匿名" }}{{ user.id }}
+                    {{ folder.user.userprofile.display_name|default:"匿名" }}{{ folder.user.id }}
                 {% else %}
                     {{ folder.user.userprofile.display_name|default:"匿名" }}
-                {% endif %}
+                {% endif %}</a>
             </div>
         {% endif %}
     </h3>

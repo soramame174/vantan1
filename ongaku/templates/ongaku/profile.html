@@ -102,6 +102,24 @@
 
         <h6><br><br></h6>
 
+        <h2>公開フォルダ</h2>
+        <span>※ 公開設定されてないものは表示されていません</span>
+        {% for folder in folders %}
+            {% if folder.is_public %}
+                <ul style="margin-left: 5px;">
+                    <li style="margin-left: -45px; margin-top: 20px;">
+                        <h5>
+                            <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;">{{ folder.name }}</a>
+                        </h5>
+                    </li>
+                </ul>
+            {% endif %}
+        {% empty %}
+            <h5>まだ公開フォルダを作成していません。</h5>
+        {% endfor %}
+
+        <h6><br><br></h6>
+
         <h2>作品リスト</h2>
         <span>※ 公開設定されてないものは表示されていません</span>
 
