@@ -16,6 +16,17 @@
         overflow-wrap: break-word;
         word-break: break-word;
     }
+
+    .horizontal-scroll {
+        overflow-x: auto;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+    .horizontal-scroll h5 {
+        display: inline-block;
+        margin-right: 20px; /* 必要に応じて調整 */
+    }
 </style>
 
 <div class="c-3 m-4 bg-light rounded" type="kasane">
@@ -102,36 +113,35 @@
 
         <h6><br><br></h6>
 
-        <h2>公開フォルダ</h2>
-        <span>※ 公開設定されてないものは表示されていません</span>
-        {% for folder in folders %}
-            {% if folder.is_public %}
-                <ul style="margin-left: 5px;">
-                    <li style="margin-left: -45px; margin-top: 20px;">
-                        <h5>
-                            <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;">{{ folder.name }}</a>
-                        </h5>
-                    </li>
-                </ul>
-            {% endif %}
-        {% empty %}
-            <h5>まだ公開フォルダを作成していません。</h5>
-        {% endfor %}
-
-        <h6><br><br></h6>
-
         <h2>作品リスト</h2>
         <span>※ 公開設定されてないものは表示されていません</span>
-
+        <div class="horizontal-scroll">
             {% for song in songs %}
                 {% if song.is_public %}
-                    <ul style="margin-left: 5px;">
-                        <h4 style="margin-left: -45px; margin-top: 20px;"><li><h5><a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a></h5></li></h4>
-                    </ul>
+                    <h5>
+                        <a href="{% url 'detail-ongaku' song.pk %}" style="text-decoration:none;">{{ song.title }}</a>
+                    </h5>
                 {% endif %}
             {% empty %}
                 <h5>まだ曲を作成していません。</h5>
             {% endfor %}
+        </div>
+
+        <h6><br><br></h6>
+
+        <h2>公開フォルダ</h2>
+        <span>※ 公開設定されてないものは表示されていません</span>
+        <div class="horizontal-scroll">
+            {% for folder in folders %}
+                {% if folder.is_public %}
+                    <h5>
+                        <a href="{% url 'folder_detail' folder.id %}" style="text-decoration:none;">{{ folder.name }}</a>
+                    </h5>
+                {% endif %}
+            {% empty %}
+                <h5>まだ公開フォルダを作成していません。</h5>
+            {% endfor %}
+        </div>
 
         <h6><br><br><br><br></h6>
 
