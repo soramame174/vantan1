@@ -8,7 +8,10 @@
 
 <!-- 検索フォーム -->
 <form method="GET" action="{% url 'search_public_folders' %}" class="mb-4 search-form">
-    <input type="text kensaku" name="q" value="{{ query }}" placeholder="フォルダを検索" class="form-control" style="width: 300px; display: inline-block;">
+    <div class="search-container">
+        <i class="material-icons">search</i>
+        <input type="text" name="q" value="{{ query }}" placeholder="フォルダを検索" aria-label="Search" class="form-control" style="width: 300px; display: inline-block;">
+    </div>
 </form>
 
 <h1 class="c-3 m-4">公開フォルダ一覧</h1>
@@ -22,11 +25,9 @@
                 <ul style="margin-left: -40px;">
                     {% for folder in public_folders_search %}
                         <li>
-                            <p></p>
                             <h4>
                                 <a href="{% url 'folder_detail' folder.id %}">{{ folder.name }}</a>
                             </h4>
-                            <p></p>
                         </li>
                     {% endfor %}
                 </ul>
