@@ -7,6 +7,13 @@
 
 <style>
 
+    .card-text.explanation {
+        max-height: 500px; /* スクロールバーが表示される高さ */
+        overflow-y: auto; /* 縦方向にスクロール可能にする */
+        white-space: pre-line;
+        font-size: large;
+    }
+
     /* 名前とプロフィール画像を横並びに配置 */
     .profile-container {
         display: flex;
@@ -40,6 +47,12 @@
         overflow: hidden; /* 親要素からはみ出さないようにする */
     }
 
+    @media (max-width: 768px) {
+        .action-button {
+            display: none;
+        }
+    }
+
 </style>
     <div class="border border_color p-4 mb-2" type="tokubetu">
     {% if object.thumbnail %}
@@ -54,7 +67,7 @@
             <div style="display: flex;">
                 <!-- 音楽タイトル -->
                 <h2 class="h2 custom-title">{{ object.title }}</h2>
-                <a href="#action" style="margin-top: auto; margin-left: auto;" class="btn p-1 btn-lg">行動ボタンへ</a>
+                <a href="#action" style="margin-top: auto; margin-left: auto;" class="btn p-1 btn-lg action-button">行動ボタンへ</a>
             </div>
 
             {% if object.audio_file %}
@@ -80,7 +93,7 @@
             <div>
                 <label>歌詞</label>
                 <div class="border border_color p-4 mb-2">
-                    <p style="white-space: pre-line;">{{ object.text|default:"なし" }}</p>
+                    <p style="white-space: pre-line;" class="card-text explanation">{{ object.text|default:"なし" }}</p>
                 </div>
                 <span>
                     <!-- 音楽詳細ページ内に追加するユーザー情報セクション -->
