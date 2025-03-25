@@ -650,15 +650,15 @@ def search_view(request):
             song.search_count += 1
             song.save()
 
-    # おすすめ曲の取得
+    # おすすめ曲の取得（検索履歴がある場合のみ）
     recommended_songs = []
     if search_history:
         recommended_songs = Ongaku.objects.filter(
             title__icontains=search_history[-1]
-        ).exclude(search_count=0)[:5]
+        ).exclude(search_count=0).order_by('-search_count')[:5]
 
-    # ランダムな曲の取得
-    random_songs = Ongaku.objects.exclude(search_count=0).order_by('?')[:5] if not recommended_songs else []
+    # ランダムな曲の取得（おすすめがない場合のみ）
+    random_songs = Ongaku.objects.exclude(search_count=0).order_by('-search_count')[:5] if not recommended_songs else []
 
     return render(request, 'ongaku/search_results.html', {
         'search_results': search_results,
@@ -667,6 +667,7 @@ def search_view(request):
         'random_songs': random_songs,
         'search_history': search_history,
     })
+
 
 def delete_history(request):
     if request.method == "POST":

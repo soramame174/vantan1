@@ -31,20 +31,20 @@
 
     </style>
     {% if search_history %}
-    <h3>検索履歴</h3>
-    <ul style="margin-left: -40px;">
-        {% for history_item in search_history %}
-            <li>
-                <a href="{% url 'search' %}?query={{ history_item }}">{{ history_item }}</a>
-                <form method="POST" action="{% url 'delete_history' %}" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="history_item" value="{{ history_item }}">
-                    <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
-    <h6><br><br><br><br></h6>
+        <h3>検索履歴</h3>
+        <ul style="margin-left: -40px;">
+            {% for history_item in search_history %}
+                <li>
+                    <a href="{% url 'search' %}?query={{ history_item }}">{{ history_item }}</a>
+                    <form method="POST" action="{% url 'delete_history' %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="history_item" value="{{ history_item }}">
+                        <button type="submit" style="background:none; border:none; color: #ff4081; cursor:pointer;" class="btn">✖</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        <h6><br><br><br><br></h6>
     {% endif %}
 
 
@@ -88,21 +88,20 @@
         <p>検索結果はありません。</p>
     {% endif %}
     <h6><br><br><br></h6>
+
+
     <h2>おすすめ</h2>
-    <ul>
-        {% if recommended_songs %}
+    {% if recommended_songs %}
+        <h3>あなたへのおすすめ曲</h3>
+        <ul style="margin-left: -40px;">
             {% for song in recommended_songs %}
                 {% if song.is_public %}
-                <div class="col-md-4 col-sm-6" style="width: 100%;"> <!-- レスポンシブで2列/3列切り替え -->
+                <div class="col-md-4 col-sm-6" style="width: 100%;">
                     <div class="border border_color p-4 mb-2" type="tokubetu">
                         <li><h4>{{ song.title }}</h4></li>
                         <span>
                             (投稿ユーザー:
-                            {% if song.user.userprofile.display_name == None %}
-                                {{ song.user.userprofile.display_name|default:"匿名" }}{{ song.user.id }}
-                            {% else %}
-                                {{ song.user.userprofile.display_name|default:"匿名" }}
-                            {% endif %}
+                            {{ song.user.userprofile.display_name|default:"匿名" }}
                             {% if song.user.userprofile.profile_picture %}
                                 <img src="{{ song.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                             {% endif %})
@@ -113,50 +112,39 @@
                         <h3><a href="{% url 'detail-ongaku' song.pk %}" class="btn p-1" style="margin-left: -5px;">詳細へ</a></h3>
                     </div>
                 </div>
-                {% else %}
-                    <span>見つかりませんでした</span>
                 {% endif %}
-            {% empty %}
-                <span>見つかりませんでした</span>
             {% endfor %}
-        {% else %}
-            <p style="margin-left: -40px;">おすすめ曲を表示しています...</p>
-            <p style="margin-left: -40px;">ランダムなおすすめ曲:</p>
-            <ul style="margin-left: -80px;">
-                {% for song in random_songs %}
-                    {% if song.is_public %}
-                    <div class="col-md-4 col-sm-6" style="width: 100%;"> <!-- レスポンシブで2列/3列切り替え -->
+        </ul>
+    {% else %}
+        <h3>ランダムなおすすめ曲</h3>
+        <ul style="margin-left: -40px;">
+            {% for song in random_songs %}
+                {% if song.is_public %}
+                <li>
+                    <div class="col-md-4 col-sm-6" style="width: 100%;">
                         <div class="border border_color p-4 mb-2" type="tokubetu">
-                            <li><h4>{{ song.title }}</h4></li>
+                            <h4>{{ song.title }}</h4>
                             <span>
                                 (投稿ユーザー:
-                                {% if song.user.userprofile.display_name == None %}
-                                    {{ song.user.userprofile.display_name|default:"匿名" }}{{ song.user.id }}
-                                {% else %}
-                                    {{ song.user.userprofile.display_name|default:"匿名" }}
-                                {% endif %}
+                                {{ song.user.userprofile.display_name|default:"匿名" }}
                                 {% if song.user.userprofile.profile_picture %}
                                     <img src="{{ song.user.userprofile.profile_picture.url }}" alt="プロフィール画像" class="profile-picture">
                                 {% endif %})
                             </span>
                             <p>{{ song.search_count }} 回検索されました</p>
-                            <h6 class="card-title">キーワード: {{ song.custom_category|default:"なし" }}</h6>
-                            <h6 class="card-title mt-2">ジャンル: {{ song.category|default:"なし" }}</h6>
-                            <h3><a href="{% url 'detail-ongaku' song.pk %}" class="btn p-1" style="margin-left: -5px;">詳細へ</a></h3>
+                            <h6>キーワード: {{ song.custom_category|default:"なし" }}</h6>
+                            <h6>ジャンル: {{ song.category|default:"なし" }}</h6>
+                            <a href="{% url 'detail-ongaku' song.pk %}" class="btn p-1">詳細へ</a>
                         </div>
                     </div>
-                    {% else %}
-                        <span>見つかりませんでした</span>
-                        <h6><br><br><br><br></h6>
-                    {% endif %}
-                {% empty %}
-                    <span>見つかりませんでした</span>
-                    <h6><br><br><br><br></h6>
-                {% endfor %}
-            </ul>
-            <h6><br><br><br><br><br><br><br></h6>
-        {% endif %}
-    </ul>
+                </li>
+                {% endif %}
+            {% empty %}
+                <p>ランダムなおすすめ曲が見つかりませんでした。</p>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
     {% block is_authenticated %}
     {% endblock %}
 {% endblock %}
