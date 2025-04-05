@@ -62,12 +62,23 @@
         {% else %}
             <span>{{ folder.name }}</span>
             <div>
-                <label>フォルダ作成者:</label><a href="{% url 'profile' folder.user.pk %}">
-                {% if folder.user.userprofile.display_name == None %}
-                    {{ folder.user.userprofile.display_name|default:"匿名" }}{{ folder.user.id }}
+                {% if user.is_authenticated %}
+                    <label>フォルダ作成者:</label><a href="{% url 'profile' folder.user.pk %}">
+                    {% if folder.user.userprofile.display_name == None %}
+                        {{ folder.user.userprofile.display_name|default:"匿名" }}{{ folder.user.id }}
+                    {% else %}
+                        {{ folder.user.userprofile.display_name|default:"匿名" }}
+                    {% endif %}</a>
                 {% else %}
-                    {{ folder.user.userprofile.display_name|default:"匿名" }}
-                {% endif %}</a>
+                    <label>フォルダ作成者:</label>
+                    <a href="{% url 'accounts:login' %}">
+                    {% if folder.user.userprofile.display_name == None %}
+                        {{ folder.user.userprofile.display_name|default:"匿名" }}{{ folder.user.id }}
+                    {% else %}
+                        {{ folder.user.userprofile.display_name|default:"匿名" }}
+                    {% endif %}</a>
+                {% endif %}
+
             </div>
         {% endif %}
     </h3>
