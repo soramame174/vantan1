@@ -34,5 +34,9 @@ MelodyNotesは、音楽クリエイターが自作楽曲をフリー素材とし
 * 例: HTML/CSS/TailwindCSS
 * 例: JavaScript
 
+
+### 発表資料
+プロジェクトの詳細、開発の背景、課題解決のプロセスなどをまとめた発表スライドです。
+ - [WEBアプリケーション発表スライド（Googleスライド）](https://docs.google.com/presentation/d/1b-REAIyUmRhC0z3-wQci_QP9JKEMhZ5oldrdD3Y9ZJE/edit?usp=sharing)
 ---
 *制作: 片岡 奏空*
